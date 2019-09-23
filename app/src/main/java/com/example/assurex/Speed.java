@@ -7,20 +7,20 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-public class MainActivity extends AppCompatActivity {
+public class Speed extends AppCompatActivity {
 
-    private Button login;
+    private Button testing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_speed);
 
-        login = findViewById(R.id.login);
-        login.setOnClickListener(new View.OnClickListener() {
+        testing = findViewById(R.id.testing);
+        testing.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), Speed.class));
+                startActivity(new Intent(getApplicationContext(), Testing.class));
             }
         });
 
