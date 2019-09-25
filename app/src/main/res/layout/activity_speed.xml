@@ -34,12 +34,7 @@
                 android:text="mph"
                 android:textSize="40dp"/>
 
-            <Button
-                android:id="@+id/BtSettings"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Bluetooth"
-                android:onClick="BtSettingsClicked" />
+
 
         </LinearLayout>
 

@@ -20,10 +20,12 @@
             android:layout_gravity="center_horizontal"/>
 
         <Button
+            android:id="@+id/BtSettings"
+            android:onClick="BtSettingsClicked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Button"/>
+            android:text="Bluetooth"/>
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -34,6 +36,7 @@
             android:id="@+id/backToScreen1"
             android:onClick="nextPage"
             />
+
 
 
 
