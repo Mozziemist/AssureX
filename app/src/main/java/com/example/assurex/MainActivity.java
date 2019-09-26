@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
         mDataSource = new DataSource(this);
         mDataSource.open();
-        Toast.makeText(this, "Database acquired!", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Database acquired!", Toast.LENGTH_SHORT).show();
         mDataSource.seedDatabase(dataItemSampleList);
         /*
         long numItems = mDataSource.getDataItemsCount();
