@@ -6,6 +6,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.widget.Toast;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
 import com.example.assurex.database.DBHelper;
 import com.example.assurex.database.DataSource;
@@ -19,6 +23,8 @@ public class MainActivity extends AppCompatActivity {
     List<DataItem> dataItemSampleList = SampleDataProvider.dataItemList;
 
     DataSource mDataSource;
+
+    private Button login;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +72,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mDataSource.close();
+        login = findViewById(R.id.login);
+        login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), Speed.class));
+            }
+        });
+
     }
 }
