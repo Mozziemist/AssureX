@@ -16,7 +16,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Put here"
+            android:text="Pair Device"
             android:layout_gravity="center_horizontal"/>
 
         <Button
@@ -34,7 +34,7 @@
             android:textStyle="bold"
             android:layout_gravity="center"
             android:id="@+id/backToScreen1"
-            android:onClick="nextPage"
+            android:onClick="backButton"
             />
 
 

@@ -73,12 +73,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         login = findViewById(R.id.login);
-        login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), Speed.class));
-            }
-        });
+
 
     }
+
+    public void LoginClicked(View view) {
+        startActivity(new Intent(getApplicationContext(), Speed.class));
+    }
+
+
+
 }
