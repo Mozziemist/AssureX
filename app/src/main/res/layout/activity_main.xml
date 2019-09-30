@@ -88,8 +88,9 @@
             android:textStyle="bold"
             android:layout_gravity="center_horizontal"
             android:id="@+id/login"
-            android:onClick="nextPage"
             android:background="#FFFFFF"
+            android:onClick="LoginClicked"
+
             />
 
 
