@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
 
     DataSource mDataSource;
 
-    private Button login;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,16 +69,11 @@ public class MainActivity extends AppCompatActivity {
         mDataSource.close();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        login = findViewById(R.id.login);
-        login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), Speed.class));
-            }
-        });
 
+    public void LoginClicked(View view) {
+        startActivity(new Intent(getApplicationContext(), Speed.class));
     }
+
+
+
 }
