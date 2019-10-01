@@ -44,8 +44,10 @@ public class DataSource {
     }
 
     public void seedDatabase(List<DataItem> dataItemList) {
-        long numItems = getDataItemsCount();
-        if (numItems == 0) {
+        //long numItems = getDataItemsCount();
+        //if (numItems == 0) {
+        try {
+            mDatabase.beginTransaction();
             for (DataItem item :
                     dataItemList) {
                 try {
@@ -54,6 +56,10 @@ public class DataSource {
                     e.printStackTrace();
                 }
             }
+            mDatabase.setTransactionSuccessful();
+            mDatabase.endTransaction();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
