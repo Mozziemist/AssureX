@@ -99,9 +99,12 @@ public class Speed extends AppCompatActivity implements SensorEventListener {
                 startActivity(new Intent(getApplicationContext(), Package.class));
             }
 
+            public void toInfoPage(View view) {
+                startActivity(new Intent(getApplicationContext(), infoPage.class));
+            }
 
 
-            private class BluetoothThread extends Thread {
+    private class BluetoothThread extends Thread {
                 BluetoothSocket mySocket;
 
                 //constructor
