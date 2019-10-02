@@ -60,8 +60,8 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="Test Screen"
-            android:textSize="28dp"
+            android:text="Connect"
+            android:textSize="21dp"
             android:textStyle="normal"
             android:background="@null"
             android:layout_gravity="center_horizontal"
@@ -74,13 +74,26 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="My Plan"
-            android:textSize="28dp"
+            android:textSize="21dp"
             android:textStyle="normal"
             android:background="@null"
             android:layout_gravity="center_horizontal"
             android:gravity="center"
             android:id="@+id/myPlan"
             android:onClick="toPackage"
+            android:layout_weight="1"
+            />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Info Page"
+            android:textSize="21dp"
+            android:textStyle="normal"
+            android:background="@null"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"
+            android:id="@+id/myPlan"
+            android:onClick="toInfoPage"
             android:layout_weight="1"
             />
 
