@@ -8,16 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//date
-//hazard level
-//avg speed
-//top speed
-//diagnostic messages
-//top acceleration rate
-//avg acceleration rate
-//top deceleration rate
-//avg deceleration rate
-
 public class SampleDataProvider {
     public static List<DataItem> dataItemList;
     public static Map<String, DataItem> dataItemMap;
