@@ -16,12 +16,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import java.lang.Math;
 import android.widget.Toast;
 
+import com.example.assurex.database.AppDatabase;
+import com.example.assurex.model.RawDataItem;
 import com.github.pires.obd.commands.SpeedCommand;
 import com.github.pires.obd.commands.protocol.EchoOffCommand;
 import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
@@ -32,10 +35,14 @@ import com.github.pires.obd.enums.ObdProtocols;
 import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.Calendar;
 
-public class Speed extends AppCompatActivity /*implements SensorEventListener*/ {
-
-
+public class Speed extends AppCompatActivity implements SensorEventListener {
+    private static final String TAG = "Speed";
     private TextView speed;
     private SensorManager snsMngr;
     private Sensor accel;
@@ -46,6 +53,11 @@ public class Speed extends AppCompatActivity /*implements SensorEventListener*/ 
     BluetoothThread myBtThread;
     UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     Handler myHandler;
+    private static AppDatabase db;
+
+    final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+    static double rawSpeed;
+    static double rawAcceleration; //based on linear acceleration from device sensors
 
 
     @Override
@@ -58,15 +70,19 @@ public class Speed extends AppCompatActivity /*implements SensorEventListener*/ 
             public void handleMessage(Message msg){
                 // modify UI with speed
                 speed.setText(Integer.toString(msg.arg1));
+                rawSpeed = (double) msg.arg1;
             }
         };
 
-/*
+        db = AppDatabase.getInstance(this);
+
+        executorService.scheduleWithFixedDelay(Speed::rawDataCollection, 0, 10, TimeUnit.SECONDS);
+
         //sensor accelerometer
         snsMngr = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        accel = snsMngr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        accel = snsMngr.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         snsMngr.registerListener( this, accel, SensorManager.SENSOR_DELAY_NORMAL);
-*/
+
 
         // get phone's bluetooth adapter
         myBtAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -108,6 +124,12 @@ public class Speed extends AppCompatActivity /*implements SensorEventListener*/ 
 
     }//end onstart
 
+    @Override
+    protected void onDestroy() {
+        AppDatabase.destroyInstance();
+
+        super.onDestroy();
+    }
 
     public void toTesting(View view) {
         startActivity(new Intent(getApplicationContext(), Testing.class));
@@ -207,25 +229,38 @@ public class Speed extends AppCompatActivity /*implements SensorEventListener*/ 
 
             }//end Bluetooth thread class
 
+    private static void rawDataCollection(){
+        Calendar calendar = Calendar.getInstance();
+            String date =   calendar.get(Calendar.MONTH)+1 + "-" +
+                            calendar.get(Calendar.DAY_OF_MONTH) + "-" +
+                            calendar.get(Calendar.YEAR);
+            String timeStamp =  calendar.get(Calendar.HOUR_OF_DAY) + ":" +
+                                calendar.get(Calendar.MINUTE) + ":" +
+                                calendar.get(Calendar.SECOND);
+            String tripId = date + "@" + timeStamp;
+            RawDataItem tempRawDataItem = new RawDataItem(tripId, date, timeStamp, rawSpeed, rawAcceleration);
+            db.rawDataItemDao().insert(tempRawDataItem);
+            Log.i(TAG, "raw data inserted into sqlite");
+    }
 
 
 
-/*
             @Override
             public void onSensorChanged(SensorEvent event) {
                 //Accelerometer
-                if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-                    float accX = event.values[0];
-                    float accY = event.values[1];
-                    float accZ = event.values[2];
+                if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
+                    double accX = (double)event.values[0];
+                    double accY = (double)event.values[1];
+                    double accZ = (double)event.values[2];
 
                     String myText;
 
-                    if ((((int) ((Math.abs(accX) + Math.abs(accY) + Math.abs(accZ)) / 3)) - 3) > 0)
-                        myText = Float.toString((int) (((Math.abs(accX) + Math.abs(accY) + Math.abs(accZ)) / 3) - 3));
+                    //if ((((int) ((Math.abs(accX) + Math.abs(accY) + Math.abs(accZ)) / 3)) - 3) > 0)
+                    if (((((Math.abs(accX) + Math.abs(accY) + Math.abs(accZ)) / 3)) - 3) > 0)
+                        myText = Double.toString((((Math.abs(accX) + Math.abs(accY) + Math.abs(accZ)) / 3) - 3));
                     else myText = "0";
-
-                    speed.setText(myText);
+                    Log.i(TAG, "current acceleration is " + myText);
+                    rawAcceleration = Double.parseDouble(myText);
                 }
             }//end onsensor changed
 
@@ -235,6 +270,6 @@ public class Speed extends AppCompatActivity /*implements SensorEventListener*/ 
                 //place holder
 
             }//end onAccuracyChanged
-*/
+
 
 }//end class speed

@@ -13,9 +13,8 @@ import android.view.View;
 import android.widget.Button;
 
 import com.example.assurex.database.AppDatabase;
-import com.example.assurex.events.DataItemsEvent;
-import com.example.assurex.model.DataItem;
-import com.example.assurex.sample.SampleDataProvider;
+import com.example.assurex.events.RawDataItemsEvent;
+import com.example.assurex.model.RawDataItem;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -27,10 +26,8 @@ import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-    List<DataItem> dataItemList;
-    List<DataItem> dataItemSampleList = SampleDataProvider.dataItemList;
 
-    private AppDatabase db;
+    //private AppDatabase db;
 
     private Executor executor = Executors.newSingleThreadExecutor();
 
@@ -39,35 +36,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        db = AppDatabase.getInstance(this);
-
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                int itemCount = db.dataItemDao().countItems();
-                if (itemCount == 0) {
-                    db.dataItemDao().insertAll(dataItemSampleList);
-                    Log.i(TAG, "onCreate: data inserted");
-                } else {
-                    Log.i(TAG, "onCreate: data already exists");
-                }
-            }
-        });
-
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                dataItemList = db.dataItemDao().getAll();
-                EventBus.getDefault().post(new DataItemsEvent(dataItemList));
-            }
-        });
-
-        EventBus.getDefault().register(this);
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void dataItemsEventHandler(DataItemsEvent event){
-        dataItemList = event.getItemList();
+        //db = AppDatabase.getInstance(this);
     }
 
     @Override
@@ -82,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
         //mDataSource.close();
     }
-
 
     public void LoginClicked(View view) {
         startActivity(new Intent(getApplicationContext(), Speed.class));
