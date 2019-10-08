@@ -6,19 +6,21 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-import com.example.assurex.model.DataItem;
+import com.example.assurex.model.RawDataItem;
+import com.example.assurex.model.TripSummary;
 
-@Database(entities = {DataItem.class}, version = 1)
+@Database(entities = {RawDataItem.class, TripSummary.class}, version = 1)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase instance;
 
-    public abstract DataItemDao dataItemDao();
+    public abstract RawDataItemDao rawDataItemDao();
+    public abstract TripSummaryDao tripSummaryDao();
 
     public static AppDatabase getInstance(Context context){
         if (instance == null) {
             instance = Room.databaseBuilder(context.getApplicationContext(),
-                    AppDatabase.class, "assurex-database")
+                    AppDatabase.class, "assurex-db")
                     //recommended to not use allowMainThreadQueries()
                     //.allowMainThreadQueries()
                     .build();
