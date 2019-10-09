@@ -14,7 +14,7 @@ import java.util.Calendar;
 import java.util.UUID;
 
 @Entity
-public class DataItem implements Parcelable {
+public class RawDataItem implements Parcelable {
 
     //@PrimaryKey(autoGenerate = true)
     @PrimaryKey
@@ -29,12 +29,12 @@ public class DataItem implements Parcelable {
     @ColumnInfo
     private double accelerationRate;
 
-    public DataItem() {
+    public RawDataItem() {
     }
 
-    //public DataItem(String tripId, String date, String timeStamp, double topSpeed) {
+    //public RawDataItem(String tripId, String date, String timeStamp, double topSpeed) {
     @Ignore
-    public DataItem(String tripId, String date, String timeStamp, double speed, double accelerationRate) {
+    public RawDataItem(String tripId, String date, String timeStamp, double speed, double accelerationRate) {
 
         if (tripId == null) {
             tripId = UUID.randomUUID().toString();
@@ -44,8 +44,6 @@ public class DataItem implements Parcelable {
             *   obd2 connection is terminated and assume vehicle has turned off
             * */
         }
-
-        Calendar calendar = Calendar.getInstance();
 
         this.tripId = tripId;
         this.date = date;
@@ -76,7 +74,7 @@ public class DataItem implements Parcelable {
 
     @Override
     public String toString() {
-        return "DataItem{" +
+        return "RawDataItem{" +
                 "tripId='" + tripId + '\'' +
                 ", date='" + date + '\'' +
                 ", timeStamp='" + timeStamp + '\'' +
@@ -97,7 +95,7 @@ public class DataItem implements Parcelable {
         dest.writeDouble(this.accelerationRate);
     }
 
-    protected DataItem(Parcel in) {
+    protected RawDataItem(Parcel in) {
         this.tripId = in.readString();
         this.date = in.readString();
         this.timeStamp = in.readString();
@@ -105,15 +103,15 @@ public class DataItem implements Parcelable {
         this.accelerationRate = in.readDouble();
     }
 
-    public static final Parcelable.Creator<DataItem> CREATOR = new Parcelable.Creator<DataItem>() {
+    public static final Parcelable.Creator<RawDataItem> CREATOR = new Parcelable.Creator<RawDataItem>() {
         @Override
-        public DataItem createFromParcel(Parcel source) {
-            return new DataItem(source);
+        public RawDataItem createFromParcel(Parcel source) {
+            return new RawDataItem(source);
         }
 
         @Override
-        public DataItem[] newArray(int size) {
-            return new DataItem[size];
+        public RawDataItem[] newArray(int size) {
+            return new RawDataItem[size];
         }
     };
 }
