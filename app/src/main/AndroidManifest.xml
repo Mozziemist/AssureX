@@ -25,7 +25,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".Testing"></activity>
-        <activity android:name=".Speed"></activity>
+        <activity android:name=".Speed" android:launchMode="singleTop"/>
     </application>
 
 </manifest>
