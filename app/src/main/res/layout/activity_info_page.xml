@@ -35,7 +35,7 @@
                     android:layout_width="110dp"
                     android:layout_height="45dp"
                     android:layout_gravity="left"
-                    android:background="#FFFFFF"
+                    android:background="@drawable/bg_button_white"
                     android:text="Date"
                     android:textSize="13dp"
                     android:paddingLeft="10dp"
@@ -46,7 +46,7 @@
                     android:layout_width="110dp"
                     android:layout_height="45dp"
                     android:text="Hazard Level"
-                    android:background="#FFFFFF"
+                    android:background="@drawable/bg_button_white"
                     android:layout_gravity="center_horizontal"
                     android:textSize="13dp"
                     android:paddingLeft="10dp"
@@ -57,7 +57,7 @@
                     android:layout_width="110dp"
                     android:layout_height="45dp"
                     android:layout_gravity="right"
-                    android:background="#FFFFFF"
+                    android:background="@drawable/bg_button_white"
                     android:text="A to Z"
                     android:textSize="13dp"
                     android:paddingLeft="10dp"
@@ -83,7 +83,7 @@
                     android:orientation="horizontal"
                     android:layout_gravity="top"
                     android:layout_weight="1"
-                    android:background="#6FBDC3C7"
+                    android:background="@drawable/bg_button_grey"
                     android:gravity="center">
 
                     <TextView
@@ -141,7 +141,7 @@
                     android:orientation="vertical"
                     android:layout_gravity="top"
                     android:layout_weight="1"
-                    android:background="#6FBDC3C7"
+                    android:background="@drawable/bg_button_grey"
                     android:gravity="center"
                     android:visibility="gone"
                     android:id="@+id/avSpWindow">
@@ -180,7 +180,7 @@
                     android:orientation="horizontal"
                     android:layout_gravity="top"
                     android:layout_weight="1"
-                    android:background="#6FBDC3C7"
+                    android:background="@drawable/bg_button_grey"
                     android:gravity="center">
 
                     <TextView
@@ -237,7 +237,7 @@
                     android:orientation="vertical"
                     android:layout_gravity="top"
                     android:layout_weight="1"
-                    android:background="#6FBDC3C7"
+                    android:background="@drawable/bg_button_grey"
                     android:gravity="center"
                     android:visibility="gone"
                     android:id="@+id/accWindow">
@@ -276,7 +276,7 @@
                     android:orientation="horizontal"
                     android:layout_gravity="top"
                     android:layout_weight="1"
-                    android:background="#6FBDC3C7"
+                    android:background="@drawable/bg_button_grey"
                     android:gravity="center">
 
                     <TextView
@@ -333,7 +333,7 @@
                     android:orientation="vertical"
                     android:layout_gravity="top"
                     android:layout_weight="1"
-                    android:background="#6FBDC3C7"
+                    android:background="@drawable/bg_button_grey"
                     android:gravity="center"
                     android:visibility="gone"
                     android:id="@+id/engInfWindow">
@@ -372,7 +372,7 @@
                     android:orientation="horizontal"
                     android:layout_gravity="top"
                     android:layout_weight="1"
-                    android:background="#6FC7BDBF"
+                    android:background="@drawable/bg_button_grey"
                     android:gravity="center">
 
                     <TextView
