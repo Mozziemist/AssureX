@@ -1,21 +1,26 @@
 package com.example.assurex;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -36,16 +41,13 @@ import java.util.UUID;
 public class Speed extends AppCompatActivity /*implements SensorEventListener*/ {
 
 
+    private final static String TAG = "Speed";
     private TextView speed;
     private SensorManager snsMngr;
     private Sensor accel;
-    BluetoothAdapter myBtAdapter;
-    BluetoothDevice myDevice = null;
-    Set<BluetoothDevice> pairedDevices;
-    Boolean connected = false;
-    BluetoothThread myBtThread;
-    UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-    Handler myHandler;
+    CarDataReceiver receiver;
+
+
 
 
     @Override
@@ -53,13 +55,9 @@ public class Speed extends AppCompatActivity /*implements SensorEventListener*/ 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_speed);
         speed = findViewById(R.id.speed);
-        myHandler = new Handler(){
-            @Override
-            public void handleMessage(Message msg){
-                // modify UI with speed
-                speed.setText(Integer.toString(msg.arg1));
-            }
-        };
+
+        receiver = new CarDataReceiver();
+        registerReceiver(receiver, new IntentFilter("CarDataUpdates"));
 
 /*
         //sensor accelerometer
@@ -68,8 +66,7 @@ public class Speed extends AppCompatActivity /*implements SensorEventListener*/ 
         snsMngr.registerListener( this, accel, SensorManager.SENSOR_DELAY_NORMAL);
 */
 
-        // get phone's bluetooth adapter
-        myBtAdapter = BluetoothAdapter.getDefaultAdapter();
+
 
     }//end oncreate
 
@@ -78,39 +75,15 @@ public class Speed extends AppCompatActivity /*implements SensorEventListener*/ 
     protected void onStart() {
         super.onStart();
 
-        // if bluetooth device hasnt been set yet
-        if (myDevice == null) {
-            // look in phone's bonded devices
-            pairedDevices = myBtAdapter.getBondedDevices();
-            if (pairedDevices.size() > 0) {
-                for (BluetoothDevice device : pairedDevices) {
-                    if (device.getName().equals("OBDII")) {
-                        myDevice = device;
-                        Toast.makeText(getApplicationContext(), "Target device found", Toast.LENGTH_LONG).show();
-                        // todo: save device address somewhere for next app use
-                    }
-                }
-                if (myDevice == null) {
-                    Toast.makeText(getApplicationContext(), "Target device not found", Toast.LENGTH_LONG).show();
-                }
-            } else {
-                Toast.makeText(getApplicationContext(), "No devices paired", Toast.LENGTH_LONG).show();
-            }
-        }//end if mydevice
 
-        // if bluetooth device is found and its NOT connected
-        if (myDevice != null && !connected) {
-            // on a new thread, try to connect and do work
-            myBtThread = new BluetoothThread();
-            myBtThread.start();
-
-        }
 
     }//end onstart
 
 
-    public void toTesting(View view) {
-        startActivity(new Intent(getApplicationContext(), Testing.class));
+    // connects to service
+    public void connectBtnClick(View view) {
+        Intent serviceIntent = new Intent(this, BluetoothService.class);
+        startService(serviceIntent);
     }
 
     public void toPackage(View view) {
@@ -121,92 +94,28 @@ public class Speed extends AppCompatActivity /*implements SensorEventListener*/ 
         startActivity(new Intent(getApplicationContext(), infoPage.class));
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(receiver);
+        Intent serviceIntent = new Intent(this, BluetoothService.class);
+        stopService(serviceIntent);
+    }
 
-    private class BluetoothThread extends Thread {
-                BluetoothSocket mySocket;
+    class CarDataReceiver extends BroadcastReceiver {
 
-                //constructor
-                BluetoothThread() {
-                    try {
-                        // set the key to obd device to allow connection
-                        mySocket = myDevice.createRfcommSocketToServiceRecord(myUUID);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+        @Override
+        public void onReceive(Context context, Intent intent) {
 
-                public void run ()
-                {
-                    try {
-                        // try to connect and do desired work
-                        mySocket.connect();
-                        connected = true;
-                        Speed.this.runOnUiThread(new Runnable() {
-                            public void run() {
-                                Toast.makeText(Speed.this.getApplicationContext(), "Connection successful", Toast.LENGTH_LONG).show();
-                            }
-                        });
+            if(("CarDataUpdates").equals(intent.getAction()))
+            {
+                Log.d(TAG, "onReceive: about to setText");
+                speed.setText(intent.getIntExtra("value", 0));
+                Log.d(TAG, "onReceive: text has been set");
+            }
+        }
 
-                        // initialize car with obd initialization commands
-                        try {
-                            new EchoOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
-
-                            new LineFeedOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
-
-                            new TimeoutCommand(100).run(mySocket.getInputStream(), mySocket.getOutputStream());
-
-                            new SelectProtocolCommand(ObdProtocols.AUTO).run(mySocket.getInputStream(), mySocket.getOutputStream());
-
-                            SpeedCommand speedCommand = new SpeedCommand();
-
-                            // loop thread for a constant stream of refreshed data, 3 sec interval
-                            while (!Thread.currentThread().isInterrupted())
-                            {
-
-                                try {
-                                    Message speedMessage = Message.obtain();
-
-                                    speedCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
-                                    speedMessage.arg1 = (int)speedCommand.getImperialUnit();
-                                    myHandler.sendMessage(speedMessage);
-
-                                    Speed.this.runOnUiThread(new Runnable() {
-                                        public void run() {
-                                            Toast.makeText(Speed.this.getApplicationContext(), "Speed refreshed ", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-
-                                    Thread.sleep(3000);
-
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-
-                            }
-
-                            Speed.this.runOnUiThread(new Runnable() {
-                                public void run() {
-                                    Toast.makeText(Speed.this.getApplicationContext(), "Exiting While Loop", Toast.LENGTH_LONG).show();
-                                }
-                            });
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-
-
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        Speed.this.runOnUiThread(new Runnable() {
-                            public void run() {
-                                Toast.makeText(Speed.this.getApplicationContext(), "Connection Unsuccessful", Toast.LENGTH_LONG).show();
-                            }
-                        });
-                    }
-                }//end run
-
-            }//end Bluetooth thread class
-
+    }
 
 
 
