@@ -108,7 +108,7 @@ public class BluetoothService extends Service {
                         //FuelLevelCommand fuelCommand = new FuelLevelCommand(); //getfuellevel()
 
                         // loop thread for a constant stream of refreshed data, 3 sec interval
-                        while (!Thread.currentThread().isInterrupted())
+                        while (!Thread.currentThread().isInterrupted() && mySocket.isConnected())
                         {
                             try {
                                 speedCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
@@ -118,8 +118,6 @@ public class BluetoothService extends Service {
 
                                 sendMessageToActivity((int)speedCommand.getImperialSpeed());
                                 //sendMessageToActivity((int)fuelCommand.getFuelLevel());
-
-                                showToast("Speed refreshed");
 
                                 Thread.sleep(3000);
 
