@@ -110,7 +110,7 @@ public class Speed extends AppCompatActivity /*implements SensorEventListener*/ 
             if(("CarDataUpdates").equals(intent.getAction()))
             {
                 Log.d(TAG, "onReceive: about to setText");
-                speed.setText(intent.getIntExtra("value", 0));
+                speed.setText(Integer.toString(intent.getIntExtra("value", 0)));
                 Log.d(TAG, "onReceive: text has been set");
             }
         }
