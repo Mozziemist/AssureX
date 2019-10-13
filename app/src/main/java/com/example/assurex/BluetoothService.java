@@ -25,6 +25,8 @@ import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
 import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
 import com.github.pires.obd.commands.protocol.TimeoutCommand;
 import com.github.pires.obd.enums.ObdProtocols;
+import com.github.pires.obd.exceptions.NoDataException;
+import com.github.pires.obd.exceptions.UnableToConnectException;
 
 import java.io.IOException;
 import java.util.Set;
@@ -75,7 +77,6 @@ public class BluetoothService extends Service {
 
         Log.d(TAG, "onStartCommand: thread ended");
 
-        stopSelf();
 
         return START_STICKY;
     }
@@ -110,20 +111,22 @@ public class BluetoothService extends Service {
                         // loop thread for a constant stream of refreshed data, 3 sec interval
                         while (!Thread.currentThread().isInterrupted() && mySocket.isConnected())
                         {
+
+
                             try {
                                 speedCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
                                 //fuelCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
                                 Log.d(TAG, "run: speed acquired");
-
-
-                                sendMessageToActivity((int)speedCommand.getImperialSpeed());
-                                //sendMessageToActivity((int)fuelCommand.getFuelLevel());
-
-                                Thread.sleep(3000);
-
-                            } catch (InterruptedException e) {
+                            } catch (NoDataException | UnableToConnectException e){
                                 e.printStackTrace();
+                                break;
                             }
+
+
+                            sendMessageToActivity((int)speedCommand.getImperialSpeed());
+                            //sendMessageToActivity((int)fuelCommand.getFuelLevel());
+
+                            Thread.sleep(3000);
 
                         }
 
@@ -141,7 +144,10 @@ public class BluetoothService extends Service {
 
             showToast("Connection Failure");
 
+            stopSelf();
         }
+
+
     }
 
 
