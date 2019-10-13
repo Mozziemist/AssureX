@@ -41,7 +41,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.Calendar;
 
-public class Speed extends AppCompatActivity implements SensorEventListener {
+public class Speed extends AppCompatActivity /*implements SensorEventListener*/ {
     private static final String TAG = "Speed";
     private TextView speed;
     private SensorManager snsMngr;
@@ -77,12 +77,12 @@ public class Speed extends AppCompatActivity implements SensorEventListener {
         db = AppDatabase.getInstance(this);
 
         executorService.scheduleWithFixedDelay(Speed::rawDataCollection, 0, 10, TimeUnit.SECONDS);
-
+        /*
         //sensor accelerometer
         snsMngr = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accel = snsMngr.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         snsMngr.registerListener( this, accel, SensorManager.SENSOR_DELAY_NORMAL);
-
+        */
 
         // get phone's bluetooth adapter
         myBtAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -244,32 +244,32 @@ public class Speed extends AppCompatActivity implements SensorEventListener {
     }
 
 
+    /*
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        //Accelerometer
+        if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
+            double accX = (double)event.values[0];
+            double accY = (double)event.values[1];
+            double accZ = (double)event.values[2];
 
-            @Override
-            public void onSensorChanged(SensorEvent event) {
-                //Accelerometer
-                if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
-                    double accX = (double)event.values[0];
-                    double accY = (double)event.values[1];
-                    double accZ = (double)event.values[2];
+            String myText;
 
-                    String myText;
-
-                    //if ((((int) ((Math.abs(accX) + Math.abs(accY) + Math.abs(accZ)) / 3)) - 3) > 0)
-                    if (((((Math.abs(accX) + Math.abs(accY) + Math.abs(accZ)) / 3)) - 3) > 0)
-                        myText = Double.toString((((Math.abs(accX) + Math.abs(accY) + Math.abs(accZ)) / 3) - 3));
-                    else myText = "0";
-                    Log.i(TAG, "current acceleration is " + myText);
-                    rawAcceleration = Double.parseDouble(myText);
-                }
-            }//end onsensor changed
+            //if ((((int) ((Math.abs(accX) + Math.abs(accY) + Math.abs(accZ)) / 3)) - 3) > 0)
+            if (((((Math.abs(accX) + Math.abs(accY) + Math.abs(accZ)) / 3)) - 3) > 0)
+                myText = Double.toString((((Math.abs(accX) + Math.abs(accY) + Math.abs(accZ)) / 3) - 3));
+            else myText = "0";
+            Log.i(TAG, "current acceleration is " + myText);
+            rawAcceleration = Double.parseDouble(myText);
+        }
+    }//end onsensor changed
 
 
-            @Override
-            public void onAccuracyChanged(Sensor sensor, int i) {
-                //place holder
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+        //place holder
 
-            }//end onAccuracyChanged
-
+    }//end onAccuracyChanged
+    */
 
 }//end class speed
