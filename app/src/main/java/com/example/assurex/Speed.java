@@ -37,9 +37,11 @@ import java.util.Calendar;
 public class Speed extends AppCompatActivity implements SensorEventListener {
     private static final String TAG = "Speed";
     private TextView speed;
+    private Button connectBtn;
     private SensorManager snsMngr;
     private Sensor accel;
     CarDataReceiver receiver;
+    BtnStateReceiver BtnReceiver;
     private static AppDatabase db;
 
     final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
@@ -52,9 +54,15 @@ public class Speed extends AppCompatActivity implements SensorEventListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_speed);
         speed = findViewById(R.id.speed);
+        connectBtn = findViewById(R.id.connectButton);
 
         receiver = new CarDataReceiver();
         registerReceiver(receiver, new IntentFilter("CarDataUpdates"));
+        BtnReceiver = new BtnStateReceiver();
+        registerReceiver(BtnReceiver, new IntentFilter("BtnStateUpdate"));
+
+        Intent serviceIntent = new Intent(this, BluetoothService.class);
+        startService(serviceIntent);
 
 
         db = AppDatabase.getInstance(this);
@@ -80,8 +88,11 @@ public class Speed extends AppCompatActivity implements SensorEventListener {
 
     // connects to service
     public void connectBtnClick(View view) {
-        Intent serviceIntent = new Intent(this, BluetoothService.class);
-        startService(serviceIntent);
+        if (connectBtn.getText() == "Connect")
+        {
+            Intent serviceIntent = new Intent(this, BluetoothService.class);
+            startService(serviceIntent);
+        }
     }
 
     public void toPackage(View view) {
@@ -96,6 +107,7 @@ public class Speed extends AppCompatActivity implements SensorEventListener {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(receiver);
+        unregisterReceiver(BtnReceiver);
         Intent serviceIntent = new Intent(this, BluetoothService.class);
         stopService(serviceIntent);
 
@@ -113,6 +125,25 @@ public class Speed extends AppCompatActivity implements SensorEventListener {
                 Log.d(TAG, "onReceive: text has been set");
 
                 rawSpeed = (double) intent.getIntExtra("value", 0);
+            }
+        }
+    }
+
+    class BtnStateReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            if (("BtnStateUpdate").equals(intent.getAction())) {
+                if (intent.getBooleanExtra("value", false)) {
+                    connectBtn.setTextSize(20);
+                    connectBtn.setText("Connected");
+                }
+                else
+                {
+                    connectBtn.setTextSize(21);
+                    connectBtn.setText("Connect");
+                }
             }
         }
     }

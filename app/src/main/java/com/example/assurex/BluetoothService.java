@@ -75,7 +75,7 @@ public class BluetoothService extends Service {
         BluetoothThread mBtThread = new BluetoothThread();
         mBtThread.start();
 
-        Log.d(TAG, "onStartCommand: thread ended");
+        Log.d(TAG, "onStartCommand: thread started");
 
 
         return START_STICKY;
@@ -94,6 +94,8 @@ public class BluetoothService extends Service {
                     // try to connect and do desired work
                     mySocket.connect();
                     showToast("Connection successful");
+
+                    connectBtnState(true);
 
                     // initialize car with obd initialization commands
                     try {
@@ -143,12 +145,14 @@ public class BluetoothService extends Service {
             }
 
             showToast("Connection Failure");
-
+            connectBtnState(false);
             stopSelf();
         }
 
 
     }
+
+
 
 
     private void connectionSetup() {
@@ -189,6 +193,15 @@ public class BluetoothService extends Service {
         sendCarData.putExtra("value", msg);
 
         sendBroadcast(sendCarData);
+    }
+
+    private void connectBtnState(boolean msg)
+    {
+        Intent sendStateData = new Intent("BtnStateUpdate");
+
+        sendStateData.putExtra("value", msg);
+
+        sendBroadcast(sendStateData);
     }
 
     public void showToast(String message) {
