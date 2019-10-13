@@ -67,7 +67,7 @@
             android:layout_gravity="center_horizontal"
             android:gravity="center"
             android:id="@+id/ConnectButton"
-            android:onClick="toTesting"
+            android:onClick="connectBtnClick"
             android:layout_weight="1"
             />
         <Button
