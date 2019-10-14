@@ -39,18 +39,20 @@
                     android:text="Date"
                     android:textSize="13dp"
                     android:paddingLeft="10dp"
-                    android:paddingRight="10dp"/>
+                    android:paddingRight="10dp"
+                    android:onClick="dateClicked"/>
 
                 <Button
                     android:layout_marginHorizontal="13dp"
                     android:layout_width="110dp"
                     android:layout_height="45dp"
-                    android:text="Hazard Level"
+                    android:text="Trip"
                     android:background="@drawable/bg_button_white"
                     android:layout_gravity="center_horizontal"
                     android:textSize="13dp"
                     android:paddingLeft="10dp"
-                    android:paddingRight="10dp"/>
+                    android:paddingRight="10dp"
+                    android:onClick="tripClicked"/>
 
                 <Button
                     android:layout_marginHorizontal="13dp"
@@ -58,10 +60,68 @@
                     android:layout_height="45dp"
                     android:layout_gravity="right"
                     android:background="@drawable/bg_button_white"
-                    android:text="A to Z"
+                    android:text="Location"
                     android:textSize="13dp"
                     android:paddingLeft="10dp"
-                    android:paddingRight="10dp"/>
+                    android:paddingRight="10dp"
+                    android:onClick="locationClicked"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="300dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_button_white"
+                android:paddingTop="5dp"
+                android:layout_marginVertical="20dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:id="@+id/calender">
+
+                <CalendarView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+
+                </CalendarView>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="110dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_button_white"
+                android:paddingTop="5dp"
+                android:layout_marginVertical="20dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:id="@+id/spinnerWindow">
+
+                <Spinner
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/tripSpinner"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="300dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_button_white"
+                android:paddingTop="5dp"
+                android:layout_marginVertical="20dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:id="@+id/locationWindow">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/locText"
+                    android:text="Text here"/>
 
             </LinearLayout>
 
@@ -70,8 +130,7 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:layout_gravity="center_horizontal"
-                android:gravity="center"
-                android:paddingTop="40dp">
+                android:gravity="center">
 
                 <LinearLayout
                     android:layout_marginVertical="20dp"
