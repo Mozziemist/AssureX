@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -108,7 +109,8 @@ public class BluetoothService extends Service {
                         new SelectProtocolCommand(ObdProtocols.AUTO).run(mySocket.getInputStream(), mySocket.getOutputStream());
 
                         SpeedCommand speedCommand = new SpeedCommand();
-                        //FuelLevelCommand fuelCommand = new FuelLevelCommand(); //getfuellevel()
+                        //FuelLevelCommand fuelCommand = new FuelLevelCommand();
+                        float prevSpd = 0, currentSpd;
 
                         // loop thread for a constant stream of refreshed data, 3 sec interval
                         while (!Thread.currentThread().isInterrupted() && mySocket.isConnected())
@@ -118,17 +120,22 @@ public class BluetoothService extends Service {
                             try {
                                 speedCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
                                 //fuelCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
-                                Log.d(TAG, "run: speed acquired");
+                                Log.d(TAG, "run: data acquired");
                             } catch (NoDataException | UnableToConnectException e){
                                 e.printStackTrace();
                                 break;
                             }
 
+                            currentSpd = speedCommand.getImperialUnit();
+                            Bundle b = new Bundle();
+                            b.putInt("speed", (int) speedCommand.getImperialUnit());
+                            //b.putInt("fuel_level", (int) fuelCommand.getFuelLevel());
+                            b.putFloat("acceleration", (currentSpd - prevSpd)); // multiply by 0.0455853936 to get g force
+                            sendMessageToActivity(b);
 
-                            sendMessageToActivity((int)speedCommand.getImperialSpeed());
-                            //sendMessageToActivity((int)fuelCommand.getFuelLevel());
+                            prevSpd = currentSpd;
 
-                            Thread.sleep(3000);
+                            Thread.sleep(1000);
 
                         }
 
@@ -148,6 +155,8 @@ public class BluetoothService extends Service {
             connectBtnState(false);
             stopSelf();
         }
+
+
 
 
     }
@@ -187,10 +196,10 @@ public class BluetoothService extends Service {
 
     }
 
-    private void sendMessageToActivity(int msg) {
+    private void sendMessageToActivity(Bundle b) {
         Intent sendCarData = new Intent("CarDataUpdates");
 
-        sendCarData.putExtra("value", msg);
+        sendCarData.putExtra("CarData", b);
 
         sendBroadcast(sendCarData);
     }

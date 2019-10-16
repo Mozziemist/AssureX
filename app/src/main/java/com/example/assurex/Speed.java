@@ -120,8 +120,14 @@ public class Speed extends AppCompatActivity implements SensorEventListener {
         public void onReceive(Context context, Intent intent) {
 
             if (("CarDataUpdates").equals(intent.getAction())) {
+
+                Bundle b = intent.getBundleExtra("CarData");
+                int spd = b.getInt("speed", 0);
+                //int fuel_level = b.getInt("fuel_level", 0);
+                float accel = b.getFloat("acceleration", 0);
+
                 Log.d(TAG, "onReceive: about to setText");
-                speed.setText(Integer.toString(intent.getIntExtra("value", 0)));
+                speed.setText(Integer.toString(spd));
                 Log.d(TAG, "onReceive: text has been set");
 
                 rawSpeed = (double) intent.getIntExtra("value", 0);
