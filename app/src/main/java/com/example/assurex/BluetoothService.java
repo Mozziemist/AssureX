@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.example.assurex.App.CHANNEL_ID;
+import static com.example.assurex.App.BT_CHANNEL_ID;
 
 public class BluetoothService extends Service {
 
@@ -55,7 +55,7 @@ public class BluetoothService extends Service {
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, notificationIntent, 0);
 
-        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+        Notification notification = new NotificationCompat.Builder(this, BT_CHANNEL_ID)
                 .setContentTitle("OBDII Bluetooth Service")
                 .setContentText("running...")
                 .setSmallIcon(R.drawable.ic_android)
