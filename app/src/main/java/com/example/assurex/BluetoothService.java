@@ -21,6 +21,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.github.pires.obd.commands.SpeedCommand;
 import com.github.pires.obd.commands.fuel.FuelLevelCommand;
+import com.github.pires.obd.commands.protocol.AvailablePidsCommand_01_20;
 import com.github.pires.obd.commands.protocol.EchoOffCommand;
 import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
 import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
@@ -109,8 +110,8 @@ public class BluetoothService extends Service {
                         new SelectProtocolCommand(ObdProtocols.AUTO).run(mySocket.getInputStream(), mySocket.getOutputStream());
 
                         SpeedCommand speedCommand = new SpeedCommand();
-                        //FuelLevelCommand fuelCommand = new FuelLevelCommand();
                         float prevSpd = 0, currentSpd;
+
 
                         // loop thread for a constant stream of refreshed data, 3 sec interval
                         while (!Thread.currentThread().isInterrupted() && mySocket.isConnected())
@@ -119,7 +120,6 @@ public class BluetoothService extends Service {
 
                             try {
                                 speedCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
-                                //fuelCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
                                 Log.d(TAG, "run: data acquired");
                             } catch (NoDataException | UnableToConnectException e){
                                 e.printStackTrace();
@@ -129,7 +129,6 @@ public class BluetoothService extends Service {
                             currentSpd = speedCommand.getImperialUnit();
                             Bundle b = new Bundle();
                             b.putInt("speed", (int) speedCommand.getImperialUnit());
-                            //b.putInt("fuel_level", (int) fuelCommand.getFuelLevel());
                             b.putFloat("acceleration", (currentSpd - prevSpd)); // multiply by 0.0455853936 to get g force
                             sendMessageToActivity(b);
 
