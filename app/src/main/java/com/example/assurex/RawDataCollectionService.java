@@ -1,5 +1,6 @@
 package com.example.assurex;
 
+import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -7,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -15,8 +17,10 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.assurex.database.AppDatabase;
 import com.example.assurex.model.RawDataItem;
+import com.example.assurex.model.TripSummary;
 
 import java.util.Calendar;
+import java.util.List;
 import java.util.TimeZone;
 
 import static com.example.assurex.App.BT_CHANNEL_ID;
@@ -24,9 +28,21 @@ import static com.example.assurex.App.RD_CHANNEL_ID;
 
 public class RawDataCollectionService extends Service {
     private final static String TAG = "RawDataCollectService";
+    boolean shouldTerminate = false;
     private AppDatabase db;
     CarDataReceiver receiver;
-    double rawSpeed;
+
+    //for the RawDateItem
+    int rawSpeed;
+    double rawAcceleration;
+
+
+    //for the tripSummary
+    double tAverageSpeed = 0;
+    double tTopSpeed = 0;
+    double tAverageAcceleration = 0;
+    double tTopAcceleration = 0;
+    boolean tripSummaryShouldBeSaved = false;
 
     @Override
     public void onCreate() {
@@ -66,23 +82,66 @@ public class RawDataCollectionService extends Service {
 
         @Override
         public void run() {
-            try {
-                while (!Thread.currentThread().isInterrupted()) {
+            try { Thread.sleep(6000); } catch (InterruptedException e) { e.printStackTrace(); }
+
+            if(isServiceRunning(BluetoothService.class)) {
+                try {
+                    int tripNumber;
                     Calendar calendar = Calendar.getInstance();
-                    String date = calendar.get(Calendar.MONTH) + 1 + "-" +
+                    String tsDate = calendar.get(Calendar.MONTH) + 1 + "-" +
                             calendar.get(Calendar.DAY_OF_MONTH) + "-" +
                             calendar.get(Calendar.YEAR);
-                    String timeStamp = calendar.get(Calendar.HOUR_OF_DAY) + ":" +
-                            calendar.get(Calendar.MINUTE) + ":" +
-                            calendar.get(Calendar.SECOND);
-                    String tripId = date + "@" + timeStamp;
-                    RawDataItem tempRawDataItem = new RawDataItem(tripId, date, timeStamp, rawSpeed, 0);
-                    db.rawDataItemDao().insert(tempRawDataItem);
-                    Log.i(TAG, "raw data inserted into sqlite");
-                    Thread.sleep(5000);
+                    List<TripSummary> tempTripSummaryList = db.tripSummaryDao().getAllByDate(tsDate);
+                    TripSummary tempTripSummary;
+                    if(tempTripSummaryList != null && !tempTripSummaryList.isEmpty()){
+                        tempTripSummary = tempTripSummaryList.get(tempTripSummaryList.size()-1);
+                        tripNumber = tempTripSummary.getTripNumber() + 1;
+                    }else{
+                        tripNumber = 1;
+                    }
+                    String tripId = tsDate + "#" + tripNumber;
+
+                    while (!Thread.currentThread().isInterrupted() && !shouldTerminate) {
+                        calendar = Calendar.getInstance();
+                        String date = calendar.get(Calendar.MONTH) + 1 + "-" +
+                                calendar.get(Calendar.DAY_OF_MONTH) + "-" +
+                                calendar.get(Calendar.YEAR);
+                        String timeStamp = calendar.get(Calendar.HOUR_OF_DAY) + ":" +
+                                calendar.get(Calendar.MINUTE) + ":" +
+                                calendar.get(Calendar.SECOND);
+                        String tripDatedTimeStamp = date + "@" + timeStamp;
+                        RawDataItem tempRawDataItem = new RawDataItem(tripDatedTimeStamp, tripId, date, timeStamp, rawSpeed, rawAcceleration);
+                        db.rawDataItemDao().insert(tempRawDataItem);
+
+                        tAverageSpeed = (tAverageSpeed + rawSpeed) / 2;
+                        if(rawSpeed > tTopSpeed){
+                            tTopSpeed = rawSpeed;
+                        }
+
+                        tAverageAcceleration = (tAverageAcceleration + Math.abs(rawAcceleration)) / 2;
+                        if(Math.abs(rawAcceleration) > tTopAcceleration){
+                            tTopAcceleration = Math.abs(rawAcceleration);
+                        }
+                        tripSummaryShouldBeSaved = true;
+
+                        Log.i(TAG, "raw data inserted into sqlite");
+                        Thread.sleep(5000);
+
+                        if(!isServiceRunning(BluetoothService.class)){
+                            //maybe use shouldTerminate = true here..
+                            stopSelf();
+                        }
+                    }
+
+                    if(tripSummaryShouldBeSaved){
+                        tempTripSummary = new TripSummary(tripId, tsDate, tripNumber, "unknown current standing",
+                                "unknown engine status", tAverageSpeed, tTopSpeed,
+                                tAverageAcceleration, tTopAcceleration);
+                        db.tripSummaryDao().insert(tempTripSummary);
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-            } catch(InterruptedException e){
-                e.printStackTrace();
             }
 
             stopSelf();
@@ -93,17 +152,32 @@ public class RawDataCollectionService extends Service {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-
             if (("CarDataUpdates").equals(intent.getAction())) {
-                rawSpeed = (double) intent.getIntExtra("value", 0);
+
+                Bundle b = intent.getBundleExtra("CarData");
+                rawSpeed = b.getInt("speed", 0);
+                rawAcceleration = (double) b.getFloat("acceleration", 0);
             }
         }
     }
 
+    private boolean isServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     @Override
     public void onDestroy() {
         super.onDestroy();
+
         unregisterReceiver(receiver);
+        shouldTerminate =  true;
         AppDatabase.destroyInstance();
     }
 

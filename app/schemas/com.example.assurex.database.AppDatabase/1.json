@@ -2,17 +2,23 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "2481f524c6635e031d998be5be03d4ba",
+    "identityHash": "2622a74dce25af18e187b66fa56b3785",
     "entities": [
       {
         "tableName": "RawDataItem",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tripId` TEXT NOT NULL, `date` TEXT, `timeStamp` TEXT, `speed` REAL NOT NULL, `accelerationRate` REAL NOT NULL, PRIMARY KEY(`tripId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tripDatedTimeStamp` TEXT NOT NULL, `tripId` TEXT, `date` TEXT, `timeStamp` TEXT, `speed` INTEGER NOT NULL, `accelerationRate` REAL NOT NULL, PRIMARY KEY(`tripDatedTimeStamp`))",
         "fields": [
+          {
+            "fieldPath": "tripDatedTimeStamp",
+            "columnName": "tripDatedTimeStamp",
+            "affinity": "TEXT",
+            "notNull": true
+          },
           {
             "fieldPath": "tripId",
             "columnName": "tripId",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "date",
@@ -29,7 +35,7 @@
           {
             "fieldPath": "speed",
             "columnName": "speed",
-            "affinity": "REAL",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -41,7 +47,7 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "tripId"
+            "tripDatedTimeStamp"
           ],
           "autoGenerate": false
         },
@@ -50,7 +56,7 @@
       },
       {
         "tableName": "TripSummary",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tripId` TEXT NOT NULL, `date` TEXT, `currentStanding` TEXT, `engineStatus` TEXT, `averageSpeed` REAL NOT NULL, `topSpeed` REAL NOT NULL, `averageAcceleration` REAL NOT NULL, `topAcceleration` REAL NOT NULL, PRIMARY KEY(`tripId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tripId` TEXT NOT NULL, `date` TEXT, `tripNumber` INTEGER NOT NULL, `currentStanding` TEXT, `engineStatus` TEXT, `averageSpeed` REAL NOT NULL, `topSpeed` REAL NOT NULL, `averageAcceleration` REAL NOT NULL, `topAcceleration` REAL NOT NULL, PRIMARY KEY(`tripId`))",
         "fields": [
           {
             "fieldPath": "tripId",
@@ -63,6 +69,12 @@
             "columnName": "date",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "tripNumber",
+            "columnName": "tripNumber",
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "currentStanding",
@@ -114,7 +126,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2481f524c6635e031d998be5be03d4ba')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2622a74dce25af18e187b66fa56b3785')"
     ]
   }
 }

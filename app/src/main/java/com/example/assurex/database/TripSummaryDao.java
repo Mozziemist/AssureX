@@ -6,6 +6,7 @@ import androidx.room.Query;
 
 import com.example.assurex.model.TripSummary;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Dao
@@ -28,4 +29,7 @@ public interface TripSummaryDao {
 
     @Query("SELECT * FROM tripsummary WHERE tripId = :tripId")
     TripSummary findById(String tripId);
+
+    @Query("SELECT * FROM tripsummary WHERE date = :date")
+    List<TripSummary> getAllByDate(String date);
 }
