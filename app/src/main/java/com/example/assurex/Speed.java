@@ -37,10 +37,8 @@ import java.util.Calendar;
 public class Speed extends AppCompatActivity {
     private static final String TAG = "Speed";
     private TextView speed;
-    Intent rawDataCollectionIntent;
+    private TextView acceleration;
     private Button connectBtn;
-    private SensorManager snsMngr;
-    private Sensor accel;
     CarDataReceiver receiver;
     BtnStateReceiver BtnReceiver;
 
@@ -49,6 +47,7 @@ public class Speed extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_speed);
         speed = findViewById(R.id.speed);
+        acceleration = findViewById(R.id.acceleration);
         connectBtn = findViewById(R.id.connectButton);
 
         receiver = new CarDataReceiver();
@@ -59,8 +58,8 @@ public class Speed extends AppCompatActivity {
         Intent serviceIntent = new Intent(this, BluetoothService.class);
         startService(serviceIntent);
 
-        rawDataCollectionIntent = new Intent(this, RawDataCollectionService.class);
-        startService(rawDataCollectionIntent);
+        Intent rawDataIntent = new Intent(this, RawDataCollectionService.class);
+        startService(rawDataIntent);
 
     }//end oncreate
 
@@ -77,6 +76,9 @@ public class Speed extends AppCompatActivity {
         {
             Intent serviceIntent = new Intent(this, BluetoothService.class);
             startService(serviceIntent);
+
+            Intent rawDataIntent = new Intent(this, RawDataCollectionService.class);
+            startService(rawDataIntent);
         }
     }
 
@@ -95,8 +97,9 @@ public class Speed extends AppCompatActivity {
         unregisterReceiver(BtnReceiver);
         Intent serviceIntent = new Intent(this, BluetoothService.class);
         stopService(serviceIntent);
-        stopService(rawDataCollectionIntent);
-        AppDatabase.destroyInstance();
+
+        Intent rawDataIntent = new Intent(this, RawDataCollectionService.class);
+        stopService(rawDataIntent);
     }
 
     class CarDataReceiver extends BroadcastReceiver {
@@ -110,6 +113,8 @@ public class Speed extends AppCompatActivity {
                 float accel = b.getFloat("acceleration", 0);
 
                 speed.setText(Integer.toString(spd));
+                acceleration.setText(Float.toString(accel));
+
                 Log.d(TAG, "onReceive: text has been set");
 
             }
