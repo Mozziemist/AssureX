@@ -19,13 +19,15 @@ public class RawDataItem implements Parcelable {
     //@PrimaryKey(autoGenerate = true)
     @PrimaryKey
     @NonNull
+    private String tripDatedTimeStamp;
+    @ColumnInfo
     private String tripId;
     @ColumnInfo
     private String date;
     @ColumnInfo
     private String timeStamp;
     @ColumnInfo
-    private double speed;
+    private int speed;
     @ColumnInfo
     private double accelerationRate;
 
@@ -34,7 +36,7 @@ public class RawDataItem implements Parcelable {
 
     //public RawDataItem(String tripId, String date, String timeStamp, double topSpeed) {
     @Ignore
-    public RawDataItem(String tripId, String date, String timeStamp, double speed, double accelerationRate) {
+    public RawDataItem(String tripDatedTimeStamp, String tripId, String date, String timeStamp, int speed, double accelerationRate) {
 
         if (tripId == null) {
             tripId = UUID.randomUUID().toString();
@@ -44,13 +46,17 @@ public class RawDataItem implements Parcelable {
             *   obd2 connection is terminated and assume vehicle has turned off
             * */
         }
-
+        this.tripDatedTimeStamp = tripDatedTimeStamp;
         this.tripId = tripId;
         this.date = date;
         this.timeStamp = timeStamp;
         this.speed = speed;
         this.accelerationRate = accelerationRate;
     }
+
+    public String getTripDatedTimeStamp() { return tripDatedTimeStamp; }
+
+    public void setTripDatedTimeStamp(String tripDatedTimeStamp) { this.tripDatedTimeStamp = tripDatedTimeStamp; }
 
     public String getTripId() { return tripId; }
 
@@ -64,9 +70,9 @@ public class RawDataItem implements Parcelable {
 
     public void setTimeStamp(String timeStamp) { this.timeStamp = timeStamp; }
 
-    public double getSpeed() { return speed; }
+    public int getSpeed() { return speed; }
 
-    public void setSpeed(double speed) { this.speed = speed; }
+    public void setSpeed(int speed) { this.speed = speed; }
 
     public double getAccelerationRate() { return accelerationRate; }
 
@@ -88,18 +94,20 @@ public class RawDataItem implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.tripDatedTimeStamp);
         dest.writeString(this.tripId);
         dest.writeString(this.date);
         dest.writeString(this.timeStamp);
-        dest.writeDouble(this.speed);
+        dest.writeInt(this.speed);
         dest.writeDouble(this.accelerationRate);
     }
 
     protected RawDataItem(Parcel in) {
+        this.tripDatedTimeStamp = in.readString();
         this.tripId = in.readString();
         this.date = in.readString();
         this.timeStamp = in.readString();
-        this.speed = in.readDouble();
+        this.speed = in.readInt();
         this.accelerationRate = in.readDouble();
     }
 

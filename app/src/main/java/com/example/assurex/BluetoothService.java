@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -20,6 +21,9 @@ import androidx.core.app.NotificationCompat;
 
 import com.github.pires.obd.commands.SpeedCommand;
 import com.github.pires.obd.commands.fuel.FuelLevelCommand;
+import com.github.pires.obd.commands.protocol.AvailablePidsCommand_01_20;
+import com.github.pires.obd.commands.protocol.DescribeProtocolCommand;
+import com.github.pires.obd.commands.protocol.DescribeProtocolNumberCommand;
 import com.github.pires.obd.commands.protocol.EchoOffCommand;
 import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
 import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
@@ -32,7 +36,7 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.example.assurex.App.CHANNEL_ID;
+import static com.example.assurex.App.BT_CHANNEL_ID;
 
 public class BluetoothService extends Service {
 
@@ -53,7 +57,7 @@ public class BluetoothService extends Service {
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, notificationIntent, 0);
 
-        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+        Notification notification = new NotificationCompat.Builder(this, BT_CHANNEL_ID)
                 .setContentTitle("OBDII Bluetooth Service")
                 .setContentText("running...")
                 .setSmallIcon(R.drawable.ic_android)
@@ -97,18 +101,28 @@ public class BluetoothService extends Service {
 
                     connectBtnState(true);
 
+
                     // initialize car with obd initialization commands
                     try {
+                        Thread.sleep(1000);
                         new EchoOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
+                        Thread.sleep(1000);
 
                         new LineFeedOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
+                        Thread.sleep(1000);
 
                         new TimeoutCommand(100).run(mySocket.getInputStream(), mySocket.getOutputStream());
+                        Thread.sleep(1000);
 
                         new SelectProtocolCommand(ObdProtocols.AUTO).run(mySocket.getInputStream(), mySocket.getOutputStream());
+                        Thread.sleep(1000);
+
+
+
 
                         SpeedCommand speedCommand = new SpeedCommand();
-                        //FuelLevelCommand fuelCommand = new FuelLevelCommand(); //getfuellevel()
+                        float prevSpd = 0, currentSpd;
+
 
                         // loop thread for a constant stream of refreshed data, 3 sec interval
                         while (!Thread.currentThread().isInterrupted() && mySocket.isConnected())
@@ -117,18 +131,21 @@ public class BluetoothService extends Service {
 
                             try {
                                 speedCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
-                                //fuelCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
-                                Log.d(TAG, "run: speed acquired");
+                                Log.d(TAG, "run: data acquired");
                             } catch (NoDataException | UnableToConnectException e){
                                 e.printStackTrace();
                                 break;
                             }
 
+                            currentSpd = speedCommand.getImperialUnit();
+                            Bundle b = new Bundle();
+                            b.putInt("speed", (int) speedCommand.getImperialUnit());
+                            b.putFloat("acceleration", (currentSpd - prevSpd)); // multiply by 0.0455853936 to get g force
+                            sendMessageToActivity(b);
 
-                            sendMessageToActivity((int)speedCommand.getImperialSpeed());
-                            //sendMessageToActivity((int)fuelCommand.getFuelLevel());
+                            prevSpd = currentSpd;
 
-                            Thread.sleep(3000);
+                            Thread.sleep(1000);
 
                         }
 
@@ -148,6 +165,8 @@ public class BluetoothService extends Service {
             connectBtnState(false);
             stopSelf();
         }
+
+
 
 
     }
@@ -187,10 +206,10 @@ public class BluetoothService extends Service {
 
     }
 
-    private void sendMessageToActivity(int msg) {
+    private void sendMessageToActivity(Bundle b) {
         Intent sendCarData = new Intent("CarDataUpdates");
 
-        sendCarData.putExtra("value", msg);
+        sendCarData.putExtra("CarData", b);
 
         sendBroadcast(sendCarData);
     }

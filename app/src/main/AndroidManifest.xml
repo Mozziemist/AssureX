@@ -31,6 +31,7 @@
         <activity android:name=".Testing"></activity>
         <activity android:name=".Speed" android:launchMode="singleTop"/>
         <service android:name=".BluetoothService" />
+        <service android:name=".RawDataCollectionService" />
     </application>
 
 </manifest>

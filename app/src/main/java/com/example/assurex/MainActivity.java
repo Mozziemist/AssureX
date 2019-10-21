@@ -27,16 +27,10 @@ import java.util.concurrent.Executors;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
-    //private AppDatabase db;
-
-    private Executor executor = Executors.newSingleThreadExecutor();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //db = AppDatabase.getInstance(this);
     }
 
     @Override
@@ -49,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        //mDataSource.close();
     }
 
     public void LoginClicked(View view) {

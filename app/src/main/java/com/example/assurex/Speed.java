@@ -34,26 +34,20 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.Calendar;
 
-public class Speed extends AppCompatActivity implements SensorEventListener {
+public class Speed extends AppCompatActivity {
     private static final String TAG = "Speed";
     private TextView speed;
+    private TextView acceleration;
     private Button connectBtn;
-    private SensorManager snsMngr;
-    private Sensor accel;
     CarDataReceiver receiver;
     BtnStateReceiver BtnReceiver;
-    private static AppDatabase db;
-
-    final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-    static double rawSpeed;
-    static double rawAcceleration; //based on linear acceleration from device sensors
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_speed);
         speed = findViewById(R.id.speed);
+        acceleration = findViewById(R.id.acceleration);
         connectBtn = findViewById(R.id.connectButton);
 
         receiver = new CarDataReceiver();
@@ -64,16 +58,8 @@ public class Speed extends AppCompatActivity implements SensorEventListener {
         Intent serviceIntent = new Intent(this, BluetoothService.class);
         startService(serviceIntent);
 
-
-        db = AppDatabase.getInstance(this);
-
-        executorService.scheduleWithFixedDelay(Speed::rawDataCollection, 0, 10, TimeUnit.SECONDS);
-
-        //sensor accelerometer
-        snsMngr = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        accel = snsMngr.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-        snsMngr.registerListener(this, accel, SensorManager.SENSOR_DELAY_NORMAL);
-
+        Intent rawDataIntent = new Intent(this, RawDataCollectionService.class);
+        startService(rawDataIntent);
 
     }//end oncreate
 
@@ -81,8 +67,6 @@ public class Speed extends AppCompatActivity implements SensorEventListener {
     @Override
     protected void onStart() {
         super.onStart();
-
-
     }//end onstart
 
 
@@ -92,6 +76,9 @@ public class Speed extends AppCompatActivity implements SensorEventListener {
         {
             Intent serviceIntent = new Intent(this, BluetoothService.class);
             startService(serviceIntent);
+
+            Intent rawDataIntent = new Intent(this, RawDataCollectionService.class);
+            startService(rawDataIntent);
         }
     }
 
@@ -111,20 +98,25 @@ public class Speed extends AppCompatActivity implements SensorEventListener {
         Intent serviceIntent = new Intent(this, BluetoothService.class);
         stopService(serviceIntent);
 
-        AppDatabase.destroyInstance();
+        Intent rawDataIntent = new Intent(this, RawDataCollectionService.class);
+        stopService(rawDataIntent);
     }
 
     class CarDataReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-
             if (("CarDataUpdates").equals(intent.getAction())) {
-                Log.d(TAG, "onReceive: about to setText");
-                speed.setText(Integer.toString(intent.getIntExtra("value", 0)));
+
+                Bundle b = intent.getBundleExtra("CarData");
+                int spd = b.getInt("speed", 0);
+                float accel = b.getFloat("acceleration", 0);
+
+                speed.setText(Integer.toString(spd));
+                acceleration.setText(Float.toString(accel));
+
                 Log.d(TAG, "onReceive: text has been set");
 
-                rawSpeed = (double) intent.getIntExtra("value", 0);
             }
         }
     }
@@ -147,47 +139,4 @@ public class Speed extends AppCompatActivity implements SensorEventListener {
             }
         }
     }
-
-    private static void rawDataCollection() {
-        Calendar calendar = Calendar.getInstance();
-        String date = calendar.get(Calendar.MONTH) + 1 + "-" +
-                calendar.get(Calendar.DAY_OF_MONTH) + "-" +
-                calendar.get(Calendar.YEAR);
-        String timeStamp = calendar.get(Calendar.HOUR_OF_DAY) + ":" +
-                calendar.get(Calendar.MINUTE) + ":" +
-                calendar.get(Calendar.SECOND);
-        String tripId = date + "@" + timeStamp;
-        RawDataItem tempRawDataItem = new RawDataItem(tripId, date, timeStamp, rawSpeed, rawAcceleration);
-        db.rawDataItemDao().insert(tempRawDataItem);
-        Log.i(TAG, "raw data inserted into sqlite");
-
-    }
-
-
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        //Accelerometer
-        if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
-            double accX = (double) event.values[0];
-            double accY = (double) event.values[1];
-            double accZ = (double) event.values[2];
-
-            String myText;
-
-            //if ((((int) ((Math.abs(accX) + Math.abs(accY) + Math.abs(accZ)) / 3)) - 3) > 0)
-            if (((((Math.abs(accX) + Math.abs(accY) + Math.abs(accZ)) / 3)) - 3) > 0)
-                myText = Double.toString((((Math.abs(accX) + Math.abs(accY) + Math.abs(accZ)) / 3) - 3));
-            else myText = "0";
-            Log.i(TAG, "current acceleration is " + myText);
-            rawAcceleration = Double.parseDouble(myText);
-        }
-    }//end onsensor changed
-
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {
-        //place holder
-
-    }//end onAccuracyChanged
-
 }//end class speed
