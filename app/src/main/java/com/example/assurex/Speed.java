@@ -113,7 +113,6 @@ public class Speed extends AppCompatActivity {
                 Bundle b = intent.getBundleExtra("CarData");
                 int spd = b.getInt("speed", 0);
                 float accel = b.getFloat("acceleration", 0);
-                protocol.setText(b.getString("protocol", "protocol"));
 
                 speed.setText(Integer.toString(spd));
                 acceleration.setText(Float.toString(accel));
