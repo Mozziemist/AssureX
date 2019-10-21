@@ -38,6 +38,7 @@ public class Speed extends AppCompatActivity {
     private static final String TAG = "Speed";
     private TextView speed;
     private TextView acceleration;
+    private TextView protocol;
     private Button connectBtn;
     CarDataReceiver receiver;
     BtnStateReceiver BtnReceiver;
@@ -49,6 +50,7 @@ public class Speed extends AppCompatActivity {
         speed = findViewById(R.id.speed);
         acceleration = findViewById(R.id.acceleration);
         connectBtn = findViewById(R.id.connectButton);
+        protocol = findViewById(R.id.Protocol);
 
         receiver = new CarDataReceiver();
         registerReceiver(receiver, new IntentFilter("CarDataUpdates"));
@@ -111,6 +113,7 @@ public class Speed extends AppCompatActivity {
                 Bundle b = intent.getBundleExtra("CarData");
                 int spd = b.getInt("speed", 0);
                 float accel = b.getFloat("acceleration", 0);
+                protocol.setText(b.getString("protocol", "protocol"));
 
                 speed.setText(Integer.toString(spd));
                 acceleration.setText(Float.toString(accel));

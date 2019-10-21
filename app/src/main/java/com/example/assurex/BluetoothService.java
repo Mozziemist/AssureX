@@ -22,6 +22,8 @@ import androidx.core.app.NotificationCompat;
 import com.github.pires.obd.commands.SpeedCommand;
 import com.github.pires.obd.commands.fuel.FuelLevelCommand;
 import com.github.pires.obd.commands.protocol.AvailablePidsCommand_01_20;
+import com.github.pires.obd.commands.protocol.DescribeProtocolCommand;
+import com.github.pires.obd.commands.protocol.DescribeProtocolNumberCommand;
 import com.github.pires.obd.commands.protocol.EchoOffCommand;
 import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
 import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
@@ -107,7 +109,15 @@ public class BluetoothService extends Service {
 
                         new TimeoutCommand(100).run(mySocket.getInputStream(), mySocket.getOutputStream());
 
+                        DescribeProtocolCommand protocolCommand = new DescribeProtocolCommand();
+                        protocolCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
+
+                        String tempProt = protocolCommand.getFormattedResult();
+
                         new SelectProtocolCommand(ObdProtocols.AUTO).run(mySocket.getInputStream(), mySocket.getOutputStream());
+
+
+
 
                         SpeedCommand speedCommand = new SpeedCommand();
                         float prevSpd = 0, currentSpd;
@@ -128,6 +138,7 @@ public class BluetoothService extends Service {
 
                             currentSpd = speedCommand.getImperialUnit();
                             Bundle b = new Bundle();
+                            b.putString("protocol", tempProt);
                             b.putInt("speed", (int) speedCommand.getImperialUnit());
                             b.putFloat("acceleration", (currentSpd - prevSpd)); // multiply by 0.0455853936 to get g force
                             sendMessageToActivity(b);
