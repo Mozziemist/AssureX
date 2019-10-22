@@ -350,8 +350,12 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
             case 1: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
                     Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                    String address = hereLocation(location.getLatitude(), location.getLongitude());
-                    locText.setText(address);
+                    if (locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null) {
+                        String address = hereLocation(location.getLatitude(), location.getLongitude());
+                        locText.setText(address);
+                    } else {
+                        locText.setText("Location Not Found");
+                    }
                 } else {
                     Toast.makeText(this, "Permission Denied", Toast.LENGTH_LONG).show();
                 }
