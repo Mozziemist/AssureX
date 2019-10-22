@@ -35,33 +35,116 @@
                     android:layout_width="110dp"
                     android:layout_height="45dp"
                     android:layout_gravity="left"
-                    android:background="#FFFFFF"
+                    android:background="@drawable/bg_button_white"
                     android:text="Date"
                     android:textSize="13dp"
                     android:paddingLeft="10dp"
-                    android:paddingRight="10dp"/>
+                    android:paddingRight="10dp"
+                    android:onClick="dateClicked"/>
 
                 <Button
                     android:layout_marginHorizontal="13dp"
                     android:layout_width="110dp"
                     android:layout_height="45dp"
-                    android:text="Hazard Level"
-                    android:background="#FFFFFF"
+                    android:text="Trip"
+                    android:background="@drawable/bg_button_white"
                     android:layout_gravity="center_horizontal"
                     android:textSize="13dp"
                     android:paddingLeft="10dp"
-                    android:paddingRight="10dp"/>
+                    android:paddingRight="10dp"
+                    android:onClick="tripClicked"/>
 
                 <Button
                     android:layout_marginHorizontal="13dp"
                     android:layout_width="110dp"
                     android:layout_height="45dp"
                     android:layout_gravity="right"
-                    android:background="#FFFFFF"
-                    android:text="A to Z"
+                    android:background="@drawable/bg_button_white"
+                    android:text="Location"
                     android:textSize="13dp"
                     android:paddingLeft="10dp"
-                    android:paddingRight="10dp"/>
+                    android:paddingRight="10dp"
+                    android:onClick="locationClicked"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="300dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_button_white"
+                android:paddingTop="5dp"
+                android:layout_marginVertical="20dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:orientation="vertical"
+                android:id="@+id/calender">
+
+                <CalendarView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/calenderView">
+
+                </CalendarView>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/calText"
+                android:background="@drawable/bg_button_white"
+                android:textSize="16dp"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:textColor="#0F2027"
+                android:text="Text here"
+                android:visibility="gone"
+                android:layout_marginVertical="20dp"
+                android:layout_marginHorizontal="20dp"
+                />
+
+
+            <LinearLayout
+                android:layout_width="110dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_button_white"
+                android:paddingTop="5dp"
+                android:layout_marginVertical="20dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:id="@+id/spinnerWindow">
+
+                <Spinner
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/tripSpinner"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="300dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_button_white"
+                android:paddingTop="5dp"
+                android:layout_marginVertical="20dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:orientation="vertical"
+                android:id="@+id/locationWindow">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/locText"
+                    android:textSize="16dp"
+                    android:gravity="center_horizontal"
+                    android:textColor="#0F2027"
+                    android:text="No Location Found" />
+
+
 
             </LinearLayout>
 
@@ -70,8 +153,7 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:layout_gravity="center_horizontal"
-                android:gravity="center"
-                android:paddingTop="40dp">
+                android:gravity="center">
 
                 <LinearLayout
                     android:layout_marginVertical="20dp"
@@ -83,7 +165,7 @@
                     android:orientation="horizontal"
                     android:layout_gravity="top"
                     android:layout_weight="1"
-                    android:background="#6FBDC3C7"
+                    android:background="@drawable/bg_button_grey"
                     android:gravity="center">
 
                     <TextView
@@ -141,7 +223,7 @@
                     android:orientation="vertical"
                     android:layout_gravity="top"
                     android:layout_weight="1"
-                    android:background="#6FBDC3C7"
+                    android:background="@drawable/bg_button_grey"
                     android:gravity="center"
                     android:visibility="gone"
                     android:id="@+id/avSpWindow">
@@ -180,7 +262,7 @@
                     android:orientation="horizontal"
                     android:layout_gravity="top"
                     android:layout_weight="1"
-                    android:background="#6FBDC3C7"
+                    android:background="@drawable/bg_button_grey"
                     android:gravity="center">
 
                     <TextView
@@ -237,7 +319,7 @@
                     android:orientation="vertical"
                     android:layout_gravity="top"
                     android:layout_weight="1"
-                    android:background="#6FBDC3C7"
+                    android:background="@drawable/bg_button_grey"
                     android:gravity="center"
                     android:visibility="gone"
                     android:id="@+id/accWindow">
@@ -276,7 +358,7 @@
                     android:orientation="horizontal"
                     android:layout_gravity="top"
                     android:layout_weight="1"
-                    android:background="#6FBDC3C7"
+                    android:background="@drawable/bg_button_grey"
                     android:gravity="center">
 
                     <TextView
@@ -333,7 +415,7 @@
                     android:orientation="vertical"
                     android:layout_gravity="top"
                     android:layout_weight="1"
-                    android:background="#6FBDC3C7"
+                    android:background="@drawable/bg_button_grey"
                     android:gravity="center"
                     android:visibility="gone"
                     android:id="@+id/engInfWindow">
@@ -372,7 +454,7 @@
                     android:orientation="horizontal"
                     android:layout_gravity="top"
                     android:layout_weight="1"
-                    android:background="#6FC7BDBF"
+                    android:background="@drawable/bg_button_grey"
                     android:gravity="center">
 
                     <TextView
