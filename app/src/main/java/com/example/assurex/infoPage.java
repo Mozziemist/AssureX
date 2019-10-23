@@ -21,6 +21,9 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
@@ -165,6 +168,25 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
 
 
     }//end onCreate
+
+    //for menu
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.home_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.subitem1: {
+                Toast.makeText(this, "Subitem1 selected", Toast.LENGTH_SHORT).show();
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }//end onOptionsItemSelected
+    //end for menu --------
 
     public void toMain(View view) {
         startActivity(new Intent(getApplicationContext(), Speed.class));
