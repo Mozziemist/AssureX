@@ -180,8 +180,29 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.subitem1: {
-                Toast.makeText(this, "Subitem1 selected", Toast.LENGTH_SHORT).show();
+            case R.id.profilePic: {
+                Toast.makeText(this, "Insert Picture Selector Here", Toast.LENGTH_SHORT).show();
+                break;
+            }
+            case R.id.profileUser: {
+                Toast.makeText(this, "profileUser selected", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getApplicationContext(), Package.class));
+                break;
+            }
+            case R.id.home: {
+                Toast.makeText(this, "home selected", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getApplicationContext(), Speed.class));
+                break;
+            }
+            case R.id.infoPage: {
+                Toast.makeText(this, "infoPage selected", Toast.LENGTH_SHORT).show();
+                //startActivity(new Intent(getApplicationContext(), infoPage.class));
+                break;
+            }
+            case R.id.signOut: {
+                Toast.makeText(this, "signOut selected", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                break;
             }
         }
         return super.onOptionsItemSelected(item);

@@ -19,8 +19,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".infoPage" />
-        <activity android:name=".Package" />
+        <activity android:name=".infoPage"
+            android:label="Info Page"
+            android:parentActivityName=".Speed"/>
+        <activity android:name=".Package"
+            android:label="My Plan"
+            android:parentActivityName=".Speed"/>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,9 +32,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Testing"></activity>
-        <activity android:name=".Speed" android:launchMode="singleTop"/>
-        <service android:name=".BluetoothService" />
+        <activity android:name=".Testing"/>
+        <activity android:name=".Speed"
+            android:launchMode="singleTop"
+            android:label="Home"/>
+        <service android:name=".BluetoothService"/>
         <service android:name=".RawDataCollectionService" />
     </application>
 
