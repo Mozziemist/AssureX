@@ -19,17 +19,28 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".infoPage" />
-        <activity android:name=".Package" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".infoPage"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Package"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".MainActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Testing"></activity>
-        <activity android:name=".Speed" android:launchMode="singleTop"/>
+        <activity android:name=".Testing"
+                android:configChanges="orientation"
+                android:screenOrientation="portrait"/>
+        <activity android:name=".Speed" android:launchMode="singleTop"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"/>
         <service android:name=".BluetoothService" />
         <service android:name=".RawDataCollectionService" />
     </application>
