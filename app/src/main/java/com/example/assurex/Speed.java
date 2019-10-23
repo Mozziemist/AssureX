@@ -112,6 +112,8 @@ public class Speed extends AppCompatActivity {
                 int spd = b.getInt("speed", 0);
                 float accel = b.getFloat("acceleration", 0);
 
+                
+
                 speed.setText(Integer.toString(spd));
                 acceleration.setText(Float.toString(accel));
 

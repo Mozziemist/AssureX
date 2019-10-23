@@ -124,6 +124,7 @@ public class BluetoothService extends Service {
                         float prevSpd = 0, currentSpd;
 
 
+
                         // loop thread for a constant stream of refreshed data, 3 sec interval
                         while (!Thread.currentThread().isInterrupted() && mySocket.isConnected())
                         {
