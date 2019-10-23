@@ -332,11 +332,21 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
+            public void onNothingSelected(AdapterView<?> parent) {
+                //place holder
             }
         });
     }//end additemsonspinner
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long l) {
+        //required but not used
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+        //required but not used
+    }
 
     //end for spinner ------
 
