@@ -104,18 +104,18 @@ public class BluetoothService extends Service {
 
                     // initialize car with obd initialization commands
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(100);
                         new EchoOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
-                        Thread.sleep(1000);
+                        Thread.sleep(100);
 
                         new LineFeedOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
-                        Thread.sleep(1000);
+                        Thread.sleep(100);
 
                         new TimeoutCommand(100).run(mySocket.getInputStream(), mySocket.getOutputStream());
-                        Thread.sleep(1000);
+                        Thread.sleep(100);
 
                         new SelectProtocolCommand(ObdProtocols.AUTO).run(mySocket.getInputStream(), mySocket.getOutputStream());
-                        Thread.sleep(1000);
+                        Thread.sleep(100);
 
 
 

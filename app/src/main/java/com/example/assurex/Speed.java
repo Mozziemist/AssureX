@@ -58,8 +58,8 @@ public class Speed extends AppCompatActivity {
         Intent serviceIntent = new Intent(this, BluetoothService.class);
         startService(serviceIntent);
 
-        Intent rawDataIntent = new Intent(this, RawDataCollectionService.class);
-        startService(rawDataIntent);
+        //Intent rawDataIntent = new Intent(this, RawDataCollectionService.class);
+        //startService(rawDataIntent);
 
     }//end oncreate
 
@@ -77,8 +77,8 @@ public class Speed extends AppCompatActivity {
             Intent serviceIntent = new Intent(this, BluetoothService.class);
             startService(serviceIntent);
 
-            Intent rawDataIntent = new Intent(this, RawDataCollectionService.class);
-            startService(rawDataIntent);
+            //Intent rawDataIntent = new Intent(this, RawDataCollectionService.class);
+            //startService(rawDataIntent);
         }
     }
 
@@ -98,8 +98,8 @@ public class Speed extends AppCompatActivity {
         Intent serviceIntent = new Intent(this, BluetoothService.class);
         stopService(serviceIntent);
 
-        Intent rawDataIntent = new Intent(this, RawDataCollectionService.class);
-        stopService(rawDataIntent);
+        //Intent rawDataIntent = new Intent(this, RawDataCollectionService.class);
+        //stopService(rawDataIntent);
     }
 
     class CarDataReceiver extends BroadcastReceiver {
