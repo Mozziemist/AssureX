@@ -23,20 +23,31 @@
             android:label="Info Page"
             android:parentActivityName=".Speed"/>
         <activity android:name=".Package"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
             android:label="My Plan"
             android:parentActivityName=".Speed"/>
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Testing"/>
+
+        <service android:name=".BluetoothService"/>
+        <activity android:name=".Testing"
+                android:configChanges="orientation"
+                android:screenOrientation="portrait"/>
         <activity android:name=".Speed"
             android:launchMode="singleTop"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
             android:label="Home"/>
-        <service android:name=".BluetoothService"/>
+        <service android:name=".BluetoothService" />
         <service android:name=".RawDataCollectionService" />
     </application>
 
