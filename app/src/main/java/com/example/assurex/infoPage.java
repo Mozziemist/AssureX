@@ -36,6 +36,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -140,9 +141,9 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         //for spinner drop down
         spinWindow = findViewById(R.id.spinnerWindow);
         tripSpinner = findViewById(R.id.tripSpinner);
-        adapter = ArrayAdapter.createFromResource(this, R.array.numbers, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        tripSpinner.setAdapter(adapter);
+        //adapter = ArrayAdapter.createFromResource(this, R.array.numbers, android.R.layout.simple_spinner_item);
+        //adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        //tripSpinner.setAdapter(adapter);
         //tripSpinner.setOnItemClickListener(this::onItemSelected);
 
         //for loc drop down
@@ -165,9 +166,11 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         });
         //end calender
 
-
+        //calls the drop down spinner to be created
+        addItemsOnSpinner();
 
     }//end onCreate
+
 
     //for menu
     @Override
@@ -311,16 +314,30 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         }//end else
     }
 
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long l) {
-        String text = parent.getItemAtPosition(position).toString();
-        Toast.makeText(parent.getContext(), text, Toast.LENGTH_SHORT).show();
-    }
+    private void addItemsOnSpinner() {
+        List<String> list = new ArrayList<String>();
+        list.add("Trip 1");
+        list.add("Trip 2");
+        list.add("Trip 3");
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, list);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        tripSpinner.setAdapter(dataAdapter);
 
-    @Override
-    public void onNothingSelected(AdapterView<?> adapterView) {
+        tripSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long l) {
+                String text = parent.getItemAtPosition(position).toString();
+                Toast.makeText(parent.getContext(), text + " new", Toast.LENGTH_SHORT).show();
+            }
 
-    }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+    }//end additemsonspinner
+
     //end for spinner ------
 
     //for location -------
