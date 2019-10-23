@@ -44,10 +44,10 @@ public class RawDataCollectionService extends Service {
     double tTopAcceleration = 0;
     boolean tripSummaryShouldBeSaved = false;
 
-    public double gettAverageSpeed() { return tAverageSpeed; }
-    public double gettTopSpeed() { return tTopSpeed; }
-    public double gettAverageAcceleration() { return tAverageAcceleration; }
-    public double gettTopAcceleration() { return tTopAcceleration; }
+    public double getAverageSpeed() { return tAverageSpeed; }
+    public double getTopSpeed() { return tTopSpeed; }
+    public double getAverageAcceleration() { return tAverageAcceleration; }
+    public double getTopAcceleration() { return tTopAcceleration; }
 
     public boolean isTripSummaryShouldBeSaved() { return tripSummaryShouldBeSaved; }
 
