@@ -1,4 +1,9 @@
 <resources>
+    <string-array name="insurArray">
+        <item>Allstate</item>
+        <item>GEICO</item>
+        <item>StateFarm</item>
+    </string-array>
     <string name="app_name">AssureX</string>
     
     <string-array name="numbers">
@@ -8,4 +13,5 @@
         <item>four</item>
         <item>five</item>
     </string-array>
+</resources>
 </resources>
