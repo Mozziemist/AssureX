@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
         username = findViewById(R.id.userText);
         password = findViewById(R.id.passText);
     }
+
     @Override
     protected void onDestroy() {
         AppDatabase.destroyInstance();
@@ -45,6 +46,10 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),
                     "Invalid username or password", Toast.LENGTH_SHORT).show();
         }
+        //startActivity(new Intent(getApplicationContext(), Speed.class));
+        Intent intent = new Intent(getApplicationContext(), Speed.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
     }
 
     public void SignUpClicked(View view) {

@@ -23,7 +23,7 @@ public interface RawDataItemDao {
     @Query("SELECT COUNT(*) from rawdataitem")
     int countItems();
 
-    @Query("SELECT * FROM rawdataitem ORDER BY tripId")
+    @Query("SELECT * FROM rawdataitem ORDER BY tripDatedTimeStamp")
     List<RawDataItem> getAll();
 
     @Query("SELECT * FROM rawdataitem WHERE tripId = :tripId")

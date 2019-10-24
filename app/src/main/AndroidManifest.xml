@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -17,9 +19,18 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".infoPage" />
-        <activity android:name=".Package" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".infoPage"
+            android:label="Info Page"
+            android:parentActivityName=".Speed"/>
+        <activity android:name=".Package"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:label="My Plan"
+            android:parentActivityName=".Speed"/>
+        <activity android:name=".MainActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -29,6 +40,16 @@
         <activity android:name=".Testing" />
         <activity android:name=".Speed" />
         <activity android:name=".Register"/>
+
+        <service android:name=".BluetoothService"/>
+        <activity android:name=".Testing"
+                android:configChanges="orientation"
+                android:screenOrientation="portrait"/>
+        <activity android:name=".Speed"
+            android:launchMode="singleTop"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:label="Home"/>
         <service android:name=".BluetoothService" />
         <service android:name=".RawDataCollectionService" />
     </application>

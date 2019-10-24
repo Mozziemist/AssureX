@@ -1,5 +1,9 @@
 package com.example.assurex;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +12,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -19,10 +26,8 @@ import com.example.assurex.database.AppDatabase;
 public class Speed extends AppCompatActivity {
     private static final String TAG = "Speed";
     private TextView speed;
-    Intent rawDataCollectionIntent;
+    private TextView acceleration;
     private Button connectBtn;
-    private SensorManager snsMngr;
-    private Sensor accel;
     CarDataReceiver receiver;
     BtnStateReceiver BtnReceiver;
 
@@ -31,6 +36,7 @@ public class Speed extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_speed);
         speed = findViewById(R.id.speed);
+        acceleration = findViewById(R.id.acceleration);
         connectBtn = findViewById(R.id.connectButton);
 
         receiver = new CarDataReceiver();
@@ -41,8 +47,8 @@ public class Speed extends AppCompatActivity {
         Intent serviceIntent = new Intent(this, BluetoothService.class);
         startService(serviceIntent);
 
-        rawDataCollectionIntent = new Intent(this, RawDataCollectionService.class);
-        startService(rawDataCollectionIntent);
+        Intent rawDataIntent = new Intent(this, RawDataCollectionService.class);
+        startService(rawDataIntent);
 
     }//end oncreate
 
@@ -59,6 +65,9 @@ public class Speed extends AppCompatActivity {
         {
             Intent serviceIntent = new Intent(this, BluetoothService.class);
             startService(serviceIntent);
+
+            Intent rawDataIntent = new Intent(this, RawDataCollectionService.class);
+            startService(rawDataIntent);
         }
     }
 
@@ -77,8 +86,9 @@ public class Speed extends AppCompatActivity {
         unregisterReceiver(BtnReceiver);
         Intent serviceIntent = new Intent(this, BluetoothService.class);
         stopService(serviceIntent);
-        stopService(rawDataCollectionIntent);
-        AppDatabase.destroyInstance();
+
+        Intent rawDataIntent = new Intent(this, RawDataCollectionService.class);
+        stopService(rawDataIntent);
     }
 
     class CarDataReceiver extends BroadcastReceiver {
@@ -92,6 +102,8 @@ public class Speed extends AppCompatActivity {
                 float accel = b.getFloat("acceleration", 0);
 
                 speed.setText(Integer.toString(spd));
+                acceleration.setText(Float.toString(accel));
+
                 Log.d(TAG, "onReceive: text has been set");
 
             }
@@ -115,5 +127,45 @@ public class Speed extends AppCompatActivity {
                 }
             }
         }
+    }//end btnstatereciever
+
+    //for menu
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.home_menu, menu);
+        return true;
     }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.profilePic: {
+                Toast.makeText(this, "Insert Picture Selector Here", Toast.LENGTH_SHORT).show();
+                break;
+            }
+            case R.id.profileUser: {
+                Toast.makeText(this, "profileUser selected", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getApplicationContext(), Package.class));
+                break;
+            }
+            case R.id.home: {
+                Toast.makeText(this, "home selected", Toast.LENGTH_SHORT).show();
+                //startActivity(new Intent(getApplicationContext(), Speed.class));
+                break;
+            }
+            case R.id.infoPage: {
+                Toast.makeText(this, "infoPage selected", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getApplicationContext(), infoPage.class));
+                break;
+            }
+            case R.id.signOut: {
+                Toast.makeText(this, "signOut selected", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                break;
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }//end onOptionsItemSelected
+    //end for menu --------
 }//end class speed

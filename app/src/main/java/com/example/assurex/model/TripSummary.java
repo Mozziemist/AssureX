@@ -20,6 +20,8 @@ public class TripSummary implements Parcelable {
     @ColumnInfo
     private String date;
     @ColumnInfo
+    private int tripNumber;
+    @ColumnInfo
     private String currentStanding;
     @ColumnInfo
     private String engineStatus;
@@ -41,9 +43,9 @@ public class TripSummary implements Parcelable {
 
     //actual constructor
     @Ignore
-    public TripSummary(String tripId, String date, String currentStanding, String engineStatus,
-                       double averageSpeed, double topSpeed, double averageAcceleration,
-                       double topAcceleration){
+    public TripSummary(String tripId, String date, int tripNumber, String currentStanding,
+                       String engineStatus, double averageSpeed, double topSpeed,
+                       double averageAcceleration, double topAcceleration){
 
         if (tripId == null) {
             tripId = UUID.randomUUID().toString();
@@ -56,6 +58,7 @@ public class TripSummary implements Parcelable {
 
         this.tripId = tripId;
         this.date = date;
+        this.tripNumber = tripNumber;
         this.currentStanding = currentStanding;
         this.engineStatus = engineStatus;
         this.averageSpeed = averageSpeed;
@@ -78,6 +81,14 @@ public class TripSummary implements Parcelable {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public int getTripNumber() {
+        return tripNumber;
+    }
+
+    public void setTripNumber(int tripNumber) {
+        this.tripNumber = tripNumber;
     }
 
     public String getCurrentStanding() {
@@ -132,6 +143,7 @@ public class TripSummary implements Parcelable {
         this.tripId = in.readString();
         this.date = in.readString();
         this.currentStanding = in.readString();
+        this.tripNumber = in.readInt();
         this.engineStatus = in.readString();
         this.averageSpeed = in.readDouble();
         this.topSpeed = in.readDouble();
@@ -144,6 +156,7 @@ public class TripSummary implements Parcelable {
         dest.writeString(this.tripId);
         dest.writeString(this.date);
         dest.writeString(this.currentStanding);
+        dest.writeInt(this.tripNumber);
         dest.writeString(this.engineStatus);
         dest.writeDouble(this.averageSpeed);
         dest.writeDouble(this.topSpeed);

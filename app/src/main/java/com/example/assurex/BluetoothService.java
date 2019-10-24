@@ -22,6 +22,8 @@ import androidx.core.app.NotificationCompat;
 import com.github.pires.obd.commands.SpeedCommand;
 import com.github.pires.obd.commands.fuel.FuelLevelCommand;
 import com.github.pires.obd.commands.protocol.AvailablePidsCommand_01_20;
+import com.github.pires.obd.commands.protocol.DescribeProtocolCommand;
+import com.github.pires.obd.commands.protocol.DescribeProtocolNumberCommand;
 import com.github.pires.obd.commands.protocol.EchoOffCommand;
 import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
 import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
@@ -99,15 +101,24 @@ public class BluetoothService extends Service {
 
                     connectBtnState(true);
 
+
                     // initialize car with obd initialization commands
                     try {
+                        Thread.sleep(1000);
                         new EchoOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
+                        Thread.sleep(1000);
 
                         new LineFeedOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
+                        Thread.sleep(1000);
 
                         new TimeoutCommand(100).run(mySocket.getInputStream(), mySocket.getOutputStream());
+                        Thread.sleep(1000);
 
                         new SelectProtocolCommand(ObdProtocols.AUTO).run(mySocket.getInputStream(), mySocket.getOutputStream());
+                        Thread.sleep(1000);
+
+
+
 
                         SpeedCommand speedCommand = new SpeedCommand();
                         float prevSpd = 0, currentSpd;

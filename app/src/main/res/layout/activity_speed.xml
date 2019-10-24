@@ -22,7 +22,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:layout_gravity="center_horizontal"
                 android:gravity="center_horizontal"
                 android:paddingTop="60dp">
@@ -35,12 +35,27 @@
                     android:text="0"
                     android:textSize="100dp"
                     />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
                     android:text="mph"
-                    android:textSize="40dp"/>
+                    android:textSize="40dp" />
+
+                <TextView
+                    android:id="@+id/acceleration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="0"
+                    android:textSize="100dp" />
+
+                <TextView
+                    android:id="@+id/textView3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="mph per sec"
+                    android:textSize="40dp" />
 
 
 
@@ -93,6 +108,7 @@
             android:layout_gravity="center_horizontal"
             android:gravity="center"
             android:id="@+id/myInfo"
+
             android:onClick="toInfoPage"
             android:layout_weight="1"
             />
