@@ -14,17 +14,19 @@
         android:name=".App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="AssureX"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".infoPage"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait"/>
+            android:label="Info Page"
+            android:parentActivityName=".Speed"/>
         <activity android:name=".Package"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:label="My Plan"
+            android:parentActivityName=".Speed"/>
         <activity android:name=".MainActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait">
@@ -35,12 +37,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".Register"/>
+
         <activity android:name=".Testing"
                 android:configChanges="orientation"
                 android:screenOrientation="portrait"/>
-        <activity android:name=".Speed" android:launchMode="singleTop"
+        <activity android:name=".Speed"
+            android:launchMode="singleTop"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:label="Home"/>
         <service android:name=".BluetoothService" />
         <service android:name=".RawDataCollectionService" />
     </application>
