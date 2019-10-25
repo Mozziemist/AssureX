@@ -37,11 +37,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Testing" />
-        <activity android:name=".Speed" />
+
         <activity android:name=".Register"/>
 
-        <service android:name=".BluetoothService"/>
         <activity android:name=".Testing"
                 android:configChanges="orientation"
                 android:screenOrientation="portrait"/>
