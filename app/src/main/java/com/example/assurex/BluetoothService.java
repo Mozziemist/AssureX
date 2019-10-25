@@ -122,8 +122,6 @@ public class BluetoothService extends Service {
 
                         new SelectProtocolCommand(ObdProtocols.AUTO).run(mySocket.getInputStream(), mySocket.getOutputStream());
 
-                        new AmbientAirTemperatureCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
-
 
 
 
