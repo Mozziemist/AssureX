@@ -105,7 +105,7 @@ public class Speed extends AppCompatActivity {
                 
 
                 speed.setText(Integer.toString(spd));
-                acceleration.setText(Float.toString(accel));
+                acceleration.setText(Integer.toString((int)accel));
 
                 Log.d(TAG, "onReceive: text has been set");
 
