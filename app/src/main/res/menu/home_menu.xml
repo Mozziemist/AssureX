@@ -10,22 +10,31 @@
         <menu>
 
             <item android:id="@+id/profilePic"
-                android:title=""
-                android:icon="@drawable/ic_profile_picture" />
+                android:title="Profile Picture"
+                android:icon="@drawable/ic_account_circle" />
 
             <item android:id="@+id/profileUser"
+                android:icon="@drawable/ic_username_icon"
                 android:title="Username" />
 
             <item android:id="@+id/carModel"
+                android:icon="@drawable/ic_car"
                 android:title="Car Model" />
 
             <item android:id="@+id/home"
+                android:icon="@drawable/ic_home"
                 android:title="Home" />
 
             <item android:id="@+id/infoPage"
+                android:icon="@drawable/ic_notes"
                 android:title="Info Page"/>
 
+            <item android:id="@+id/connect"
+                android:icon="@drawable/ic_bluetooth"
+                android:title="Connect"/>
+
             <item android:id="@+id/signOut"
+                android:icon="@drawable/ic_sign_out"
                 android:title="Sign Out"/>
 
 
