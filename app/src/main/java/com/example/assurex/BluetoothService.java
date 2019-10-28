@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
@@ -20,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.github.pires.obd.commands.SpeedCommand;
+import com.github.pires.obd.commands.engine.RPMCommand;
 import com.github.pires.obd.commands.fuel.FuelLevelCommand;
 import com.github.pires.obd.commands.protocol.AvailablePidsCommand_01_20;
 import com.github.pires.obd.commands.protocol.DescribeProtocolCommand;
@@ -126,32 +128,58 @@ public class BluetoothService extends Service {
 
 
                         SpeedCommand speedCommand = new SpeedCommand();
+                        RPMCommand rpmCommand = new RPMCommand();
+
+
                         float prevSpd = 0, currentSpd;
+                        boolean isBeingTimed = false;
+                        long startTime = 0, endTime, elapsedMilliSeconds;
+                        double elapsedSeconds;
 
 
 
                         // loop thread for a constant stream of refreshed data, 3 sec interval
                         while (!Thread.currentThread().isInterrupted() && mySocket.isConnected())
                         {
+                            rpmCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
 
 
-                            try {
-                                speedCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
-                                Log.d(TAG, "run: data acquired");
-                            } catch (NoDataException | UnableToConnectException e){
-                                e.printStackTrace();
-                                break;
+                            if (rpmCommand.getRPM() > 0)
+                            {
+                                if (!isBeingTimed)
+                                {
+                                    startTime = SystemClock.elapsedRealtime();
+                                    isBeingTimed = true;
+                                }
+
+                                try {
+                                    speedCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
+                                    Log.d(TAG, "run: data acquired");
+                                } catch (NoDataException | UnableToConnectException e){
+                                    e.printStackTrace();
+                                    break;
+                                }
+
+                                endTime = SystemClock.elapsedRealtime();
+                                elapsedMilliSeconds = endTime - startTime;
+                                elapsedSeconds = elapsedMilliSeconds / 1000.0;
+
+                                currentSpd = speedCommand.getImperialUnit();
+                                Bundle b = new Bundle();
+                                b.putDouble("tripTime", elapsedSeconds);
+                                b.putInt("speed", (int) speedCommand.getImperialUnit());
+                                b.putFloat("acceleration", (currentSpd - prevSpd)); // multiply by 0.0455853936 to get g force
+                                sendMessageToActivity(b);
+
+                                prevSpd = currentSpd;
+
+                                Thread.sleep(1000);
                             }
-
-                            currentSpd = speedCommand.getImperialUnit();
-                            Bundle b = new Bundle();
-                            b.putInt("speed", (int) speedCommand.getImperialUnit());
-                            b.putFloat("acceleration", (currentSpd - prevSpd)); // multiply by 0.0455853936 to get g force
-                            sendMessageToActivity(b);
-
-                            prevSpd = currentSpd;
-
-                            Thread.sleep(1000);
+                            else
+                            {
+                                isBeingTimed = false;
+                                startTime = 0;
+                            }
 
                         }
 
