@@ -132,33 +132,27 @@ public class BluetoothService extends Service {
 
 
                         float prevSpd = 0, currentSpd;
-                        boolean isBeingTimed = false;
+                        boolean isEngineOn = false, isBeingTimed = false;
                         long startTime = 0, endTime, elapsedMilliSeconds;
                         double elapsedSeconds;
 
 
 
-                        // loop thread for a constant stream of refreshed data, 3 sec interval
+                        // loop thread for a constant stream of refreshed data, 1 sec interval
                         while (!Thread.currentThread().isInterrupted() && mySocket.isConnected())
                         {
-                            rpmCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
 
-
-                            if (rpmCommand.getRPM() > 0)
+                            if (isEngineOn && !isBeingTimed)
                             {
-                                if (!isBeingTimed)
-                                {
-                                    startTime = SystemClock.elapsedRealtime();
-                                    isBeingTimed = true;
-                                }
+                                startTime = SystemClock.elapsedRealtime();
+                                isBeingTimed = true;
+                            }
 
-                                try {
-                                    speedCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
-                                    Log.d(TAG, "run: data acquired");
-                                } catch (NoDataException | UnableToConnectException e){
-                                    e.printStackTrace();
-                                    break;
-                                }
+                            try {
+                                rpmCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
+                                speedCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
+                                isEngineOn = true;
+                                Log.d(TAG, "run: data acquired");
 
                                 endTime = SystemClock.elapsedRealtime();
                                 elapsedMilliSeconds = endTime - startTime;
@@ -166,6 +160,7 @@ public class BluetoothService extends Service {
 
                                 currentSpd = speedCommand.getImperialUnit();
                                 Bundle b = new Bundle();
+                                b.putBoolean("isEngineOn", isEngineOn);
                                 b.putDouble("tripTime", elapsedSeconds);
                                 b.putInt("speed", (int) speedCommand.getImperialUnit());
                                 b.putFloat("acceleration", (currentSpd - prevSpd)); // multiply by 0.0455853936 to get g force
@@ -173,13 +168,22 @@ public class BluetoothService extends Service {
 
                                 prevSpd = currentSpd;
 
-                                Thread.sleep(1000);
-                            }
-                            else
-                            {
+
+                            } catch (NoDataException | UnableToConnectException e){
+                                e.printStackTrace();
+                                isEngineOn = false;
                                 isBeingTimed = false;
-                                startTime = 0;
+
+                                Bundle b = new Bundle();
+                                b.putBoolean("isEngineOn", isEngineOn);
+                                b.putDouble("tripTime", 0);
+                                b.putInt("speed", 0);
+                                b.putFloat("acceleration", 0); // multiply by 0.0455853936 to get g force
+                                sendMessageToActivity(b);
                             }
+
+
+                            Thread.sleep(1000);
 
                         }
 
