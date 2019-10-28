@@ -26,8 +26,10 @@ import com.github.pires.obd.commands.protocol.DescribeProtocolCommand;
 import com.github.pires.obd.commands.protocol.DescribeProtocolNumberCommand;
 import com.github.pires.obd.commands.protocol.EchoOffCommand;
 import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
+import com.github.pires.obd.commands.protocol.ObdRawCommand;
 import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
 import com.github.pires.obd.commands.protocol.TimeoutCommand;
+import com.github.pires.obd.commands.temperature.AmbientAirTemperatureCommand;
 import com.github.pires.obd.enums.ObdProtocols;
 import com.github.pires.obd.exceptions.NoDataException;
 import com.github.pires.obd.exceptions.UnableToConnectException;
@@ -104,24 +106,28 @@ public class BluetoothService extends Service {
 
                     // initialize car with obd initialization commands
                     try {
-                        Thread.sleep(1000);
+                        new ObdRawCommand("ATD").run(mySocket.getInputStream(), mySocket.getOutputStream());
+
+                        new ObdRawCommand("ATZ").run(mySocket.getInputStream(), mySocket.getOutputStream());
+
                         new EchoOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
-                        Thread.sleep(1000);
 
                         new LineFeedOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
-                        Thread.sleep(1000);
 
-                        new TimeoutCommand(100).run(mySocket.getInputStream(), mySocket.getOutputStream());
-                        Thread.sleep(1000);
+                        new ObdRawCommand("AT S0").run(mySocket.getInputStream(), mySocket.getOutputStream());
+
+                        new ObdRawCommand("AT H0").run(mySocket.getInputStream(), mySocket.getOutputStream());
+
+                        new TimeoutCommand(255).run(mySocket.getInputStream(), mySocket.getOutputStream());
 
                         new SelectProtocolCommand(ObdProtocols.AUTO).run(mySocket.getInputStream(), mySocket.getOutputStream());
-                        Thread.sleep(1000);
 
 
 
 
                         SpeedCommand speedCommand = new SpeedCommand();
                         float prevSpd = 0, currentSpd;
+
 
 
                         // loop thread for a constant stream of refreshed data, 3 sec interval
