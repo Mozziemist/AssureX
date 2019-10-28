@@ -6,16 +6,11 @@ import androidx.core.content.ContextCompat;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.nfc.Tag;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,20 +18,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import java.lang.Math;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.assurex.database.AppDatabase;
-import com.example.assurex.model.RawDataItem;
-
-import java.io.IOException;
-import java.util.Set;
-
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.Calendar;
 
 public class Speed extends AppCompatActivity {
     private static final String TAG = "Speed";
@@ -116,8 +102,10 @@ public class Speed extends AppCompatActivity {
                 int spd = b.getInt("speed", 0);
                 float accel = b.getFloat("acceleration", 0);
 
+                
+
                 speed.setText(Integer.toString(spd));
-                acceleration.setText(Float.toString(accel));
+                acceleration.setText(Integer.toString((int)accel));
 
                 Log.d(TAG, "onReceive: text has been set");
 

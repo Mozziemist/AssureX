@@ -31,6 +31,7 @@ import com.github.pires.obd.commands.protocol.ObdRawCommand;
 import com.github.pires.obd.commands.protocol.ObdResetCommand;
 import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
 import com.github.pires.obd.commands.protocol.TimeoutCommand;
+import com.github.pires.obd.commands.temperature.AmbientAirTemperatureCommand;
 import com.github.pires.obd.enums.ObdProtocols;
 import com.github.pires.obd.exceptions.NoDataException;
 import com.github.pires.obd.exceptions.UnableToConnectException;
@@ -120,6 +121,11 @@ public class BluetoothService extends Service {
                         new HeadersOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
                         new HeadersOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
                         Thread.sleep(250);
+                        new ObdRawCommand("ATD").run(mySocket.getInputStream(), mySocket.getOutputStream());
+
+                        new ObdRawCommand("ATZ").run(mySocket.getInputStream(), mySocket.getOutputStream());
+
+                        new EchoOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
 
                         // not duplicated since it appears to be received by obd device correctly
                         new LineFeedOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
@@ -129,6 +135,12 @@ public class BluetoothService extends Service {
                         new TimeoutCommand(100).run(mySocket.getInputStream(), mySocket.getOutputStream());
                         Thread.sleep(100);
 
+                        new ObdRawCommand("AT S0").run(mySocket.getInputStream(), mySocket.getOutputStream());
+
+                        new ObdRawCommand("AT H0").run(mySocket.getInputStream(), mySocket.getOutputStream());
+
+                        new TimeoutCommand(255).run(mySocket.getInputStream(), mySocket.getOutputStream());
+
                         // not duplicated since it appears to be received by obd device correctly
                         new SelectProtocolCommand(ObdProtocols.AUTO).run(mySocket.getInputStream(), mySocket.getOutputStream());
                         Thread.sleep(100);
@@ -136,6 +148,7 @@ public class BluetoothService extends Service {
 
                         SpeedCommand speedCommand = new SpeedCommand();
                         float prevSpd = 0, currentSpd;
+
 
 
                         // loop thread for a constant stream of refreshed data, 3 sec interval
