@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NavUtils;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
@@ -203,12 +204,22 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
             }
             case R.id.home: {
                 Toast.makeText(this, "home selected", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getApplicationContext(), Speed.class));
+                //startActivity(new Intent(getApplicationContext(), Speed.class));
+                NavUtils.navigateUpFromSameTask(this);
                 break;
             }
             case R.id.infoPage: {
                 Toast.makeText(this, "infoPage selected", Toast.LENGTH_SHORT).show();
                 //startActivity(new Intent(getApplicationContext(), infoPage.class));
+                break;
+            }
+            case R.id.connect: {
+                Toast.makeText(this, "connect selected", Toast.LENGTH_SHORT).show();
+                Intent serviceIntent = new Intent(this, BluetoothService.class);
+                startService(serviceIntent);
+
+                Intent rawDataIntent = new Intent(this, RawDataCollectionService.class);
+                startService(rawDataIntent);
                 break;
             }
             case R.id.signOut: {
@@ -221,9 +232,6 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     }//end onOptionsItemSelected
     //end for menu --------
 
-    public void toMain(View view) {
-        startActivity(new Intent(getApplicationContext(), Speed.class));
-    }
 
     public void avSpButPressed(View view) {
         if (avSpButTrue == false) {

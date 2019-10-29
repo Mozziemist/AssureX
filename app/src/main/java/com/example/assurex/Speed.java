@@ -2,6 +2,7 @@ package com.example.assurex;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NavUtils;
 import androidx.core.content.ContextCompat;
 
 import android.content.BroadcastReceiver;
@@ -28,9 +29,8 @@ public class Speed extends AppCompatActivity {
     private static final String TAG = "Speed";
     private TextView speed;
     private TextView acceleration;
-    private Button connectBtn;
+    private TextView tripTime, troubleCodes;
     CarDataReceiver receiver;
-    BtnStateReceiver BtnReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,12 +38,12 @@ public class Speed extends AppCompatActivity {
         setContentView(R.layout.activity_speed);
         speed = findViewById(R.id.speed);
         acceleration = findViewById(R.id.acceleration);
-        connectBtn = findViewById(R.id.connectButton);
+
+        tripTime = findViewById(R.id.tripTime);
+        troubleCodes = findViewById(R.id.troubleCodes);
 
         receiver = new CarDataReceiver();
         registerReceiver(receiver, new IntentFilter("CarDataUpdates"));
-        BtnReceiver = new BtnStateReceiver();
-        registerReceiver(BtnReceiver, new IntentFilter("BtnStateUpdate"));
 
         Intent serviceIntent = new Intent(this, BluetoothService.class);
         startService(serviceIntent);
@@ -60,31 +60,10 @@ public class Speed extends AppCompatActivity {
     }//end onstart
 
 
-    // connects to service
-    public void connectBtnClick(View view) {
-        if (connectBtn.getText() == "Connect")
-        {
-            Intent serviceIntent = new Intent(this, BluetoothService.class);
-            startService(serviceIntent);
-
-            Intent rawDataIntent = new Intent(this, RawDataCollectionService.class);
-            startService(rawDataIntent);
-        }
-    }
-
-    public void toPackage(View view) {
-        startActivity(new Intent(getApplicationContext(), Package.class));
-    }
-
-    public void toInfoPage(View view) {
-        startActivity(new Intent(getApplicationContext(), infoPage.class));
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(receiver);
-        unregisterReceiver(BtnReceiver);
         Intent serviceIntent = new Intent(this, BluetoothService.class);
         stopService(serviceIntent);
 
@@ -102,8 +81,8 @@ public class Speed extends AppCompatActivity {
                 int spd = b.getInt("speed", 0);
                 float accel = b.getFloat("acceleration", 0);
 
-                
-
+                troubleCodes.setText(b.getString("troubleCodes", "No Codes"));
+                tripTime.setText(Double.toString(b.getDouble("tripTime", 0)));
                 speed.setText(Integer.toString(spd));
                 acceleration.setText(Integer.toString((int)accel));
 
@@ -112,25 +91,6 @@ public class Speed extends AppCompatActivity {
             }
         }
     }
-
-    class BtnStateReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            if (("BtnStateUpdate").equals(intent.getAction())) {
-                if (intent.getBooleanExtra("value", false)) {
-                    connectBtn.setTextSize(20);
-                    connectBtn.setText("Connected");
-                }
-                else
-                {
-                    connectBtn.setTextSize(21);
-                    connectBtn.setText("Connect");
-                }
-            }
-        }
-    }//end btnstatereciever
 
     //for menu
     @Override
@@ -155,11 +115,21 @@ public class Speed extends AppCompatActivity {
             case R.id.home: {
                 Toast.makeText(this, "home selected", Toast.LENGTH_SHORT).show();
                 //startActivity(new Intent(getApplicationContext(), Speed.class));
+                //NavUtils.navigateUpFromSameTask(this);
                 break;
             }
             case R.id.infoPage: {
                 Toast.makeText(this, "infoPage selected", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), infoPage.class));
+                break;
+            }
+            case R.id.connect: {
+                Toast.makeText(this, "connect selected", Toast.LENGTH_SHORT).show();
+                Intent serviceIntent = new Intent(this, BluetoothService.class);
+                startService(serviceIntent);
+
+                Intent rawDataIntent = new Intent(this, RawDataCollectionService.class);
+                startService(rawDataIntent);
                 break;
             }
             case R.id.signOut: {
