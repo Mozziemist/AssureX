@@ -25,8 +25,10 @@ import com.github.pires.obd.commands.protocol.AvailablePidsCommand_01_20;
 import com.github.pires.obd.commands.protocol.DescribeProtocolCommand;
 import com.github.pires.obd.commands.protocol.DescribeProtocolNumberCommand;
 import com.github.pires.obd.commands.protocol.EchoOffCommand;
+import com.github.pires.obd.commands.protocol.HeadersOffCommand;
 import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
 import com.github.pires.obd.commands.protocol.ObdRawCommand;
+import com.github.pires.obd.commands.protocol.ObdResetCommand;
 import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
 import com.github.pires.obd.commands.protocol.TimeoutCommand;
 import com.github.pires.obd.commands.temperature.AmbientAirTemperatureCommand;
@@ -106,13 +108,32 @@ public class BluetoothService extends Service {
 
                     // initialize car with obd initialization commands
                     try {
+                        // resets obd
+                        new ObdResetCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
+                        Thread.sleep(500);
+
+                        // duplicate commands in case one is ignored
+                        new EchoOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
+                        new EchoOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
+                        Thread.sleep(250);
+
+                        // duplicate commands in case one is ignored
+                        new HeadersOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
+                        new HeadersOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
+                        Thread.sleep(250);
                         new ObdRawCommand("ATD").run(mySocket.getInputStream(), mySocket.getOutputStream());
 
                         new ObdRawCommand("ATZ").run(mySocket.getInputStream(), mySocket.getOutputStream());
 
                         new EchoOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
 
+                        // not duplicated since it appears to be received by obd device correctly
                         new LineFeedOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
+                        Thread.sleep(100);
+
+                        // not duplicated since it appears to be received by obd device correctly
+                        new TimeoutCommand(100).run(mySocket.getInputStream(), mySocket.getOutputStream());
+                        Thread.sleep(100);
 
                         new ObdRawCommand("AT S0").run(mySocket.getInputStream(), mySocket.getOutputStream());
 
@@ -120,9 +141,9 @@ public class BluetoothService extends Service {
 
                         new TimeoutCommand(255).run(mySocket.getInputStream(), mySocket.getOutputStream());
 
+                        // not duplicated since it appears to be received by obd device correctly
                         new SelectProtocolCommand(ObdProtocols.AUTO).run(mySocket.getInputStream(), mySocket.getOutputStream());
-
-
+                        Thread.sleep(100);
 
 
                         SpeedCommand speedCommand = new SpeedCommand();
