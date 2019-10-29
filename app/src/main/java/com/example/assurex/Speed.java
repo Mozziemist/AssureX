@@ -28,7 +28,7 @@ public class Speed extends AppCompatActivity {
     private static final String TAG = "Speed";
     private TextView speed;
     private TextView acceleration;
-    private TextView tripTime;
+    private TextView tripTime, troubleCodes;
     private Button connectBtn;
     CarDataReceiver receiver;
     BtnStateReceiver BtnReceiver;
@@ -41,6 +41,7 @@ public class Speed extends AppCompatActivity {
         acceleration = findViewById(R.id.acceleration);
         connectBtn = findViewById(R.id.connectButton);
         tripTime = findViewById(R.id.tripTime);
+        troubleCodes = findViewById(R.id.troubleCodes);
 
         receiver = new CarDataReceiver();
         registerReceiver(receiver, new IntentFilter("CarDataUpdates"));
@@ -104,7 +105,7 @@ public class Speed extends AppCompatActivity {
                 int spd = b.getInt("speed", 0);
                 float accel = b.getFloat("acceleration", 0);
 
-                
+                troubleCodes.setText(b.getString("troubleCodes", "No Codes"));
                 tripTime.setText(Double.toString(b.getDouble("tripTime", 0)));
                 speed.setText(Integer.toString(spd));
                 acceleration.setText(Integer.toString((int)accel));

@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.github.pires.obd.commands.SpeedCommand;
+import com.github.pires.obd.commands.control.PendingTroubleCodesCommand;
 import com.github.pires.obd.commands.engine.RPMCommand;
 import com.github.pires.obd.commands.fuel.FuelLevelCommand;
 import com.github.pires.obd.commands.protocol.AvailablePidsCommand_01_20;
@@ -129,12 +130,12 @@ public class BluetoothService extends Service {
 
                         SpeedCommand speedCommand = new SpeedCommand();
                         RPMCommand rpmCommand = new RPMCommand();
+                        PendingTroubleCodesCommand tcCommand = new PendingTroubleCodesCommand();
 
 
                         float prevSpd = 0, currentSpd;
                         boolean isEngineOn = false, isBeingTimed = false;
-                        long startTime = 0, endTime, elapsedMilliSeconds;
-                        double elapsedSeconds;
+                        long duration = 0;
 
 
 
@@ -144,29 +145,49 @@ public class BluetoothService extends Service {
 
                             if (isEngineOn && !isBeingTimed)
                             {
-                                startTime = SystemClock.elapsedRealtime();
+                                duration = 0;
                                 isBeingTimed = true;
                             }
 
                             try {
                                 rpmCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
                                 speedCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
-                                isEngineOn = true;
-                                Log.d(TAG, "run: data acquired");
+                                tcCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
 
-                                endTime = SystemClock.elapsedRealtime();
-                                elapsedMilliSeconds = endTime - startTime;
-                                elapsedSeconds = elapsedMilliSeconds / 1000.0;
+                                if (rpmCommand.getRPM()  > 0)
+                                {
+                                    isEngineOn = true;
 
-                                currentSpd = speedCommand.getImperialUnit();
-                                Bundle b = new Bundle();
-                                b.putBoolean("isEngineOn", isEngineOn);
-                                b.putDouble("tripTime", elapsedSeconds);
-                                b.putInt("speed", (int) speedCommand.getImperialUnit());
-                                b.putFloat("acceleration", (currentSpd - prevSpd)); // multiply by 0.0455853936 to get g force
-                                sendMessageToActivity(b);
+                                    Log.d(TAG, "run: data acquired");
 
-                                prevSpd = currentSpd;
+
+
+                                    currentSpd = speedCommand.getImperialUnit();
+                                    Bundle b = new Bundle();
+                                    b.putString("troubleCodes", tcCommand.getFormattedResult());
+                                    b.putBoolean("isEngineOn", isEngineOn);
+                                    b.putDouble("tripTime", duration);
+                                    b.putInt("speed", (int) currentSpd);
+                                    b.putFloat("acceleration", (currentSpd - prevSpd)); // multiply by 0.0455853936 to get g force
+                                    sendMessageToActivity(b);
+
+                                    prevSpd = currentSpd;
+                                }
+                                else
+                                {
+                                    isEngineOn = false;
+                                    isBeingTimed = false;
+
+                                    Bundle b = new Bundle();
+                                    b.putString("troubleCodes", "Pending Search");
+                                    b.putBoolean("isEngineOn", isEngineOn);
+                                    b.putDouble("tripTime", 0);
+                                    b.putInt("speed", 0);
+                                    b.putFloat("acceleration", 0); // multiply by 0.0455853936 to get g force
+                                    sendMessageToActivity(b);
+                                }
+
+
 
 
                             } catch (NoDataException | UnableToConnectException e){
@@ -175,6 +196,7 @@ public class BluetoothService extends Service {
                                 isBeingTimed = false;
 
                                 Bundle b = new Bundle();
+                                b.putString("troubleCodes", "Pending Search");
                                 b.putBoolean("isEngineOn", isEngineOn);
                                 b.putDouble("tripTime", 0);
                                 b.putInt("speed", 0);
@@ -184,7 +206,7 @@ public class BluetoothService extends Service {
 
 
                             Thread.sleep(1000);
-
+                            duration++;
                         }
 
 
