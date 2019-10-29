@@ -2,6 +2,7 @@ package com.example.assurex;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NavUtils;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,7 +19,6 @@ import java.util.TimerTask;
 
 public class Package extends AppCompatActivity {
 
-    private Button backToMain;
     private ProgressBar bar;
     int counter = 0;
 
@@ -27,14 +27,6 @@ public class Package extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_package);
 
-
-        backToMain = findViewById(R.id.backToMain);
-        backToMain.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), Speed.class));
-            }
-        });
 
         prog();
 
@@ -63,12 +55,22 @@ public class Package extends AppCompatActivity {
             }
             case R.id.home: {
                 Toast.makeText(this, "home selected", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getApplicationContext(), Speed.class));
+                //startActivity(new Intent(getApplicationContext(), Speed.class));
+                NavUtils.navigateUpFromSameTask(this);
                 break;
             }
             case R.id.infoPage: {
                 Toast.makeText(this, "infoPage selected", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), infoPage.class));
+                break;
+            }
+            case R.id.connect: {
+                Toast.makeText(this, "connect selected", Toast.LENGTH_SHORT).show();
+                Intent serviceIntent = new Intent(this, BluetoothService.class);
+                startService(serviceIntent);
+
+                Intent rawDataIntent = new Intent(this, RawDataCollectionService.class);
+                startService(rawDataIntent);
                 break;
             }
             case R.id.signOut: {
