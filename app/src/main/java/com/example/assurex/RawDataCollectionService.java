@@ -19,6 +19,7 @@ import com.example.assurex.database.AppDatabase;
 import com.example.assurex.model.RawDataItem;
 import com.example.assurex.model.TripSummary;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
@@ -43,13 +44,6 @@ public class RawDataCollectionService extends Service {
     double tAverageAcceleration = 0;
     double tTopAcceleration = 0;
     boolean tripSummaryShouldBeSaved = false;
-
-    public double getAverageSpeed() { return tAverageSpeed; }
-    public double getTopSpeed() { return tTopSpeed; }
-    public double getAverageAcceleration() { return tAverageAcceleration; }
-    public double getTopAcceleration() { return tTopAcceleration; }
-
-    public boolean isTripSummaryShouldBeSaved() { return tripSummaryShouldBeSaved; }
 
     @Override
     public void onCreate() {
@@ -90,6 +84,7 @@ public class RawDataCollectionService extends Service {
         @Override
         public void run() {
             try { Thread.sleep(6000); } catch (InterruptedException e) { e.printStackTrace(); }
+            List<RawDataItem> tempRawDataItemList = new ArrayList<RawDataItem>();
 
             if(isServiceRunning(BluetoothService.class)) {
                 try {
@@ -109,30 +104,38 @@ public class RawDataCollectionService extends Service {
                     String tripId = tsDate + "#" + tripNumber;
 
                     while (!Thread.currentThread().isInterrupted() && !shouldTerminate) {
-                        calendar = Calendar.getInstance();
-                        String date = calendar.get(Calendar.MONTH) + 1 + "-" +
-                                calendar.get(Calendar.DAY_OF_MONTH) + "-" +
-                                calendar.get(Calendar.YEAR);
-                        String timeStamp = calendar.get(Calendar.HOUR_OF_DAY) + ":" +
-                                calendar.get(Calendar.MINUTE) + ":" +
-                                calendar.get(Calendar.SECOND);
-                        String tripDatedTimeStamp = date + "@" + timeStamp;
-                        RawDataItem tempRawDataItem = new RawDataItem(tripDatedTimeStamp, tripId, date, timeStamp, rawSpeed, rawAcceleration);
-                        db.rawDataItemDao().insert(tempRawDataItem);
 
-                        tAverageSpeed = (tAverageSpeed + rawSpeed) / 2;
-                        if(rawSpeed > tTopSpeed){
-                            tTopSpeed = rawSpeed;
+                        for(int i = 0; i < 5; i++){
+                            if(!isServiceRunning(BluetoothService.class)){
+                                i = 5;
+                            }
+                            calendar = Calendar.getInstance();
+                            String date = calendar.get(Calendar.MONTH) + 1 + "-" +
+                                    calendar.get(Calendar.DAY_OF_MONTH) + "-" +
+                                    calendar.get(Calendar.YEAR);
+                            String timeStamp = calendar.get(Calendar.HOUR_OF_DAY) + ":" +
+                                    calendar.get(Calendar.MINUTE) + ":" +
+                                    calendar.get(Calendar.SECOND);
+                            String tripDatedTimeStamp = date + "@" + timeStamp;
+                            tempRawDataItemList.add(new RawDataItem(tripDatedTimeStamp, tripId, date, timeStamp, rawSpeed, rawAcceleration));
+                            tAverageSpeed = (tAverageSpeed + rawSpeed) / 2;
+                            if(rawSpeed > tTopSpeed){
+                                tTopSpeed = rawSpeed;
+                            }
+
+                            tAverageAcceleration = (tAverageAcceleration + Math.abs(rawAcceleration)) / 2;
+                            if(Math.abs(rawAcceleration) > tTopAcceleration){
+                                tTopAcceleration = Math.abs(rawAcceleration);
+                            }
+                            tripSummaryShouldBeSaved = true;
+                            Thread.sleep(1000);
                         }
 
-                        tAverageAcceleration = (tAverageAcceleration + Math.abs(rawAcceleration)) / 2;
-                        if(Math.abs(rawAcceleration) > tTopAcceleration){
-                            tTopAcceleration = Math.abs(rawAcceleration);
+                        if(!tempRawDataItemList.isEmpty()) {
+                            db.rawDataItemDao().insertAll(tempRawDataItemList);
+                            Log.i(TAG, "raw data inserted into sqlite");
+                            tempRawDataItemList.clear();
                         }
-                        tripSummaryShouldBeSaved = true;
-
-                        Log.i(TAG, "raw data inserted into sqlite");
-                        Thread.sleep(5000);
 
                         if(!isServiceRunning(BluetoothService.class)){
                             //maybe use shouldTerminate = true here..
