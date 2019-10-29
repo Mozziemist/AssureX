@@ -29,10 +29,7 @@ public class Speed extends AppCompatActivity {
     private static final String TAG = "Speed";
     private TextView speed;
     private TextView acceleration;
-<<<<<<< HEAD
-=======
     private TextView tripTime, troubleCodes;
->>>>>>> myDev
     CarDataReceiver receiver;
 
     @Override
@@ -41,12 +38,9 @@ public class Speed extends AppCompatActivity {
         setContentView(R.layout.activity_speed);
         speed = findViewById(R.id.speed);
         acceleration = findViewById(R.id.acceleration);
-<<<<<<< HEAD
-=======
 
         tripTime = findViewById(R.id.tripTime);
         troubleCodes = findViewById(R.id.troubleCodes);
->>>>>>> myDev
 
         receiver = new CarDataReceiver();
         registerReceiver(receiver, new IntentFilter("CarDataUpdates"));
