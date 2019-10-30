@@ -1,37 +1,39 @@
 package com.example.assurex;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ProgressBar;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import java.util.Timer;
-import java.util.TimerTask;
+public class Settings extends AppCompatActivity {
 
-public class Package extends AppCompatActivity {
-
-    private ProgressBar bar;
-    int counter = 0;
+    public boolean darkMode = false;
+    CheckBox settingsBut;
+    LinearLayout settingsPage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_package);
+        setContentView(R.layout.activity_settings);
 
+        settingsBut = findViewById(R.id.settingsBut);
+        settingsPage = findViewById(R.id.settingsPage);
 
-        prog();
-
-    }//end onCreate
-
+        if (darkMode == false) settingsBut.setChecked(false);
+        if (darkMode == true) settingsBut.setChecked(true);
+    }//end on create
 
     //for menu
     @Override
@@ -50,7 +52,7 @@ public class Package extends AppCompatActivity {
             }
             case R.id.profileUser: {
                 Toast.makeText(this, "profileUser selected", Toast.LENGTH_SHORT).show();
-                //startActivity(new Intent(getApplicationContext(), Package.class));
+                startActivity(new Intent(getApplicationContext(), Package.class));
                 break;
             }
             case R.id.home: {
@@ -61,7 +63,7 @@ public class Package extends AppCompatActivity {
             }
             case R.id.infoPage: {
                 Toast.makeText(this, "infoPage selected", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getApplicationContext(), infoPage.class));
+                //startActivity(new Intent(getApplicationContext(), infoPage.class));
                 break;
             }
             case R.id.connect: {
@@ -75,7 +77,7 @@ public class Package extends AppCompatActivity {
             }
             case R.id.settings: {
                 Toast.makeText(this, "settings selected", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getApplicationContext(), Settings.class));
+                //startActivity(new Intent(getApplicationContext(), Settings.class));
                 break;
             }
             case R.id.signOut: {
@@ -88,26 +90,27 @@ public class Package extends AppCompatActivity {
     }//end onOptionsItemSelected
     //end for menu --------
 
-
-    public void prog() {
-
-        bar = (ProgressBar)findViewById(R.id.progressBar);
-
-        final Timer t = new Timer();
-        TimerTask tt = new TimerTask() {
-            @Override
-            public void run() {
-                counter++;
-                bar.setProgress(counter);
-
-                if (counter == 100)
-                    t.cancel();
-            }
-        };
-
-        t.schedule(tt,0,100);
-
-    }//and prog
+    public void darkMode(View view) {
+        if (darkMode == false) {
+            //settingsBut.setChecked(true);
+            Toast.makeText(this, "Dark Mode Selected", Toast.LENGTH_SHORT).show();
+            darkMode = true;
+            settingsPage.setBackgroundResource(R.drawable.gradient_background_dark);
 
 
-}//end class
+            //the actual way to do this involves changing the theme, look into that later
+
+
+        }
+        else if (darkMode == true) {
+            //settingsBut.setChecked(false);
+            Toast.makeText(this, "Dark Mode Deactivated", Toast.LENGTH_SHORT).show();
+            darkMode = false;
+            settingsPage.setBackgroundResource(R.drawable.gradient_background);
+        }
+    }
+
+    public void alwaysOnClicked(View view) {
+
+    }
+}

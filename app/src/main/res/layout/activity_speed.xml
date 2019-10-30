@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:mapbox="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Speed"
     android:orientation="vertical"
-    android:background="@drawable/gradient_background">
+    android:background="@drawable/gradient_background"
+    android:paddingTop="30dp">
+
+    <com.mapbox.mapboxsdk.maps.MapView
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        mapbox:mapbox_cameraZoom="12" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -25,8 +34,8 @@
                 android:orientation="vertical"
                 android:layout_gravity="center_horizontal"
                 android:gravity="center_horizontal"
-                android:paddingTop="60dp">
-
+                android:paddingTop="10dp">
+                
                 <TextView
                     android:id="@+id/speed"
                     android:layout_width="wrap_content"
