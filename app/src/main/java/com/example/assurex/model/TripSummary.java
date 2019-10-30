@@ -22,7 +22,7 @@ public class TripSummary implements Parcelable {
     @ColumnInfo
     private int tripNumber;
     @ColumnInfo
-    private String currentStanding;
+    private String notableTripEvents;
     @ColumnInfo
     private String engineStatus;
     @ColumnInfo
@@ -43,7 +43,7 @@ public class TripSummary implements Parcelable {
 
     //actual constructor
     @Ignore
-    public TripSummary(String tripId, String date, int tripNumber, String currentStanding,
+    public TripSummary(String tripId, String date, int tripNumber, String notableTripEvents,
                        String engineStatus, double averageSpeed, double topSpeed,
                        double averageAcceleration, double topAcceleration){
 
@@ -59,7 +59,7 @@ public class TripSummary implements Parcelable {
         this.tripId = tripId;
         this.date = date;
         this.tripNumber = tripNumber;
-        this.currentStanding = currentStanding;
+        this.notableTripEvents = notableTripEvents;
         this.engineStatus = engineStatus;
         this.averageSpeed = averageSpeed;
         this.topSpeed = topSpeed;
@@ -91,13 +91,11 @@ public class TripSummary implements Parcelable {
         this.tripNumber = tripNumber;
     }
 
-    public String getCurrentStanding() {
-        return currentStanding;
+    public String getNotableTripEvents() {
+        return notableTripEvents;
     }
 
-    public void setCurrentStanding(String currentStanding) {
-        this.currentStanding = currentStanding;
-    }
+    public void setNotableTripEvents(String notableTripEvents) { this.notableTripEvents = notableTripEvents; }
 
     public String getEngineStatus() {
         return engineStatus;
@@ -142,7 +140,7 @@ public class TripSummary implements Parcelable {
     protected TripSummary(Parcel in) {
         this.tripId = in.readString();
         this.date = in.readString();
-        this.currentStanding = in.readString();
+        this.notableTripEvents = in.readString();
         this.tripNumber = in.readInt();
         this.engineStatus = in.readString();
         this.averageSpeed = in.readDouble();
@@ -155,7 +153,7 @@ public class TripSummary implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.tripId);
         dest.writeString(this.date);
-        dest.writeString(this.currentStanding);
+        dest.writeString(this.notableTripEvents);
         dest.writeInt(this.tripNumber);
         dest.writeString(this.engineStatus);
         dest.writeDouble(this.averageSpeed);
