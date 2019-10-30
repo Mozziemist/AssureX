@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -21,6 +22,7 @@ public class Settings extends AppCompatActivity {
 
     public boolean darkMode = false;
     CheckBox settingsBut;
+    CheckBox alwaysOnCheckBox;
     LinearLayout settingsPage;
 
     @Override
@@ -30,6 +32,14 @@ public class Settings extends AppCompatActivity {
 
         settingsBut = findViewById(R.id.settingsBut);
         settingsPage = findViewById(R.id.settingsPage);
+        alwaysOnCheckBox = findViewById(R.id.alwaysOnBut);
+
+        if (getIntent().getBooleanExtra("isAlwaysOnSet", true))
+        {
+            alwaysOnCheckBox.setChecked(true);
+        }
+        else
+            alwaysOnCheckBox.setChecked(false);
 
         if (darkMode == false) settingsBut.setChecked(false);
         if (darkMode == true) settingsBut.setChecked(true);
@@ -112,5 +122,21 @@ public class Settings extends AppCompatActivity {
 
     public void alwaysOnClicked(View view) {
 
+        Intent sendSettings = new Intent("SettingsUpdate");
+
+        if (alwaysOnCheckBox.isChecked())
+        {
+            Toast.makeText(this, "Screen won't turn off", Toast.LENGTH_SHORT).show();
+            sendSettings.putExtra("alwaysOn", true);
+            sendBroadcast(sendSettings);
+        }
+        else
+        {
+            Toast.makeText(this, "Screen can now turn off", Toast.LENGTH_SHORT).show();
+            sendSettings.putExtra("alwaysOn", false);
+            sendBroadcast(sendSettings);
+        }
     }
+
+
 }

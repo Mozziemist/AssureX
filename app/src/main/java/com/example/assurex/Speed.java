@@ -26,6 +26,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -68,6 +69,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     private TextView acceleration;
     private TextView tripTime, troubleCodes;
     CarDataReceiver receiver;
+    SettingsReceiver settingsReceiver;
     //for map
     private PermissionsManager permissionsManager;
     private MapboxMap mapboxMap;
@@ -78,6 +80,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         super.onCreate(savedInstanceState);
         Mapbox.getInstance(this, "pk.eyJ1IjoiY2xpZW50aW5ncyIsImEiOiJjazE5dzI1cWUwYjVkM2NwY2c5Z21neHJ6In0.UvUvFuBQpl-DdyK9DAmYVw");
         setContentView(R.layout.activity_speed);
+
         speed = findViewById(R.id.speed);
         acceleration = findViewById(R.id.acceleration);
 
@@ -85,7 +88,10 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         troubleCodes = findViewById(R.id.troubleCodes);
 
         receiver = new CarDataReceiver();
+        settingsReceiver = new SettingsReceiver();
         registerReceiver(receiver, new IntentFilter("CarDataUpdates"));
+        registerReceiver(settingsReceiver, new IntentFilter("SettingsUpdate"));
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         Intent serviceIntent = new Intent(this, BluetoothService.class);
         startService(serviceIntent);
@@ -123,6 +129,35 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
 
             }
         }
+    }
+
+    class SettingsReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            if (("SettingsUpdate").equals(intent.getAction())) {
+
+                if (intent.getBooleanExtra("alwaysOn", true))
+                {
+                    getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                }
+                else
+                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+            }
+
+        }
+    }
+
+    public boolean isAlwaysOnSet() {
+
+        int flg = getWindow().getAttributes().flags;
+        boolean flag = false;
+        if ((flg & WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) == WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) {
+            flag = true;
+        }
+        return flag;
     }
 
     //for menu
@@ -167,7 +202,14 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
             }
             case R.id.settings: {
                 Toast.makeText(this, "settings selected", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getApplicationContext(), Settings.class));
+                Intent intent = new Intent(getApplicationContext(), Settings.class);
+
+                if (isAlwaysOnSet())
+                    intent.putExtra("isAlwaysOnSet", true);
+                else
+                    intent.putExtra("isAlwaysOnSet", false);
+
+                startActivity(intent);
                 break;
             }
             case R.id.signOut: {
@@ -285,6 +327,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         super.onDestroy();
         mapView.onDestroy();
         unregisterReceiver(receiver);
+        unregisterReceiver(settingsReceiver);
         Intent serviceIntent = new Intent(this, BluetoothService.class);
         stopService(serviceIntent);
 
