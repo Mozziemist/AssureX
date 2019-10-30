@@ -36,6 +36,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.assurex.database.AppDatabase;
+import com.example.assurex.database.TripSummaryDao;
+import com.example.assurex.model.TripSummary;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +75,6 @@ import java.util.List;
 
 
 public class infoPage extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
-
 
     //average speed variables
     private boolean avSpButTrue = false;
@@ -112,11 +115,16 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     private String address;
     private LocationManager locationManager;
 
+    //Trip Summary for database integration
+    List<TripSummary> tempTripSummaryList;
+    TripSummary tempTripSummary;
+    private AppDatabase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_info_page);
+        db = AppDatabase.getInstance(this);
 
         //for average speed button
         avSpBut = findViewById(R.id.avSpBut);
@@ -163,6 +171,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
             public void onSelectedDayChange(@NonNull CalendarView calendarView, int year, int month, int day) {
                 String date = (month + 1) + " - " + day + " - " + year;
                 calText.setText(date);
+                tempTripSummaryList = db.tripSummaryDao().getAllByDate(date);
             }
         });
         //end calender
@@ -433,6 +442,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         return name;
     }//end herelocation
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
@@ -457,4 +467,9 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     //end for location ------
 
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        AppDatabase.destroyInstance();
+    }
 }

@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
@@ -20,13 +21,17 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.github.pires.obd.commands.SpeedCommand;
+import com.github.pires.obd.commands.control.PendingTroubleCodesCommand;
+import com.github.pires.obd.commands.engine.RPMCommand;
 import com.github.pires.obd.commands.fuel.FuelLevelCommand;
 import com.github.pires.obd.commands.protocol.AvailablePidsCommand_01_20;
 import com.github.pires.obd.commands.protocol.DescribeProtocolCommand;
 import com.github.pires.obd.commands.protocol.DescribeProtocolNumberCommand;
 import com.github.pires.obd.commands.protocol.EchoOffCommand;
+import com.github.pires.obd.commands.protocol.HeadersOffCommand;
 import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
 import com.github.pires.obd.commands.protocol.ObdRawCommand;
+import com.github.pires.obd.commands.protocol.ObdResetCommand;
 import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
 import com.github.pires.obd.commands.protocol.TimeoutCommand;
 import com.github.pires.obd.commands.temperature.AmbientAirTemperatureCommand;
@@ -106,13 +111,32 @@ public class BluetoothService extends Service {
 
                     // initialize car with obd initialization commands
                     try {
+                        // resets obd
+                        new ObdResetCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
+                        Thread.sleep(500);
+
+                        // duplicate commands in case one is ignored
+                        new EchoOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
+                        new EchoOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
+                        Thread.sleep(250);
+
+                        // duplicate commands in case one is ignored
+                        new HeadersOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
+                        new HeadersOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
+                        Thread.sleep(250);
                         new ObdRawCommand("ATD").run(mySocket.getInputStream(), mySocket.getOutputStream());
 
                         new ObdRawCommand("ATZ").run(mySocket.getInputStream(), mySocket.getOutputStream());
 
                         new EchoOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
 
+                        // not duplicated since it appears to be received by obd device correctly
                         new LineFeedOffCommand().run(mySocket.getInputStream(), mySocket.getOutputStream());
+                        Thread.sleep(100);
+
+                        // not duplicated since it appears to be received by obd device correctly
+                        new TimeoutCommand(100).run(mySocket.getInputStream(), mySocket.getOutputStream());
+                        Thread.sleep(100);
 
                         new ObdRawCommand("AT S0").run(mySocket.getInputStream(), mySocket.getOutputStream());
 
@@ -120,39 +144,90 @@ public class BluetoothService extends Service {
 
                         new TimeoutCommand(255).run(mySocket.getInputStream(), mySocket.getOutputStream());
 
+                        // not duplicated since it appears to be received by obd device correctly
                         new SelectProtocolCommand(ObdProtocols.AUTO).run(mySocket.getInputStream(), mySocket.getOutputStream());
-
-
+                        Thread.sleep(100);
 
 
                         SpeedCommand speedCommand = new SpeedCommand();
+                        RPMCommand rpmCommand = new RPMCommand();
+                        PendingTroubleCodesCommand tcCommand = new PendingTroubleCodesCommand();
+
+
                         float prevSpd = 0, currentSpd;
+                        boolean isEngineOn = false, isBeingTimed = false;
+                        long duration = 0;
 
 
 
-                        // loop thread for a constant stream of refreshed data, 3 sec interval
+                        // loop thread for a constant stream of refreshed data, 1 sec interval
                         while (!Thread.currentThread().isInterrupted() && mySocket.isConnected())
                         {
 
-
-                            try {
-                                speedCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
-                                Log.d(TAG, "run: data acquired");
-                            } catch (NoDataException | UnableToConnectException e){
-                                e.printStackTrace();
-                                break;
+                            if (isEngineOn && !isBeingTimed)
+                            {
+                                duration = 0;
+                                isBeingTimed = true;
                             }
 
-                            currentSpd = speedCommand.getImperialUnit();
-                            Bundle b = new Bundle();
-                            b.putInt("speed", (int) speedCommand.getImperialUnit());
-                            b.putFloat("acceleration", (currentSpd - prevSpd)); // multiply by 0.0455853936 to get g force
-                            sendMessageToActivity(b);
+                            try {
+                                rpmCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
+                                speedCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
+                                tcCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
 
-                            prevSpd = currentSpd;
+                                if (rpmCommand.getRPM()  > 0)
+                                {
+                                    isEngineOn = true;
+
+                                    Log.d(TAG, "run: data acquired");
+
+
+
+                                    currentSpd = speedCommand.getImperialUnit();
+                                    Bundle b = new Bundle();
+                                    b.putString("troubleCodes", tcCommand.getFormattedResult());
+                                    b.putBoolean("isEngineOn", isEngineOn);
+                                    b.putDouble("tripTime", duration);
+                                    b.putInt("speed", (int) currentSpd);
+                                    b.putFloat("acceleration", (currentSpd - prevSpd)); // multiply by 0.0455853936 to get g force
+                                    sendMessageToActivity(b);
+
+                                    prevSpd = currentSpd;
+                                }
+                                else
+                                {
+                                    isEngineOn = false;
+                                    isBeingTimed = false;
+
+                                    Bundle b = new Bundle();
+                                    b.putString("troubleCodes", "Pending Search");
+                                    b.putBoolean("isEngineOn", isEngineOn);
+                                    b.putDouble("tripTime", 0);
+                                    b.putInt("speed", 0);
+                                    b.putFloat("acceleration", 0); // multiply by 0.0455853936 to get g force
+                                    sendMessageToActivity(b);
+                                }
+
+
+
+
+                            } catch (NoDataException | UnableToConnectException e){
+                                e.printStackTrace();
+                                isEngineOn = false;
+                                isBeingTimed = false;
+
+                                Bundle b = new Bundle();
+                                b.putString("troubleCodes", "Pending Search");
+                                b.putBoolean("isEngineOn", isEngineOn);
+                                b.putDouble("tripTime", 0);
+                                b.putInt("speed", 0);
+                                b.putFloat("acceleration", 0); // multiply by 0.0455853936 to get g force
+                                sendMessageToActivity(b);
+                            }
+
 
                             Thread.sleep(1000);
-
+                            duration++;
                         }
 
 

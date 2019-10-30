@@ -57,10 +57,7 @@
             android:name=".Register"
             android:label="Register"
             android:parentActivityName=".MainActivity" />
-        <activity
-            android:name=".Testing"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait" />
+
         <activity
             android:name=".Speed"
             android:configChanges="orientation"

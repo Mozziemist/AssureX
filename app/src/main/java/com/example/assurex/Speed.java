@@ -66,6 +66,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     private static final String TAG = "Speed";
     private TextView speed;
     private TextView acceleration;
+    private TextView tripTime, troubleCodes;
     CarDataReceiver receiver;
     //for map
     private PermissionsManager permissionsManager;
@@ -79,6 +80,9 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         setContentView(R.layout.activity_speed);
         speed = findViewById(R.id.speed);
         acceleration = findViewById(R.id.acceleration);
+
+        tripTime = findViewById(R.id.tripTime);
+        troubleCodes = findViewById(R.id.troubleCodes);
 
         receiver = new CarDataReceiver();
         registerReceiver(receiver, new IntentFilter("CarDataUpdates"));
@@ -110,8 +114,8 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                 int spd = b.getInt("speed", 0);
                 float accel = b.getFloat("acceleration", 0);
 
-                
-
+                troubleCodes.setText(b.getString("troubleCodes", "No Codes"));
+                tripTime.setText(Double.toString(b.getDouble("tripTime", 0)));
                 speed.setText(Integer.toString(spd));
                 acceleration.setText(Integer.toString((int)accel));
 
