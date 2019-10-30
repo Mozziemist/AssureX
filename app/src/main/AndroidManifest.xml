@@ -3,11 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.assurex">
 
-
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
@@ -19,43 +17,54 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".infoPage"
+        <activity
+            android:name=".Settings"
+            android:label="Settings"
+            android:parentActivityName=".Speed">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.assurex.Speed" />
+        </activity>
+        <activity
+            android:name=".infoPage"
             android:label="Info Page"
             android:parentActivityName=".Speed">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.assurex.Speed" />
         </activity>
-        <activity android:name=".Package"
+        <activity
+            android:name=".Package"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"
             android:label="My Plan"
-            android:parentActivityName=".Speed">
+            android:parentActivityName=".Speed"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.assurex.Speed" />
         </activity>
-        <activity android:name=".MainActivity"
+        <activity
+            android:name=".MainActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".Register"
+        <activity
+            android:name=".Register"
             android:label="Register"
-            android:parentActivityName=".MainActivity"/>
+            android:parentActivityName=".MainActivity" />
 
-        <activity android:name=".Speed"
-            android:launchMode="singleTop"
+        <activity
+            android:name=".Speed"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"
-            android:label="Home">
-        </activity>
+            android:label="Home"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"></activity>
+
         <service android:name=".BluetoothService" />
         <service android:name=".RawDataCollectionService" />
     </application>

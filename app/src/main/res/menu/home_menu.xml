@@ -33,6 +33,10 @@
                 android:icon="@drawable/ic_bluetooth"
                 android:title="Connect"/>
 
+            <item android:id="@+id/settings"
+                android:icon="@drawable/ic_settings"
+                android:title="Settings"/>
+
             <item android:id="@+id/signOut"
                 android:icon="@drawable/ic_sign_out"
                 android:title="Sign Out"/>

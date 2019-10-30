@@ -222,6 +222,11 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
                 startService(rawDataIntent);
                 break;
             }
+            case R.id.settings: {
+                Toast.makeText(this, "settings selected", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getApplicationContext(), Settings.class));
+                break;
+            }
             case R.id.signOut: {
                 Toast.makeText(this, "signOut selected", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), MainActivity.class));
@@ -376,7 +381,13 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
                 requestPermissions(new String[]{
                         Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.INTERNET
                 }, 1);
+
                 //return;
+            }
+            else{
+                Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                String address = hereLocation(location.getLatitude(), location.getLongitude());
+                locText.setText(address);
             }
         }
         else {
@@ -410,21 +421,21 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         List<Address> addresses;
         try {
-            addresses = geocoder.getFromLocation(lat, lon, 1);
-            name = addresses.get(0).getAddressLine(0);
-            /*
+            addresses = geocoder.getFromLocation(lat, lon, 10);
+            //name = addresses.get(0).getAddressLine(0);
+
             if (addresses.size() > 0){
-                for (Address adr: addresses) {
-                    if (adr.getAddressLine(0) != null && adr.getAddressLine(0).length()>0){
-                        name = adr.getAddressLine(0);
+                for (int i  = 0; i<10;i++) {
+                    if (addresses.get(i).getAddressLine(0) != null && addresses.get(i).getAddressLine(0).length()>0){
+                        name = addresses.get(i).getAddressLine(0);
                         break;
                     }
                 }
             }
 
-             */
+
         } catch (IOException e) {
-            Toast.makeText(this, "No Location Found", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Location Not Found", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
 
@@ -434,6 +445,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     @SuppressLint("MissingPermission")
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
         switch (requestCode){
             case 1: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
@@ -442,7 +454,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
                         String address = hereLocation(location.getLatitude(), location.getLongitude());
                         locText.setText(address);
                     } else {
-                        locText.setText("Location Not Found");
+                        locText.setText("Location Not Found After Request");
                     }
                 } else {
                     Toast.makeText(this, "Permission Denied", Toast.LENGTH_LONG).show();
