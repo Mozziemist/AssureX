@@ -200,7 +200,7 @@ public class BluetoothService extends Service {
                                     isBeingTimed = false;
 
                                     Bundle b = new Bundle();
-                                    b.putString("troubleCodes", "Pending Search");
+                                    //b.putString("troubleCodes", "Pending Search");
                                     b.putBoolean("isEngineOn", isEngineOn);
                                     b.putDouble("tripTime", 0);
                                     b.putInt("speed", 0);
@@ -217,7 +217,7 @@ public class BluetoothService extends Service {
                                 isBeingTimed = false;
 
                                 Bundle b = new Bundle();
-                                b.putString("troubleCodes", "Pending Search");
+                                //b.putString("troubleCodes", "Pending Search");
                                 b.putBoolean("isEngineOn", isEngineOn);
                                 b.putDouble("tripTime", 0);
                                 b.putInt("speed", 0);

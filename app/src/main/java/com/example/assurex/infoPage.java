@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -41,6 +42,7 @@ import com.example.assurex.database.TripSummaryDao;
 import com.example.assurex.model.TripSummary;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -116,9 +118,17 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     private LocationManager locationManager;
 
     //Trip Summary for database integration
+    //List<TripSummary> tempTripSummaryList = new ArrayList<TripSummary>();
     List<TripSummary> tempTripSummaryList;
     TripSummary tempTripSummary;
     private AppDatabase db;
+    String dbQueryDate;
+    String tEngineTroubleCodes;
+    double tTopSpeed = 0;
+    double tTopAcceleration = 0;
+    String displayedEngineTroubleCodes;
+    double displayedTopSpeed = 0;
+    double displayedTopAcceleration = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -170,14 +180,14 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
             @Override
             public void onSelectedDayChange(@NonNull CalendarView calendarView, int year, int month, int day) {
                 String date = (month + 1) + " - " + day + " - " + year;
+                dbQueryDate = (month + 1) + "-" + day + "-" + year;
                 calText.setText(date);
-                tempTripSummaryList = db.tripSummaryDao().getAllByDate(date);
+                addItemsOnSpinner();
             }
         });
         //end calender
-
         //calls the drop down spinner to be created
-        addItemsOnSpinner();
+        //addItemsOnSpinner();
 
     }//end onCreate
 
@@ -337,10 +347,23 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     }
 
     private void addItemsOnSpinner() {
+        tripSpinner.setAdapter(null);
+
+        tempTripSummaryList = null;
+        DatabaseRequestThread drThread = new DatabaseRequestThread();
+        drThread.start();
+        try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace(); }
         List<String> list = new ArrayList<String>();
-        list.add("Trip 1");
-        list.add("Trip 2");
-        list.add("Trip 3");
+        if(tempTripSummaryList.size() > 0) {
+            for (int i = 0; i < tempTripSummaryList.size(); i++) {
+                list.add("Trip " + (i + 1));
+            }
+
+        }else {
+            list.add("No Trips");
+
+        }
+
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_item, list);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -349,8 +372,15 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         tripSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long l) {
+                //position is the index of the selection as if it is an array
                 String text = parent.getItemAtPosition(position).toString();
                 Toast.makeText(parent.getContext(), text + " new", Toast.LENGTH_SHORT).show();
+                if (tempTripSummaryList.size() > 0) {
+                    tempTripSummary = tempTripSummaryList.get(position);
+                    displayedTopSpeed = tempTripSummary.getTopSpeed();
+                    displayedTopAcceleration = tempTripSummary.getTopAcceleration();
+                    displayedEngineTroubleCodes = tempTripSummary.getEngineStatus();
+                }
             }
 
             @Override
@@ -358,6 +388,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
                 //place holder
             }
         });
+
     }//end additemsonspinner
 
     @Override
@@ -466,6 +497,25 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
 
     //end for location ------
 
+    class RawDataReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (("DataCollectedInfo").equals(intent.getAction())){
+                Bundle b = intent.getBundleExtra("DataCollected");
+                tEngineTroubleCodes = b.getString("engineTroubleCodes");
+                tTopSpeed = b.getDouble("topspeed", -1);
+                tTopAcceleration = b.getDouble("topaccel", -1);
+            }
+        }
+    }
+
+    class DatabaseRequestThread extends Thread {
+        @Override
+        public void run() {
+            tempTripSummaryList = db.tripSummaryDao().getAllByDate(dbQueryDate);
+        }
+    }
 
     @Override
     protected void onDestroy() {
