@@ -42,7 +42,7 @@ public class RawDataCollectionService extends Service {
     //for the tripSummary
     String engineTroubleCodes;
     String notableTripEvents;
-    int accelOverFour = 0;
+    int accelOverSeven = 0;
     double tAverageSpeed = 0;
     double tTopSpeed = 0;
     double tAverageAcceleration = 0;
@@ -127,22 +127,28 @@ public class RawDataCollectionService extends Service {
                         rawAcceleration = Math.floor(rawAcceleration * 1000) / 1000.0;
                         tempRawDataItemList.add(new RawDataItem(tripDatedTimeStamp, tripId, date, timeStamp, rawSpeed, rawAcceleration));
                         tAverageSpeed = (tAverageSpeed + rawSpeed) / 2;
+                        tAverageSpeed = Math.floor(tAverageSpeed * 1000) / 1000.0;
                         if(rawSpeed > tTopSpeed){
                             tTopSpeed = rawSpeed;
                         }
 
                         tAverageAcceleration = (tAverageAcceleration + Math.abs(rawAcceleration)) / 2;
+                        tAverageAcceleration = Math.floor(tAverageAcceleration * 1000) / 1000.0;
                         if(Math.abs(rawAcceleration) > tTopAcceleration){
                             tTopAcceleration = Math.abs(rawAcceleration);
                         }
 
-                        if(Math.abs(rawAcceleration) > 4){
-                            accelOverFour++;
+                        if(Math.abs(rawAcceleration) > 7){
+                            accelOverSeven++;
                         }
                         tripSummaryShouldBeSaved = true;
 
                         Bundle b = new Bundle();
-                        b.putDouble("averagespeed", tAverageSpeed);
+                        //b.putDouble("averagespeed", tAverageSpeed);
+                        b.putDouble("topspeed", tTopSpeed);
+                        //b.putDouble("averageaccel", tAverageAcceleration);
+                        b.putDouble("topaccel", tTopAcceleration);
+                        b.putString("engineTroubleCodes",engineTroubleCodes);
                         try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
                     }
 
@@ -154,7 +160,7 @@ public class RawDataCollectionService extends Service {
                 }while (!Thread.currentThread().isInterrupted() && isEngineOn && isServiceRunning(BluetoothService.class));
 
                 if(tripSummaryShouldBeSaved){
-                    notableTripEvents = "Times Abs Accel Exceeded 4mph/s: " + accelOverFour;
+                    notableTripEvents = "Times Abs Accel Exceeded 7mph/s: " + accelOverSeven;
                     tempTripSummary = new TripSummary(tripId, tsDate, tripNumber, notableTripEvents,
                             engineTroubleCodes, tAverageSpeed, tTopSpeed,
                             tAverageAcceleration, tTopAcceleration);

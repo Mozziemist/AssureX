@@ -188,16 +188,16 @@
                         android:gravity="center"
                         android:textColor="#0F2027"
                         />
+
                     <TextView
-                        android:layout_marginHorizontal="6dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="Good Standing"
-                        android:textSize="13dp"
+                        android:layout_marginHorizontal="6dp"
                         android:gravity="center"
+                        android:text="Rating"
                         android:textColor="#0F2027"
-                        />
+                        android:textSize="13dp" />
                     <Button
                         android:id="@+id/avSpBut"
                         android:layout_width="25dp"
@@ -285,16 +285,16 @@
                         android:gravity="center"
                         android:textColor="#0F2027"
                         />
+
                     <TextView
-                        android:layout_marginHorizontal="10dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="Below Average"
-                        android:textSize="13dp"
+                        android:layout_marginHorizontal="10dp"
                         android:gravity="center"
+                        android:text="Rating"
                         android:textColor="#0F2027"
-                        />
+                        android:textSize="13dp" />
                     <Button
                         android:id="@+id/accBut"
                         android:layout_width="25dp"
