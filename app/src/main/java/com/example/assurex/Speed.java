@@ -34,6 +34,13 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.JsonRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.assurex.database.AppDatabase;
 
 //for map
@@ -42,6 +49,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.widget.Toast;
 
+import com.google.gson.JsonArray;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 //import com.mapbox.mapboxandroiddemo.R;
@@ -58,9 +66,14 @@ import com.mapbox.mapboxsdk.maps.Style;
 //for profile pic
 import android.net.Uri;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Queue;
 
 
 public class Speed extends AppCompatActivity implements OnMapReadyCallback, PermissionsListener {
@@ -107,6 +120,8 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         //end for map
 
 
+
+
     }//end oncreate
 
 
@@ -126,6 +141,11 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                 acceleration.setText(Integer.toString((int)accel));
 
                 Log.d(TAG, "onReceive: text has been set");
+
+                // Object to make requests for speed limit from HERE API
+                // SpeedLimitRequester speedLimitRequester = new SpeedLimitRequester();
+                // speedLimitRequester.sendRequest("waypoint string");
+                // "textview".setText(speedLimitRequester.getSpeedLimit());
 
             }
         }
@@ -341,5 +361,70 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         mapView.onSaveInstanceState(outState);
     }
     //end for map ------
+
+    public class SpeedLimitRequester {
+        private double speedLimit;
+        private String startURL, endURL;
+
+        public SpeedLimitRequester(){
+            speedLimit = 0;
+
+            startURL = "https://route.api.here.com/routing/7.2/calculateroute.json?";
+            endURL = "&legattributes=li&mode=fastest;car&app_id=APPID&app_code=APPCODE";
+        }
+
+        public double getSpeedLimit()
+        {
+            return speedLimit;
+        }
+
+        public void sendRequest(String waypoint)
+        {
+            RequestQueue mQueue;
+            mQueue = Volley.newRequestQueue(getApplicationContext());
+            String url = startURL + "waypoint0=" + waypoint + "&waypoint1=" + waypoint + endURL;
+
+            Log.d(TAG, "sendRequest: JSON Prep...");
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            Log.d(TAG, "onResponse: JSON Response success: " + response + "\n\n\n\n");
+                            try {
+                                JSONObject jsonObject = response.getJSONObject("response");
+                                JSONArray jsonArray = jsonObject.getJSONArray("route");
+
+                                JSONObject jsonObject1 = jsonArray.getJSONObject(0);
+
+                                JSONArray jsonArray1 = jsonObject1.getJSONArray("leg");
+
+                                JSONObject jsonObject2 = jsonArray1.getJSONObject(0);
+                                JSONArray jsonArray2 = jsonObject2.getJSONArray("link");
+
+                                JSONObject jsonObject3 = jsonArray2.getJSONObject(0);
+                                speedLimit = jsonObject3.getDouble("speedLimit");
+
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    error.printStackTrace();
+                    Log.d(TAG, "onErrorResponse: NO RESPONSE");
+                }
+            });
+
+            mQueue.add(request);
+
+
+        }
+
+
+
+    }
 
 }//end class speed
