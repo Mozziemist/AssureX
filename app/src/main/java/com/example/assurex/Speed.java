@@ -166,12 +166,16 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                     wpnt += ',' + Double.toString(mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude());
                     speedLimitRequester.sendRequest(wpnt);
 
-                    Speed.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            speedLimitView.setText(Integer.toString(speedLimitRequester.getSpeedLimit()));
-                        }
-                    });
+                    if (speedLimitRequester.getSpeedLimit() > 0)
+                    {
+                        Speed.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                speedLimitView.setText(Integer.toString(speedLimitRequester.getSpeedLimit()));
+                            }
+                        });
+                    }
+
                 }
                 else
                 {
@@ -420,7 +424,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
 
         public int getSpeedLimit()
         {
-            return ((int)(speedLimit * 2.23694));
+            return ((int)Math.round(speedLimit * 2.23694));
         }
 
         public void sendRequest(String waypoint)
