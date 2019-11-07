@@ -81,8 +81,10 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     private TextView speed;
     private TextView acceleration;
     private TextView tripTime, troubleCodes;
+    private TextView speedLimitView;
     CarDataReceiver receiver;
     SettingsReceiver settingsReceiver;
+    SpeedLimitThread speedLimitThread;
     //for map
     private PermissionsManager permissionsManager;
     private MapboxMap mapboxMap;
@@ -96,7 +98,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
 
         speed = findViewById(R.id.speed);
         acceleration = findViewById(R.id.acceleration);
-
+        speedLimitView = findViewById(R.id.speedLimitView);
         tripTime = findViewById(R.id.tripTime);
         troubleCodes = findViewById(R.id.troubleCodes);
 
@@ -119,7 +121,8 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         mapView.getMapAsync(this);
         //end for map
 
-
+        speedLimitThread = new SpeedLimitThread();
+        speedLimitThread.start();
 
 
     }//end oncreate
@@ -142,12 +145,52 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
 
                 Log.d(TAG, "onReceive: text has been set");
 
-                // Object to make requests for speed limit from HERE API
-                // SpeedLimitRequester speedLimitRequester = new SpeedLimitRequester();
-                // speedLimitRequester.sendRequest("waypoint string");
-                // "textview".setText(speedLimitRequester.getSpeedLimit());
+
 
             }
+        }
+    }
+
+    class SpeedLimitThread extends Thread {
+        @Override
+        public void run() {
+
+            // Object to make requests for speed limit from HERE API
+            SpeedLimitRequester speedLimitRequester = new SpeedLimitRequester();
+
+            while (!Thread.currentThread().isInterrupted())
+            {
+                if (mapboxMap != null && mapboxMap.getLocationComponent().isLocationComponentActivated())
+                {
+                    String wpnt = Double.toString(mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude());
+                    wpnt += ',' + Double.toString(mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude());
+                    speedLimitRequester.sendRequest(wpnt);
+
+                    Speed.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            speedLimitView.setText(Integer.toString(speedLimitRequester.getSpeedLimit()));
+                        }
+                    });
+                }
+                else
+                {
+                    Speed.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            speedLimitView.setText("NA");
+                        }
+                    });
+                }
+
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
         }
     }
 
@@ -278,6 +321,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                         enableLocationComponent(style);
                     }
                 });
+
     }//endOnMapReady
 
     @SuppressWarnings( {"MissingPermission"})
@@ -300,6 +344,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
 
             // Set the component's render mode
             locationComponent.setRenderMode(RenderMode.COMPASS);
+
         } else {
             permissionsManager = new PermissionsManager(this);
             permissionsManager.requestLocationPermissions(this);
@@ -370,12 +415,12 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
             speedLimit = 0;
 
             startURL = "https://route.api.here.com/routing/7.2/calculateroute.json?";
-            endURL = "&legattributes=li&mode=fastest;car&app_id=APPID&app_code=APPCODE";
+            endURL = "&legattributes=li&mode=fastest;car&app_id=c5QU4Uke4T5WqcxB3Z8O&app_code=s26PhxE3UnFLBkFkrSDVtw";
         }
 
-        public double getSpeedLimit()
+        public int getSpeedLimit()
         {
-            return speedLimit;
+            return ((int)(speedLimit * 2.23694));
         }
 
         public void sendRequest(String waypoint)
@@ -389,7 +434,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
-                            Log.d(TAG, "onResponse: JSON Response success: " + response + "\n\n\n\n");
+                            Log.d(TAG, "onResponse: JSON Response success: ");
                             try {
                                 JSONObject jsonObject = response.getJSONObject("response");
                                 JSONArray jsonArray = jsonObject.getJSONArray("route");

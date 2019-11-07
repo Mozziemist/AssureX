@@ -24,65 +24,109 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:layout_gravity="top">
+            android:paddingTop="10dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:layout_gravity="center_horizontal"
-                android:gravity="center_horizontal"
-                android:paddingTop="10dp">
-                
-                <TextView
-                    android:id="@+id/speed"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="0"
-                    android:textSize="100dp"
-                    />
+                android:layout_height="234dp"
+                android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="mph"
-                    android:textSize="40dp" />
-
-                <TextView
-                    android:id="@+id/acceleration"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="0"
-                    android:textSize="100dp" />
-
-                <TextView
-                    android:id="@+id/textView3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="mph per sec"
-                    android:textSize="40dp" />
-
-                <TextView
-                    android:id="@+id/tripTime"
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Trip Time" />
+                    android:layout_height="match_parent">
 
-                <TextView
-                    android:id="@+id/troubleCodes"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Trouble Codes" />
+                    <TextView
+                        android:id="@+id/textView"
+                        android:layout_width="227dp"
+                        android:layout_height="84dp"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center"
+                        android:text="mph"
+                        android:textSize="40dp"
+                        mapbox:layout_constraintEnd_toEndOf="parent"
+                        mapbox:layout_constraintTop_toBottomOf="@+id/speed" />
 
+                    <TextView
+                        android:id="@+id/speed"
+                        android:layout_width="146dp"
+                        android:layout_height="130dp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginEnd="48dp"
+                        android:layout_marginRight="48dp"
+                        android:gravity="center"
+                        android:text="0"
+                        android:textSize="100dp"
+                        mapbox:layout_constraintEnd_toEndOf="parent"
+                        mapbox:layout_constraintTop_toTopOf="parent" />
+
+                    <ImageView
+                        android:id="@+id/imageView4"
+                        android:layout_width="148dp"
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@drawable/speed_limit_pic"
+                        mapbox:layout_constraintBottom_toBottomOf="parent"
+                        mapbox:layout_constraintStart_toStartOf="parent"
+                        mapbox:layout_constraintTop_toTopOf="parent"
+                        mapbox:layout_constraintVertical_bias="0.0" />
+
+                    <TextView
+                        android:id="@+id/speedLimitView"
+                        android:layout_width="125dp"
+                        android:layout_height="91dp"
+                        android:layout_marginStart="15dp"
+                        android:layout_marginLeft="15dp"
+                        android:layout_marginTop="91dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginBottom="52dp"
+                        android:background="#FFFFFF"
+                        android:gravity="center"
+                        android:text="NA"
+                        android:textColor="#000000"
+                        android:textSize="80dp"
+                        mapbox:layout_constraintBottom_toBottomOf="@+id/imageView4"
+                        mapbox:layout_constraintEnd_toEndOf="@+id/imageView4"
+                        mapbox:layout_constraintStart_toStartOf="@+id/imageView4"
+                        mapbox:layout_constraintTop_toTopOf="@+id/imageView4" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
             </LinearLayout>
 
-        </LinearLayout>
+            <TextView
+                android:id="@+id/acceleration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="0"
+                android:textSize="100dp" />
 
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="mph per sec"
+                android:textSize="40dp" />
+
+            <TextView
+                android:id="@+id/tripTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Trip Time" />
+
+            <TextView
+                android:id="@+id/troubleCodes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Trouble Codes" />
+
+
+        </LinearLayout>
     </ScrollView>
 
 
