@@ -138,7 +138,8 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                 int spd = b.getInt("speed", 0);
                 float accel = b.getFloat("acceleration", 0);
 
-                troubleCodes.setText(b.getString("troubleCodes", "No Codes"));
+
+                //troubleCodes.setText(b.getString("troubleCodes", "No Codes"));
                 tripTime.setText(Double.toString(b.getDouble("tripTime", 0)));
                 speed.setText(Integer.toString(spd));
                 acceleration.setText(Integer.toString((int)accel));

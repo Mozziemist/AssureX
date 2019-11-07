@@ -151,7 +151,7 @@ public class BluetoothService extends Service {
 
                         SpeedCommand speedCommand = new SpeedCommand();
                         RPMCommand rpmCommand = new RPMCommand();
-                        PendingTroubleCodesCommand tcCommand = new PendingTroubleCodesCommand();
+                        //PendingTroubleCodesCommand tcCommand = new PendingTroubleCodesCommand();
 
 
                         float prevSpd = 0, currentSpd;
@@ -173,7 +173,7 @@ public class BluetoothService extends Service {
                             try {
                                 rpmCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
                                 speedCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
-                                tcCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
+                                //tcCommand.run(mySocket.getInputStream(), mySocket.getOutputStream());
 
                                 if (rpmCommand.getRPM()  > 0)
                                 {
@@ -185,7 +185,7 @@ public class BluetoothService extends Service {
 
                                     currentSpd = speedCommand.getImperialUnit();
                                     Bundle b = new Bundle();
-                                    b.putString("troubleCodes", tcCommand.getFormattedResult());
+                                    //b.putString("troubleCodes", tcCommand.getFormattedResult());
                                     b.putBoolean("isEngineOn", isEngineOn);
                                     b.putDouble("tripTime", duration);
                                     b.putInt("speed", (int) currentSpd);
