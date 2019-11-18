@@ -141,7 +141,7 @@ public class RawDataCollectionService extends Service implements LocationListene
                         calendar = Calendar.getInstance();
                         String date = calendar.get(Calendar.MONTH) + 1 + "-" + calendar.get(Calendar.DAY_OF_MONTH) + "-" + calendar.get(Calendar.YEAR);
                         String timeStamp = calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE) + ":" + calendar.get(Calendar.SECOND);
-                        String tripDatedTimeStamp = date + "@" + timeStamp;
+                        String tripDatedTimeStamp = date + "#" + tripId + "@" + timeStamp;
                         rawAcceleration = Math.floor(rawAcceleration * 1000) / 1000.0;
                         tempRawDataItemList.add(new RawDataItem(tripDatedTimeStamp, tripId, date, timeStamp, rawSpeed, rawAcceleration, myLatitude, myLongitude, myAddress));
                         tAverageSpeed = (tAverageSpeed + rawSpeed) / 2;
