@@ -8,14 +8,16 @@ import androidx.room.RoomDatabase;
 
 import com.example.assurex.model.RawDataItem;
 import com.example.assurex.model.TripSummary;
+import com.example.assurex.model.User;
 
-@Database(entities = {RawDataItem.class, TripSummary.class}, version = 1)
+@Database(entities = {RawDataItem.class, TripSummary.class, User.class}, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase instance;
 
     public abstract RawDataItemDao rawDataItemDao();
     public abstract TripSummaryDao tripSummaryDao();
+    public abstract UserDao userDao();
 
     public static AppDatabase getInstance(Context context){
         if (instance == null) {

@@ -283,6 +283,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
             case R.id.signOut: {
                 Toast.makeText(this, "signOut selected", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                finish();
                 break;
             }
         }
