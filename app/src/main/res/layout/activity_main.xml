@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity"
     android:orientation="vertical"
-    android:background="@drawable/gradient_background">
+    android:background="?attr/background">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -21,6 +21,7 @@
             android:text="Login"
             android:textSize="25dp"
             android:layout_marginBottom="5dp"
+            android:textColor="?attr/editTextColor"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -34,6 +35,7 @@
                 android:layout_height="wrap_content"
                 android:text="UserName:"
                 android:layout_gravity="center"
+                android:textColor="?attr/editTextColor"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
@@ -44,7 +46,7 @@
                 android:layout_height="wrap_content"
                 android:hint="User Name"
                 android:text="guest"
-                android:textColor="#808080"
+                android:textColor="?attr/editTextStyle"
                 android:textSize="13dp"
                 android:textStyle="italic"
                 />
@@ -58,6 +60,7 @@
                 android:layout_height="wrap_content"
                 android:text="Password:"
                 android:layout_gravity="center"
+                android:textColor="?attr/editTextColor"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
@@ -69,7 +72,7 @@
                 android:text="guest"
                 android:hint="Password"
                 android:inputType="textPassword"
-                android:textColor="#808080"
+                android:textColor="?attr/editTextStyle"
                 android:textSize="13dp"
                 android:textStyle="italic"
                 />
@@ -88,7 +91,9 @@
                 android:onClick="SignUpClicked"
                 android:text="Sign Up"
                 android:textSize="15dp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="?attr/editTextColor"
+                />
             <Button
                 android:id="@+id/login"
                 android:layout_width="wrap_content"
@@ -99,7 +104,9 @@
                 android:onClick="LoginClicked"
                 android:text="Login"
                 android:textSize="15dp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="?attr/editTextColor"
+                />
         </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

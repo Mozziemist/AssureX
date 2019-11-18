@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     tools:context=".Speed"
     android:orientation="vertical"
-    android:background="@drawable/gradient_background"
+    android:background="?attr/background"
     android:paddingTop="30dp">
 
     <com.mapbox.mapboxsdk.maps.MapView
@@ -43,13 +43,15 @@
                     android:layout_gravity="center_horizontal"
                     android:text="0"
                     android:textSize="100dp"
+                    android:textColor="?attr/editTextColor"
                     />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="mph"
-                    android:textSize="40dp" />
+                    android:textSize="40dp"
+                    android:textColor="?attr/editTextColor"/>
 
                 <TextView
                     android:id="@+id/acceleration"
@@ -57,26 +59,30 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="0"
-                    android:textSize="100dp" />
+                    android:textSize="100dp"
+                    android:textColor="?attr/editTextColor"/>
 
                 <TextView
                     android:id="@+id/textView3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="mph per sec"
-                    android:textSize="40dp" />
+                    android:textSize="40dp"
+                    android:textColor="?attr/editTextColor"/>
 
                 <TextView
                     android:id="@+id/tripTime"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Trip Time" />
+                    android:text="Trip Time"
+                    android:textColor="?attr/editTextColor"/>
 
                 <TextView
                     android:id="@+id/troubleCodes"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Trouble Codes" />
+                    android:text="Trouble Codes"
+                    android:textColor="?attr/editTextColor"/>
 
 
             </LinearLayout>

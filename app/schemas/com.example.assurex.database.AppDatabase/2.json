@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "2622a74dce25af18e187b66fa56b3785",
+    "identityHash": "adae4d20c4f89a9826df8dcbb4bc3c89",
     "entities": [
       {
         "tableName": "RawDataItem",
@@ -56,7 +56,7 @@
       },
       {
         "tableName": "TripSummary",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tripId` TEXT NOT NULL, `date` TEXT, `tripNumber` INTEGER NOT NULL, `currentStanding` TEXT, `engineStatus` TEXT, `averageSpeed` REAL NOT NULL, `topSpeed` REAL NOT NULL, `averageAcceleration` REAL NOT NULL, `topAcceleration` REAL NOT NULL, PRIMARY KEY(`tripId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tripId` TEXT NOT NULL, `date` TEXT, `tripNumber` INTEGER NOT NULL, `notableTripEvents` TEXT, `engineStatus` TEXT, `averageSpeed` REAL NOT NULL, `topSpeed` REAL NOT NULL, `averageAcceleration` REAL NOT NULL, `topAcceleration` REAL NOT NULL, PRIMARY KEY(`tripId`))",
         "fields": [
           {
             "fieldPath": "tripId",
@@ -77,8 +77,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "currentStanding",
-            "columnName": "currentStanding",
+            "fieldPath": "notableTripEvents",
+            "columnName": "notableTripEvents",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -126,7 +126,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2622a74dce25af18e187b66fa56b3785')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'adae4d20c4f89a9826df8dcbb4bc3c89')"
     ]
   }
 }
