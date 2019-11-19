@@ -100,8 +100,8 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         speed = findViewById(R.id.speed);
         acceleration = findViewById(R.id.acceleration);
         speedLimitView = findViewById(R.id.speedLimitView);
-        tripTime = findViewById(R.id.tripTime);
-        troubleCodes = findViewById(R.id.troubleCodes);
+//        tripTime = findViewById(R.id.tripTime);
+//        troubleCodes = findViewById(R.id.troubleCodes);
 
         receiver = new CarDataReceiver();
         settingsReceiver = new SettingsReceiver();
@@ -151,8 +151,8 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                 float accel = b.getFloat("acceleration", 0);
 
 
-                troubleCodes.setText(b.getString("troubleCodes", "Trouble Codes"));
-                tripTime.setText(Double.toString(b.getDouble("tripTime", 0)));
+                //troubleCodes.setText(b.getString("troubleCodes", "Trouble Codes"));
+                //tripTime.setText(Double.toString(b.getDouble("tripTime", 0)));
                 speed.setText(Integer.toString(spd));
                 acceleration.setText(Integer.toString((int)accel));
 
