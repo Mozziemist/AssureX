@@ -84,6 +84,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     private TextView speedLimitView;
     CarDataReceiver receiver;
     SettingsReceiver settingsReceiver;
+    SpeedLimitReceiver slReceiver;
     SpeedLimitThread speedLimitThread;
     //for map
     private PermissionsManager permissionsManager;
@@ -104,8 +105,10 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
 
         receiver = new CarDataReceiver();
         settingsReceiver = new SettingsReceiver();
+        slReceiver = new SpeedLimitReceiver();
         registerReceiver(receiver, new IntentFilter("CarDataUpdates"));
         registerReceiver(settingsReceiver, new IntentFilter("SettingsUpdate"));
+        registerReceiver(slReceiver, new IntentFilter("SpeedLimitUpdates"));
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         Intent serviceIntent = new Intent(this, BluetoothService.class);
@@ -127,6 +130,15 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
 
     }//end oncreate
 
+    class SpeedLimitReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (("SpeedLimitUpdates").equals(intent.getAction())){
+                speedLimitView.setText(intent.getStringExtra("limit"));
+                Log.d(TAG, "onReceive: Speed limit set");
+            }
+        }
+    }
 
     class CarDataReceiver extends BroadcastReceiver {
 
@@ -145,9 +157,6 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                 acceleration.setText(Integer.toString((int)accel));
 
                 Log.d(TAG, "onReceive: text has been set");
-
-
-
             }
         }
     }
@@ -169,23 +178,26 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
 
                     if (speedLimitRequester.getSpeedLimit() > 0)
                     {
-                        Speed.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                speedLimitView.setText(Integer.toString(speedLimitRequester.getSpeedLimit()));
-                            }
-                        });
+                        Intent spdlmtIntent = new Intent("SpeedLimitUpdates");
+                        Log.d(TAG, "run: sending > 0: " + speedLimitRequester.getSpeedLimit());
+                        spdlmtIntent.putExtra("limit", Integer.toString(speedLimitRequester.getSpeedLimit()));
+                        sendBroadcast(spdlmtIntent);
+                    }
+                    else
+                    {
+                        Intent spdlmtIntent = new Intent("SpeedLimitUpdates");
+                        spdlmtIntent.putExtra("limit", "NA");
+                        sendBroadcast(spdlmtIntent);
+                        Log.d(TAG, "run: sent NA = 0");
                     }
 
                 }
                 else
                 {
-                    Speed.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            speedLimitView.setText("NA");
-                        }
-                    });
+                    Intent spdlmtIntent = new Intent("SpeedLimitUpdates");
+                    spdlmtIntent.putExtra("limit", "NA");
+                    sendBroadcast(spdlmtIntent);
+                    Log.d(TAG, "run: sent NA: not active");
                 }
 
                 try {
@@ -399,6 +411,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         mapView.onDestroy();
         unregisterReceiver(receiver);
         unregisterReceiver(settingsReceiver);
+        unregisterReceiver(slReceiver);
         Intent serviceIntent = new Intent(this, BluetoothService.class);
         stopService(serviceIntent);
 
