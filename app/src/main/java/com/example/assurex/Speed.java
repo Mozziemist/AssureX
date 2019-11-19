@@ -179,7 +179,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                     if (speedLimitRequester.getSpeedLimit() > 0)
                     {
                         Intent spdlmtIntent = new Intent("SpeedLimitUpdates");
-                        Log.d(TAG, "run: sending > 0: " + speedLimitRequester.getSpeedLimit());
+                        Log.d(TAG, "run: sending > 0: " + speedLimitRequester.getSpeedLimit() + wpnt);
                         spdlmtIntent.putExtra("limit", Integer.toString(speedLimitRequester.getSpeedLimit()));
                         sendBroadcast(spdlmtIntent);
                     }
@@ -201,7 +201,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                 }
 
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(2000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -339,6 +339,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                         enableLocationComponent(style);
                     }
                 });
+
 
     }//endOnMapReady
 
