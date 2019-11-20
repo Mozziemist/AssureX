@@ -29,7 +29,8 @@
                 android:onClick="darkMode"
                 android:id="@+id/settingsBut"
                 android:layout_marginLeft="50dp"
-                android:textColor="?attr/editTextColor"/>
+                android:textColor="?attr/editTextColor"
+                />
 
             <CheckBox
                 android:layout_width="wrap_content"
@@ -40,7 +41,8 @@
                 android:onClick="alwaysOnClicked"
                 android:id="@+id/alwaysOnBut"
                 android:layout_marginLeft="50dp"
-                android:textColor="?attr/editTextColor"/>
+                android:textColor="?attr/editTextColor"
+                />
 
         </LinearLayout>
 

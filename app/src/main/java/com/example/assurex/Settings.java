@@ -5,6 +5,8 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
 
+import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -17,6 +19,7 @@ import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 public class Settings extends AppCompatActivity {
 
@@ -111,6 +114,8 @@ public class Settings extends AppCompatActivity {
     }//end onOptionsItemSelected
     //end for menu --------
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @SuppressLint("ResourceAsColor")
     public void darkMode(View view) {
         if (Speed.getDarkMode() == false) {
             //settingsBut.setChecked(true);
@@ -118,7 +123,6 @@ public class Settings extends AppCompatActivity {
             Speed.setDarkMode(true);
             setTheme(R.style.DarkTheme);
             settingsPage.setBackgroundResource(R.drawable.gradient_background_dark);
-
 
             //the actual way to do this involves changing the theme, look into that later
 

@@ -190,6 +190,7 @@
                         android:textSize="13dp"
                         android:gravity="center"
                         android:textColor="?attr/editTextColor"
+                        android:id="@+id/dateSpeed"
                         />
 
                     <TextView
@@ -288,6 +289,7 @@
                         android:textSize="13dp"
                         android:gravity="center"
                         android:textColor="?attr/editTextColor"
+                        android:id="@+id/dateAcc"
                         />
 
                     <TextView
@@ -347,6 +349,7 @@
                         android:textSize="16dp"
                         android:gravity="center"
                         android:textColor="?attr/editTextColor"
+                        android:id="@+id/topAcc"
                         />
 
 
@@ -384,6 +387,7 @@
                         android:textSize="13dp"
                         android:gravity="center"
                         android:textColor="?attr/editTextColor"
+                        android:id="@+id/dateEngInf"
                         />
                     <TextView
                         android:layout_marginHorizontal="10dp"
@@ -443,6 +447,7 @@
                         android:textSize="16dp"
                         android:gravity="center"
                         android:textColor="?attr/editTextColor"
+                        android:id="@+id/engStatus"
                         />
 
 
@@ -480,6 +485,7 @@
                         android:textSize="13dp"
                         android:gravity="center"
                         android:textColor="?attr/editTextColor"
+                        android:id="@+id/dateIns"
                         />
                     <Button
                         android:id="@+id/insBut"
@@ -509,7 +515,7 @@
                 android:orientation="horizontal"
                 android:layout_gravity="top"
                 android:layout_weight="1"
-                android:background="#6FCE5959"
+                android:background="@drawable/bg_button_grey"
                 android:gravity="center"
                 android:visibility="gone"
                 android:id="@+id/insWindow">
@@ -523,6 +529,7 @@
                     android:textSize="16dp"
                     android:gravity="center"
                     android:textColor="?attr/editTextColor"
+                    android:id="@+id/tripSum"
                     />
 
 
