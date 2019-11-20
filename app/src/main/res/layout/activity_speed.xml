@@ -121,7 +121,7 @@
             android:layout_marginRight="14dp"
             android:background="#FFFFFF"
             android:gravity="center"
-            android:text="60"
+            android:text="NA"
             android:textColor="#000000"
             android:textSize="28sp"
             app:layout_constraintBottom_toBottomOf="parent"

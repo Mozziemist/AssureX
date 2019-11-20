@@ -86,6 +86,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     SettingsReceiver settingsReceiver;
     SpeedLimitReceiver slReceiver;
     SpeedLimitThread speedLimitThread;
+    private Boolean isEngineOn;
     //for map
     private PermissionsManager permissionsManager;
     private MapboxMap mapboxMap;
@@ -100,6 +101,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         speed = findViewById(R.id.speed);
         acceleration = findViewById(R.id.acceleration);
         speedLimitView = findViewById(R.id.speedLimitView);
+        isEngineOn = false;
 //        tripTime = findViewById(R.id.tripTime);
 //        troubleCodes = findViewById(R.id.troubleCodes);
 
@@ -155,6 +157,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                 //tripTime.setText(Double.toString(b.getDouble("tripTime", 0)));
                 speed.setText(Integer.toString(spd));
                 acceleration.setText(Integer.toString((int)accel));
+                isEngineOn = b.getBoolean("isEngineOn", false);
 
                 Log.d(TAG, "onReceive: text has been set");
             }
@@ -170,34 +173,37 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
 
             while (!Thread.currentThread().isInterrupted())
             {
-                if (mapboxMap != null && mapboxMap.getLocationComponent().isLocationComponentActivated())
+                if (isEngineOn)
                 {
-                    String wpnt = Double.toString(mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude());
-                    wpnt += ',' + Double.toString(mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude());
-                    speedLimitRequester.sendRequest(wpnt);
-
-                    if (speedLimitRequester.getSpeedLimit() > 0)
+                    if (mapboxMap != null && mapboxMap.getLocationComponent().isLocationComponentActivated())
                     {
-                        Intent spdlmtIntent = new Intent("SpeedLimitUpdates");
-                        Log.d(TAG, "run: sending > 0: " + speedLimitRequester.getSpeedLimit() + wpnt);
-                        spdlmtIntent.putExtra("limit", Integer.toString(speedLimitRequester.getSpeedLimit()));
-                        sendBroadcast(spdlmtIntent);
+                        String wpnt = Double.toString(mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude());
+                        wpnt += ',' + Double.toString(mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude());
+                        speedLimitRequester.sendRequest(wpnt);
+
+                        if (speedLimitRequester.getSpeedLimit() > 0)
+                        {
+                            Intent spdlmtIntent = new Intent("SpeedLimitUpdates");
+                            Log.d(TAG, "run: sending > 0: " + speedLimitRequester.getSpeedLimit() + wpnt);
+                            spdlmtIntent.putExtra("limit", Integer.toString(speedLimitRequester.getSpeedLimit()));
+                            sendBroadcast(spdlmtIntent);
+                        }
+                        else
+                        {
+                            Intent spdlmtIntent = new Intent("SpeedLimitUpdates");
+                            spdlmtIntent.putExtra("limit", "NA");
+                            sendBroadcast(spdlmtIntent);
+                            Log.d(TAG, "run: sent NA = 0");
+                        }
+
                     }
                     else
                     {
                         Intent spdlmtIntent = new Intent("SpeedLimitUpdates");
                         spdlmtIntent.putExtra("limit", "NA");
                         sendBroadcast(spdlmtIntent);
-                        Log.d(TAG, "run: sent NA = 0");
+                        Log.d(TAG, "run: sent NA: not active");
                     }
-
-                }
-                else
-                {
-                    Intent spdlmtIntent = new Intent("SpeedLimitUpdates");
-                    spdlmtIntent.putExtra("limit", "NA");
-                    sendBroadcast(spdlmtIntent);
-                    Log.d(TAG, "run: sent NA: not active");
                 }
 
                 try {
