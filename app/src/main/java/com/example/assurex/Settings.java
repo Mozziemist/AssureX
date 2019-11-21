@@ -27,9 +27,9 @@ public class Settings extends AppCompatActivity {
     CheckBox alwaysOnCheckBox;
     LinearLayout settingsPage;
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         //for dark mode
         if (Speed.getDarkMode() == false) {
             //settingsBut.setChecked(true);
@@ -42,6 +42,7 @@ public class Settings extends AppCompatActivity {
             setTheme(R.style.DarkTheme);
         }
         //end for dark mode
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
         settingsBut = findViewById(R.id.settingsBut);
@@ -114,18 +115,17 @@ public class Settings extends AppCompatActivity {
     }//end onOptionsItemSelected
     //end for menu --------
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    @SuppressLint("ResourceAsColor")
     public void darkMode(View view) {
         if (Speed.getDarkMode() == false) {
             //settingsBut.setChecked(true);
             Toast.makeText(this, "Dark Mode Selected", Toast.LENGTH_SHORT).show();
             Speed.setDarkMode(true);
             setTheme(R.style.DarkTheme);
-            settingsPage.setBackgroundResource(R.drawable.gradient_background_dark);
-
-            //the actual way to do this involves changing the theme, look into that later
-
+            //settingsPage.setBackgroundResource(R.drawable.gradient_background_dark);
+            //getSupportActionBar().setBackgroundDrawable(getDrawable(R.color.colorPrimaryD));
+            Intent intent = new Intent(this, Speed.class);
+            startActivity(intent);
+            finish();
 
         }
         else if (Speed.getDarkMode() == true) {
@@ -133,7 +133,11 @@ public class Settings extends AppCompatActivity {
             Toast.makeText(this, "Dark Mode Deactivated", Toast.LENGTH_SHORT).show();
             Speed.setDarkMode(false);
             setTheme(R.style.AppTheme);
-            settingsPage.setBackgroundResource(R.drawable.gradient_background);
+            //settingsPage.setBackgroundResource(R.drawable.gradient_background);
+            //getSupportActionBar().setBackgroundDrawable(getDrawable(R.color.colorPrimary));
+            Intent intent = new Intent(this, Speed.class);
+            startActivity(intent);
+            finish();
         }
 
     }
@@ -147,12 +151,14 @@ public class Settings extends AppCompatActivity {
             Toast.makeText(this, "Screen won't turn off", Toast.LENGTH_SHORT).show();
             sendSettings.putExtra("alwaysOn", true);
             sendBroadcast(sendSettings);
+            //Speed.setDarkModeSpeed();
         }
         else
         {
             Toast.makeText(this, "Screen can now turn off", Toast.LENGTH_SHORT).show();
             sendSettings.putExtra("alwaysOn", false);
             sendBroadcast(sendSettings);
+            //Speed.setDarkModeSpeed();
         }
     }
 

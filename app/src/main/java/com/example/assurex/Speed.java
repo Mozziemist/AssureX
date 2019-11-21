@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
 import androidx.core.content.ContextCompat;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.Context;
@@ -19,6 +20,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.sip.SipSession;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -119,8 +121,6 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
         //end for map
-
-        setDarkModeSpeed();
 
     }//end oncreate
 
@@ -358,25 +358,38 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     //end for map ------
 
     //for theme
-    public static boolean getDarkMode (){
-        return darkMode;
-    }
+    public static boolean getDarkMode (){ return darkMode; }
 
     public static void setDarkMode (boolean input){
         darkMode = input;
     }
 
+
+    //currently trying to figure out how to use
     public void setDarkModeSpeed (){
         //for dark mode
             if (Speed.getDarkMode() == false) {
                 //settingsBut.setChecked(true);
                 Toast.makeText(this, "Light Mode Picked", Toast.LENGTH_SHORT).show();
                 setTheme(R.style.AppTheme);
+                reCreate();
             } else if (Speed.getDarkMode() == true) {
                 //settingsBut.setChecked(false);
                 Toast.makeText(this, "Dark Mode Picked", Toast.LENGTH_SHORT).show();
                 setTheme(R.style.DarkTheme);
+                reCreate();
             }
             //end for dark mode
+    }//end setDarmModeSpeed
+
+    public void reCreate() {
+        Bundle savedInstanceState = new Bundle();
+        //this is important to save all your open states/fragment states
+        onSaveInstanceState(savedInstanceState);
+        //this is needed to release the resources
+        super.onDestroy();
+
+        //call on create where new theme is applied
+        onCreate(savedInstanceState);//you can pass bundle arguments to skip your code/flows on this scenario
     }
 }//end class speed
