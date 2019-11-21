@@ -6,12 +6,17 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
+import androidx.room.Room;
 
 import com.example.assurex.database.AppDatabase;
+import com.example.assurex.database.UserDao;
+import com.example.assurex.model.User;
 
 import org.greenrobot.eventbus.EventBus;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
+
     EditText username;
     EditText password;
 
@@ -46,8 +51,11 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
     }
     public void LoginClicked(View view) {
-        if (username.getText().toString().equals("guest") &&
-                password.getText().toString().equals("guest")) {
+        String name = username.getText().toString().trim();
+        UserRepository userRepository = new UserRepository(getApplicationContext());
+        LiveData<User> user = userRepository.getUser(name);
+
+        /*if (name.equals(user.getValue().getUsername())) {
             //startActivity(new Intent(getApplicationContext(), Speed.class));
             Intent intent = new Intent(getApplicationContext(), Speed.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -57,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         else {
             Toast.makeText(getApplicationContext(),
                     "Invalid username or password", Toast.LENGTH_SHORT).show();
-        }
+        }*/
         //startActivity(new Intent(getApplicationContext(), Speed.class));
         Intent intent = new Intent(getApplicationContext(), Speed.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);

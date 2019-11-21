@@ -22,6 +22,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.github.pires.obd.commands.SpeedCommand;
 import com.github.pires.obd.commands.control.PendingTroubleCodesCommand;
+import com.github.pires.obd.commands.control.TroubleCodesCommand;
 import com.github.pires.obd.commands.engine.RPMCommand;
 import com.github.pires.obd.commands.fuel.FuelLevelCommand;
 import com.github.pires.obd.commands.protocol.AvailablePidsCommand_01_20;
@@ -151,7 +152,7 @@ public class BluetoothService extends Service {
 
                         SpeedCommand speedCommand = new SpeedCommand();
                         RPMCommand rpmCommand = new RPMCommand();
-                        PendingTroubleCodesCommand tcCommand = new PendingTroubleCodesCommand();
+
 
 
                         float prevSpd = 0, currentSpd;
@@ -164,6 +165,7 @@ public class BluetoothService extends Service {
                         while (!Thread.currentThread().isInterrupted() && mySocket.isConnected())
                         {
 
+                            TroubleCodesCommand tcCommand = new TroubleCodesCommand();
                             if (isEngineOn && !isBeingTimed)
                             {
                                 duration = 0;
@@ -200,7 +202,7 @@ public class BluetoothService extends Service {
                                     isBeingTimed = false;
 
                                     Bundle b = new Bundle();
-                                    //b.putString("troubleCodes", "Pending Search");
+                                    b.putString("troubleCodes", "Pending Search");
                                     b.putBoolean("isEngineOn", isEngineOn);
                                     b.putDouble("tripTime", 0);
                                     b.putInt("speed", 0);
@@ -217,7 +219,7 @@ public class BluetoothService extends Service {
                                 isBeingTimed = false;
 
                                 Bundle b = new Bundle();
-                                //b.putString("troubleCodes", "Pending Search");
+                                b.putString("troubleCodes", "Pending Search");
                                 b.putBoolean("isEngineOn", isEngineOn);
                                 b.putDouble("tripTime", 0);
                                 b.putInt("speed", 0);

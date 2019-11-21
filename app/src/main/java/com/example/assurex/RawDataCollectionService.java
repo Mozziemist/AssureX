@@ -8,9 +8,15 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -19,15 +25,17 @@ import com.example.assurex.database.AppDatabase;
 import com.example.assurex.model.RawDataItem;
 import com.example.assurex.model.TripSummary;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import static com.example.assurex.App.BT_CHANNEL_ID;
 import static com.example.assurex.App.RD_CHANNEL_ID;
 
-public class RawDataCollectionService extends Service {
+public class RawDataCollectionService extends Service implements LocationListener {
     private final static String TAG = "RawDataCollectService";
     private AppDatabase db;
     CarDataReceiver receiver;
@@ -49,6 +57,14 @@ public class RawDataCollectionService extends Service {
     double tTopAcceleration = 0;
     boolean tripSummaryShouldBeSaved = false;
 
+    LocationManager locationManager;
+    //LocationListener locationListener;
+    double myLatitude;
+    double myLongitude;
+    String myAddress;
+    String myOriginAddress;
+    String myDestinationAddress;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -56,6 +72,7 @@ public class RawDataCollectionService extends Service {
         receiver = new CarDataReceiver();
         registerReceiver(receiver, new IntentFilter("CarDataUpdates"));
         Log.d(TAG, "receiver registered");
+        getLocation();
 
         Intent notificationIntent = new Intent(this, Speed.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
@@ -93,6 +110,7 @@ public class RawDataCollectionService extends Service {
             }
             //while engine is on, bt service is running and the speed is still 0 indicating vehicle
             //has yet to move
+            myOriginAddress = myAddress;
             while(isEngineOn && isServiceRunning(BluetoothService.class) && rawSpeed == 0){
                 try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
             }
@@ -125,7 +143,7 @@ public class RawDataCollectionService extends Service {
                         String timeStamp = calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE) + ":" + calendar.get(Calendar.SECOND);
                         String tripDatedTimeStamp = date + "@" + timeStamp;
                         rawAcceleration = Math.floor(rawAcceleration * 1000) / 1000.0;
-                        tempRawDataItemList.add(new RawDataItem(tripDatedTimeStamp, tripId, date, timeStamp, rawSpeed, rawAcceleration));
+                        tempRawDataItemList.add(new RawDataItem(tripDatedTimeStamp, tripId, date, timeStamp, rawSpeed, rawAcceleration, myLatitude, myLongitude, myAddress));
                         tAverageSpeed = (tAverageSpeed + rawSpeed) / 2;
                         tAverageSpeed = Math.floor(tAverageSpeed * 1000) / 1000.0;
                         if(rawSpeed > tTopSpeed){
@@ -159,15 +177,16 @@ public class RawDataCollectionService extends Service {
                     }
                 }while (!Thread.currentThread().isInterrupted() && isEngineOn && isServiceRunning(BluetoothService.class));
 
+                myDestinationAddress = myAddress;
+
                 if(tripSummaryShouldBeSaved){
                     notableTripEvents = "Times Abs Accel Exceeded 7mph/s: " + accelOverSeven;
                     tempTripSummary = new TripSummary(tripId, tsDate, tripNumber, notableTripEvents,
                             engineTroubleCodes, tAverageSpeed, tTopSpeed,
-                            tAverageAcceleration, tTopAcceleration);
+                            tAverageAcceleration, tTopAcceleration, myOriginAddress, myDestinationAddress);
                     db.tripSummaryDao().insert(tempTripSummary);
                 }
             }
-
             stopSelf();
         }
     }
@@ -203,11 +222,74 @@ public class RawDataCollectionService extends Service {
         return false;
     }
 
+    void getLocation() {
+        try {
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 3, this);
+        }
+        catch(SecurityException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        //locationText.setText("Current Location: " + location.getLatitude() + ", " + location.getLongitude());
+        myLatitude = location.getLatitude();
+        myLongitude = location.getLongitude();
+        myAddress = hereLocation(myLatitude, myLongitude);
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+        //Toast.makeText(MainActivity.this, "Please Enable GPS and Internet", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    private String hereLocation(double lat, double lon) {
+        String name = "";
+
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        List<Address> addresses;
+        try {
+            addresses = geocoder.getFromLocation(lat, lon, 10);
+            //name = addresses.get(0).getAddressLine(0);
+
+            if (addresses.size() > 0){
+                for (int i  = 0; i<10;i++) {
+                    if (addresses.get(i).getAddressLine(0) != null && addresses.get(i).getAddressLine(0).length()>0){
+                        name = addresses.get(i).getAddressLine(0);
+                        break;
+                    }
+                }
+            }
+
+
+        } catch (IOException e) {
+            //Toast.makeText(this, "Location Not Found", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+            name = "Location Not Found";
+            Log.i(TAG, "Location Not Found");
+        }
+
+        return name;
+    }//end herelocation
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         unregisterReceiver(receiver);
+        locationManager.removeUpdates(this);
         AppDatabase.destroyInstance();
     }
 

@@ -33,7 +33,10 @@ public class TripSummary implements Parcelable {
     private double averageAcceleration;
     @ColumnInfo
     private double topAcceleration;
-
+    @ColumnInfo
+    private String originLocation;
+    @ColumnInfo
+    private String destinationLocation;
 
 
 
@@ -45,7 +48,8 @@ public class TripSummary implements Parcelable {
     @Ignore
     public TripSummary(String tripId, String date, int tripNumber, String notableTripEvents,
                        String engineStatus, double averageSpeed, double topSpeed,
-                       double averageAcceleration, double topAcceleration){
+                       double averageAcceleration, double topAcceleration,
+                       String originLocation, String destinationLocation){
 
         if (tripId == null) {
             tripId = UUID.randomUUID().toString();
@@ -65,6 +69,8 @@ public class TripSummary implements Parcelable {
         this.topSpeed = topSpeed;
         this.averageAcceleration = averageAcceleration;
         this.topAcceleration = topAcceleration;
+        this.originLocation = originLocation;
+        this.destinationLocation = destinationLocation;
     }
 
     public String getTripId() {
@@ -125,17 +131,21 @@ public class TripSummary implements Parcelable {
         return averageAcceleration;
     }
 
-    public void setAverageAcceleration(double averageAcceleration) {
-        this.averageAcceleration = averageAcceleration;
-    }
+    public void setAverageAcceleration(double averageAcceleration) { this.averageAcceleration = averageAcceleration; }
 
     public double getTopAcceleration() {
         return topAcceleration;
     }
 
-    public void setTopAcceleration(double topAcceleration) {
-        this.topAcceleration = topAcceleration;
-    }
+    public void setTopAcceleration(double topAcceleration) { this.topAcceleration = topAcceleration; }
+
+    public String getOriginLocation() { return originLocation; }
+
+    public void setOriginLocation(String originLocation) { this.originLocation = originLocation; }
+
+    public String getDestinationLocation() { return destinationLocation; }
+
+    public void setDestinationLocation(String destinationLocation) { this.destinationLocation = destinationLocation; }
 
     protected TripSummary(Parcel in) {
         this.tripId = in.readString();
@@ -147,6 +157,9 @@ public class TripSummary implements Parcelable {
         this.topSpeed = in.readDouble();
         this.averageAcceleration = in.readDouble();
         this.topAcceleration = in.readDouble();
+        this.originLocation = in.readString();
+        this.destinationLocation = in.readString();
+
     }
 
     @Override
@@ -160,6 +173,8 @@ public class TripSummary implements Parcelable {
         dest.writeDouble(this.topSpeed);
         dest.writeDouble(this.averageAcceleration);
         dest.writeDouble(this.topAcceleration);
+        dest.writeString(this.originLocation);
+        dest.writeString(this.destinationLocation);
     }
 
     @Override

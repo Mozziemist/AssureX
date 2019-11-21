@@ -30,13 +30,20 @@ public class RawDataItem implements Parcelable {
     private int speed;
     @ColumnInfo
     private double accelerationRate;
+    @ColumnInfo
+    private double latitude;
+    @ColumnInfo
+    private double longitude;
+    @ColumnInfo
+    private String nearestAddress;
 
     public RawDataItem() {
     }
 
     //public RawDataItem(String tripId, String date, String timeStamp, double topSpeed) {
     @Ignore
-    public RawDataItem(String tripDatedTimeStamp, String tripId, String date, String timeStamp, int speed, double accelerationRate) {
+    public RawDataItem(String tripDatedTimeStamp, String tripId, String date, String timeStamp, int speed, double accelerationRate,
+                       double latitude, double longitude, String nearestAddress) {
 
         if (tripId == null) {
             tripId = UUID.randomUUID().toString();
@@ -52,6 +59,9 @@ public class RawDataItem implements Parcelable {
         this.timeStamp = timeStamp;
         this.speed = speed;
         this.accelerationRate = accelerationRate;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.nearestAddress = nearestAddress;
     }
 
     public String getTripDatedTimeStamp() { return tripDatedTimeStamp; }
@@ -78,6 +88,18 @@ public class RawDataItem implements Parcelable {
 
     public void setAccelerationRate(double accelerationRate) { this.accelerationRate = accelerationRate; }
 
+    public double getLatitude() { return latitude; }
+
+    public void setLatitude(double latitude) { this.latitude = latitude; }
+
+    public double getLongitude() { return longitude; }
+
+    public void setLongitude(double longitude) { this.longitude = longitude; }
+
+    public String getNearestAddress() { return nearestAddress; }
+
+    public void setNearestAddress(String nearestAddress) { this.nearestAddress = nearestAddress; }
+
     @Override
     public String toString() {
         return "RawDataItem{" +
@@ -100,6 +122,9 @@ public class RawDataItem implements Parcelable {
         dest.writeString(this.timeStamp);
         dest.writeInt(this.speed);
         dest.writeDouble(this.accelerationRate);
+        dest.writeDouble(this.latitude);
+        dest.writeDouble(this.longitude);
+        dest.writeString(this.nearestAddress);
     }
 
     protected RawDataItem(Parcel in) {
@@ -109,6 +134,9 @@ public class RawDataItem implements Parcelable {
         this.timeStamp = in.readString();
         this.speed = in.readInt();
         this.accelerationRate = in.readDouble();
+        this.latitude = in.readDouble();
+        this.longitude = in.readDouble();
+        this.nearestAddress = in.readString();
     }
 
     public static final Parcelable.Creator<RawDataItem> CREATOR = new Parcelable.Creator<RawDataItem>() {

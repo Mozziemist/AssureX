@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "adae4d20c4f89a9826df8dcbb4bc3c89",
+    "identityHash": "229c054b22df7c1c1fc4820d0a860ba1",
     "entities": [
       {
         "tableName": "RawDataItem",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tripDatedTimeStamp` TEXT NOT NULL, `tripId` TEXT, `date` TEXT, `timeStamp` TEXT, `speed` INTEGER NOT NULL, `accelerationRate` REAL NOT NULL, PRIMARY KEY(`tripDatedTimeStamp`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tripDatedTimeStamp` TEXT NOT NULL, `tripId` TEXT, `date` TEXT, `timeStamp` TEXT, `speed` INTEGER NOT NULL, `accelerationRate` REAL NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `nearestAddress` TEXT, PRIMARY KEY(`tripDatedTimeStamp`))",
         "fields": [
           {
             "fieldPath": "tripDatedTimeStamp",
@@ -43,6 +43,24 @@
             "columnName": "accelerationRate",
             "affinity": "REAL",
             "notNull": true
+          },
+          {
+            "fieldPath": "latitude",
+            "columnName": "latitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "longitude",
+            "columnName": "longitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nearestAddress",
+            "columnName": "nearestAddress",
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -56,7 +74,7 @@
       },
       {
         "tableName": "TripSummary",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tripId` TEXT NOT NULL, `date` TEXT, `tripNumber` INTEGER NOT NULL, `notableTripEvents` TEXT, `engineStatus` TEXT, `averageSpeed` REAL NOT NULL, `topSpeed` REAL NOT NULL, `averageAcceleration` REAL NOT NULL, `topAcceleration` REAL NOT NULL, PRIMARY KEY(`tripId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tripId` TEXT NOT NULL, `date` TEXT, `tripNumber` INTEGER NOT NULL, `notableTripEvents` TEXT, `engineStatus` TEXT, `averageSpeed` REAL NOT NULL, `topSpeed` REAL NOT NULL, `averageAcceleration` REAL NOT NULL, `topAcceleration` REAL NOT NULL, `originLocation` TEXT, `destinationLocation` TEXT, PRIMARY KEY(`tripId`))",
         "fields": [
           {
             "fieldPath": "tripId",
@@ -111,6 +129,18 @@
             "columnName": "topAcceleration",
             "affinity": "REAL",
             "notNull": true
+          },
+          {
+            "fieldPath": "originLocation",
+            "columnName": "originLocation",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "destinationLocation",
+            "columnName": "destinationLocation",
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -126,7 +156,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'adae4d20c4f89a9826df8dcbb4bc3c89')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '229c054b22df7c1c1fc4820d0a860ba1')"
     ]
   }
 }

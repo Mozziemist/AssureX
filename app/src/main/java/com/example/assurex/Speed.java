@@ -36,6 +36,13 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.JsonRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.assurex.database.AppDatabase;
 
 //for map
@@ -44,6 +51,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.widget.Toast;
 
+import com.google.gson.JsonArray;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 //import com.mapbox.mapboxandroiddemo.R;
@@ -60,9 +68,14 @@ import com.mapbox.mapboxsdk.maps.Style;
 //for profile pic
 import android.net.Uri;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Queue;
 
 
 public class Speed extends AppCompatActivity implements OnMapReadyCallback, PermissionsListener {
@@ -70,8 +83,12 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     private TextView speed;
     private TextView acceleration;
     private TextView tripTime, troubleCodes;
+    private TextView speedLimitView;
     CarDataReceiver receiver;
     SettingsReceiver settingsReceiver;
+    SpeedLimitReceiver slReceiver;
+    SpeedLimitThread speedLimitThread;
+    private Boolean isEngineOn;
     //for map
     private PermissionsManager permissionsManager;
     private MapboxMap mapboxMap;
@@ -102,14 +119,17 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         //for display
         speed = findViewById(R.id.speed);
         acceleration = findViewById(R.id.acceleration);
-
-        tripTime = findViewById(R.id.tripTime);
-        troubleCodes = findViewById(R.id.troubleCodes);
+        speedLimitView = findViewById(R.id.speedLimitView);
+        isEngineOn = false;
+//        tripTime = findViewById(R.id.tripTime);
+//        troubleCodes = findViewById(R.id.troubleCodes);
 
         receiver = new CarDataReceiver();
         settingsReceiver = new SettingsReceiver();
+        slReceiver = new SpeedLimitReceiver();
         registerReceiver(receiver, new IntentFilter("CarDataUpdates"));
         registerReceiver(settingsReceiver, new IntentFilter("SettingsUpdate"));
+        registerReceiver(slReceiver, new IntentFilter("SpeedLimitUpdates"));
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         Intent serviceIntent = new Intent(this, BluetoothService.class);
@@ -125,8 +145,20 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         mapView.getMapAsync(this);
         //end for map
 
+        speedLimitThread = new SpeedLimitThread();
+        speedLimitThread.start();
+
     }//end oncreate
 
+    class SpeedLimitReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (("SpeedLimitUpdates").equals(intent.getAction())){
+                speedLimitView.setText(intent.getStringExtra("limit"));
+                Log.d(TAG, "onReceive: Speed limit set");
+            }
+        }
+    }
 
     class CarDataReceiver extends BroadcastReceiver {
 
@@ -138,14 +170,68 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                 int spd = b.getInt("speed", 0);
                 float accel = b.getFloat("acceleration", 0);
 
-                troubleCodes.setText(b.getString("troubleCodes", "No Codes"));
-                tripTime.setText(Double.toString(b.getDouble("tripTime", 0)));
+
+                //troubleCodes.setText(b.getString("troubleCodes", "Trouble Codes"));
+                //tripTime.setText(Double.toString(b.getDouble("tripTime", 0)));
                 speed.setText(Integer.toString(spd));
                 acceleration.setText(Integer.toString((int)accel));
+                isEngineOn = b.getBoolean("isEngineOn", false);
 
                 Log.d(TAG, "onReceive: text has been set");
-
             }
+        }
+    }
+
+    class SpeedLimitThread extends Thread {
+        @Override
+        public void run() {
+
+            // Object to make requests for speed limit from HERE API
+            SpeedLimitRequester speedLimitRequester = new SpeedLimitRequester();
+
+            while (!Thread.currentThread().isInterrupted())
+            {
+                if (isEngineOn)
+                {
+                    if (mapboxMap != null && mapboxMap.getLocationComponent().isLocationComponentActivated())
+                    {
+                        String wpnt = Double.toString(mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude());
+                        wpnt += ',' + Double.toString(mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude());
+                        speedLimitRequester.sendRequest(wpnt);
+
+                        if (speedLimitRequester.getSpeedLimit() > 0)
+                        {
+                            Intent spdlmtIntent = new Intent("SpeedLimitUpdates");
+                            Log.d(TAG, "run: sending > 0: " + speedLimitRequester.getSpeedLimit() + wpnt);
+                            spdlmtIntent.putExtra("limit", Integer.toString(speedLimitRequester.getSpeedLimit()));
+                            sendBroadcast(spdlmtIntent);
+                        }
+                        else
+                        {
+                            Intent spdlmtIntent = new Intent("SpeedLimitUpdates");
+                            spdlmtIntent.putExtra("limit", "NA");
+                            sendBroadcast(spdlmtIntent);
+                            Log.d(TAG, "run: sent NA = 0");
+                        }
+
+                    }
+                    else
+                    {
+                        Intent spdlmtIntent = new Intent("SpeedLimitUpdates");
+                        spdlmtIntent.putExtra("limit", "NA");
+                        sendBroadcast(spdlmtIntent);
+                        Log.d(TAG, "run: sent NA: not active");
+                    }
+                }
+
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
         }
     }
 
@@ -233,6 +319,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
             case R.id.signOut: {
                 Toast.makeText(this, "signOut selected", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                finish();
                 break;
             }
         }
@@ -276,6 +363,8 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                         enableLocationComponent(style);
                     }
                 });
+
+
     }//endOnMapReady
 
     @SuppressWarnings( {"MissingPermission"})
@@ -298,6 +387,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
 
             // Set the component's render mode
             locationComponent.setRenderMode(RenderMode.COMPASS);
+
         } else {
             permissionsManager = new PermissionsManager(this);
             permissionsManager.requestLocationPermissions(this);
@@ -361,6 +451,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         mapView.onDestroy();
         unregisterReceiver(receiver);
         unregisterReceiver(settingsReceiver);
+        unregisterReceiver(slReceiver);
         Intent serviceIntent = new Intent(this, BluetoothService.class);
         stopService(serviceIntent);
 
@@ -405,5 +496,69 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
 
      */
 
+    public class SpeedLimitRequester {
+        private double speedLimit;
+        private String startURL, endURL;
+
+        public SpeedLimitRequester(){
+            speedLimit = 0;
+
+            startURL = "https://route.api.here.com/routing/7.2/calculateroute.json?";
+            endURL = "&legattributes=li&mode=fastest;car&app_id=c5QU4Uke4T5WqcxB3Z8O&app_code=s26PhxE3UnFLBkFkrSDVtw";
+        }
+
+        public int getSpeedLimit()
+        {
+            return ((int)Math.round(speedLimit * 2.23694));
+        }
+
+        public void sendRequest(String waypoint)
+        {
+            RequestQueue mQueue;
+            mQueue = Volley.newRequestQueue(getApplicationContext());
+            String url = startURL + "waypoint0=" + waypoint + "&waypoint1=" + waypoint + endURL;
+
+            Log.d(TAG, "sendRequest: JSON Prep...");
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            Log.d(TAG, "onResponse: JSON Response success: ");
+                            try {
+                                JSONObject jsonObject = response.getJSONObject("response");
+                                JSONArray jsonArray = jsonObject.getJSONArray("route");
+
+                                JSONObject jsonObject1 = jsonArray.getJSONObject(0);
+
+                                JSONArray jsonArray1 = jsonObject1.getJSONArray("leg");
+
+                                JSONObject jsonObject2 = jsonArray1.getJSONObject(0);
+                                JSONArray jsonArray2 = jsonObject2.getJSONArray("link");
+
+                                JSONObject jsonObject3 = jsonArray2.getJSONObject(0);
+                                speedLimit = jsonObject3.getDouble("speedLimit");
+
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    error.printStackTrace();
+                    Log.d(TAG, "onErrorResponse: NO RESPONSE");
+                }
+            });
+
+            mQueue.add(request);
+
+
+        }
+
+
+
+    }
 
 }//end class speed
