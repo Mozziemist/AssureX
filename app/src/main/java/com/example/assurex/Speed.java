@@ -78,6 +78,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     private MapView mapView;
     //for theme
     private static boolean darkMode = false;
+    public static boolean themeChanged = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,17 +87,19 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         //for dark mode
         if (Speed.getDarkMode() == false) {
             //settingsBut.setChecked(true);
-            Toast.makeText(this, "Light Mode Picked", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Light Mode Picked", Toast.LENGTH_SHORT).show();
             setTheme(R.style.AppTheme);
         }
         else if (Speed.getDarkMode() == true) {
             //settingsBut.setChecked(false);
-            Toast.makeText(this, "Dark Mode Picked", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Dark Mode Picked", Toast.LENGTH_SHORT).show();
             setTheme(R.style.DarkTheme);
         }
         //end for dark mode
+
         setContentView(R.layout.activity_speed);
 
+        //for display
         speed = findViewById(R.id.speed);
         acceleration = findViewById(R.id.acceleration);
 
@@ -317,7 +320,22 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     protected void onResume() {
         super.onResume();
         mapView.onResume();
-    }
+        if (Speed.getDarkMode() == false) {
+            //settingsBut.setChecked(true);
+            //Toast.makeText(this, "Light Mode Picked", Toast.LENGTH_SHORT).show();
+            setTheme(R.style.AppTheme);
+            //reCreate();
+        } else if (Speed.getDarkMode() == true) {
+            //settingsBut.setChecked(false);
+            //Toast.makeText(this, "Dark Mode Picked", Toast.LENGTH_SHORT).show();
+            setTheme(R.style.DarkTheme);
+            //reCreate();
+        }
+        if (themeChanged){
+            themeChanged = false;
+            this.recreate();
+        }//end if
+    }//end onResume
 
     @Override
     protected void onPause() {
@@ -351,9 +369,9 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        mapView.onSaveInstanceState(outState);
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        mapView.onSaveInstanceState(savedInstanceState);
     }
     //end for map ------
 
@@ -366,30 +384,26 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
 
 
     //currently trying to figure out how to use
+    /*
     public void setDarkModeSpeed (){
         //for dark mode
             if (Speed.getDarkMode() == false) {
                 //settingsBut.setChecked(true);
                 Toast.makeText(this, "Light Mode Picked", Toast.LENGTH_SHORT).show();
-                setTheme(R.style.AppTheme);
-                reCreate();
+                ThemeUtils.setTheme("light");
+                ThemeUtils.applyTheme(this);
+                //reCreate();
             } else if (Speed.getDarkMode() == true) {
                 //settingsBut.setChecked(false);
                 Toast.makeText(this, "Dark Mode Picked", Toast.LENGTH_SHORT).show();
-                setTheme(R.style.DarkTheme);
-                reCreate();
+                ThemeUtils.setTheme("dark");
+                ThemeUtils.applyTheme(this);
+                //reCreate();
             }
             //end for dark mode
     }//end setDarmModeSpeed
 
-    public void reCreate() {
-        Bundle savedInstanceState = new Bundle();
-        //this is important to save all your open states/fragment states
-        onSaveInstanceState(savedInstanceState);
-        //this is needed to release the resources
-        super.onDestroy();
+     */
 
-        //call on create where new theme is applied
-        onCreate(savedInstanceState);//you can pass bundle arguments to skip your code/flows on this scenario
-    }
+
 }//end class speed

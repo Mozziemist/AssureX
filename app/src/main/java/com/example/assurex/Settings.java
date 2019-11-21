@@ -7,6 +7,7 @@ import androidx.core.app.NavUtils;
 
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -33,12 +34,12 @@ public class Settings extends AppCompatActivity {
         //for dark mode
         if (Speed.getDarkMode() == false) {
             //settingsBut.setChecked(true);
-            Toast.makeText(this, "Light Mode Picked", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Light Mode Picked", Toast.LENGTH_SHORT).show();
             setTheme(R.style.AppTheme);
         }
         else if (Speed.getDarkMode() == true) {
             //settingsBut.setChecked(false);
-            Toast.makeText(this, "Dark Mode Picked", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Dark Mode Picked", Toast.LENGTH_SHORT).show();
             setTheme(R.style.DarkTheme);
         }
         //end for dark mode
@@ -118,24 +119,21 @@ public class Settings extends AppCompatActivity {
     public void darkMode(View view) {
         if (Speed.getDarkMode() == false) {
             //settingsBut.setChecked(true);
-            Toast.makeText(this, "Dark Mode Selected", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Dark Mode Activated", Toast.LENGTH_SHORT).show();
             Speed.setDarkMode(true);
             setTheme(R.style.DarkTheme);
-            //settingsPage.setBackgroundResource(R.drawable.gradient_background_dark);
-            //getSupportActionBar().setBackgroundDrawable(getDrawable(R.color.colorPrimaryD));
-            Intent intent = new Intent(this, Speed.class);
+            Speed.themeChanged = true;
+            Intent intent = new Intent(this, Settings.class);
             startActivity(intent);
             finish();
-
         }
         else if (Speed.getDarkMode() == true) {
             //settingsBut.setChecked(false);
             Toast.makeText(this, "Dark Mode Deactivated", Toast.LENGTH_SHORT).show();
             Speed.setDarkMode(false);
             setTheme(R.style.AppTheme);
-            //settingsPage.setBackgroundResource(R.drawable.gradient_background);
-            //getSupportActionBar().setBackgroundDrawable(getDrawable(R.color.colorPrimary));
-            Intent intent = new Intent(this, Speed.class);
+            Speed.themeChanged = true;
+            Intent intent = new Intent(this, Settings.class);
             startActivity(intent);
             finish();
         }
