@@ -1,133 +1,135 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:mapbox="http://schemas.android.com/apk/res-auto"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:mapbox="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Speed"
-    android:orientation="vertical"
     android:background="@drawable/gradient_background"
-    android:paddingTop="30dp">
+    tools:context=".Speed">
 
     <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mapView"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        mapbox:mapbox_cameraZoom="12" />
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/widgetContainer"
+        mapbox:layout_constraintEnd_toEndOf="parent"
+        mapbox:layout_constraintStart_toStartOf="parent"
+        mapbox:layout_constraintTop_toTopOf="parent"
+        mapbox:mapbox_cameraZoom="16">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1">
+    </com.mapbox.mapboxsdk.maps.MapView>
 
-        <LinearLayout
-            android:layout_width="match_parent"
+    <ImageView
+        android:id="@+id/widgetContainer"
+        android:layout_width="0dp"
+        android:layout_height="72dp"
+        android:layout_marginBottom="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.317"
+        app:layout_constraintStart_toStartOf="parent"
+        mapbox:srcCompat="@color/colorPrimary" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="72dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/mapView"
+        app:layout_constraintVertical_bias="0.0">
+
+        <ImageView
+            android:id="@+id/speedLimitContainer"
+            android:layout_width="70dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            mapbox:srcCompat="@drawable/speed_limit_pic" />
+
+        <TextView
+            android:id="@+id/speed"
+            android:layout_width="59dp"
+            android:layout_height="38dp"
+            android:layout_marginStart="55dp"
+            android:layout_marginLeft="55dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="55dp"
+            android:layout_marginRight="55dp"
+            android:gravity="center_horizontal|center_vertical"
+            android:text="0"
+            android:textColor="#FFFFFF"
+            android:textSize="30sp"
+            app:layout_constraintEnd_toStartOf="@+id/acceleration"
+            app:layout_constraintStart_toEndOf="@+id/speedLimitContainer"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/MPH"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:paddingTop="10dp">
+            android:layout_marginStart="100dp"
+            android:layout_marginLeft="100dp"
+            android:layout_marginBottom="10dp"
+            android:text="MPH"
+            android:textColor="#FFFFFF"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/MPHS"
+            app:layout_constraintStart_toEndOf="@+id/speedLimitContainer"
+            app:layout_constraintTop_toBottomOf="@+id/speed" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="234dp"
-                android:orientation="horizontal">
+        <TextView
+            android:id="@+id/acceleration"
+            android:layout_width="59dp"
+            android:layout_height="38dp"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:text="0"
+            android:textColor="#FFFFFF"
+            android:textSize="30sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/speed"
+            app:layout_constraintTop_toTopOf="parent" />
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/MPHS"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="101dp"
+            android:layout_marginLeft="101dp"
+            android:layout_marginEnd="44dp"
+            android:layout_marginRight="44dp"
+            android:layout_marginBottom="10dp"
+            android:text="MPH/S"
+            android:textColor="#FFFFFF"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/MPH"
+            app:layout_constraintTop_toBottomOf="@+id/acceleration" />
 
-                    <TextView
-                        android:id="@+id/textView"
-                        android:layout_width="227dp"
-                        android:layout_height="84dp"
-                        android:layout_marginTop="4dp"
-                        android:gravity="center"
-                        android:text="mph"
-                        android:textSize="40dp"
-                        mapbox:layout_constraintEnd_toEndOf="parent"
-                        mapbox:layout_constraintTop_toBottomOf="@+id/speed" />
-
-                    <TextView
-                        android:id="@+id/speed"
-                        android:layout_width="146dp"
-                        android:layout_height="130dp"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginEnd="48dp"
-                        android:layout_marginRight="48dp"
-                        android:gravity="center"
-                        android:text="0"
-                        android:textSize="100dp"
-                        mapbox:layout_constraintEnd_toEndOf="parent"
-                        mapbox:layout_constraintTop_toTopOf="parent" />
-
-                    <ImageView
-                        android:id="@+id/imageView4"
-                        android:layout_width="148dp"
-                        android:layout_height="wrap_content"
-                        app:srcCompat="@drawable/speed_limit_pic"
-                        mapbox:layout_constraintBottom_toBottomOf="parent"
-                        mapbox:layout_constraintStart_toStartOf="parent"
-                        mapbox:layout_constraintTop_toTopOf="parent"
-                        mapbox:layout_constraintVertical_bias="0.0" />
-
-                    <TextView
-                        android:id="@+id/speedLimitView"
-                        android:layout_width="125dp"
-                        android:layout_height="91dp"
-                        android:layout_marginStart="15dp"
-                        android:layout_marginLeft="15dp"
-                        android:layout_marginTop="91dp"
-                        android:layout_marginEnd="10dp"
-                        android:layout_marginRight="10dp"
-                        android:layout_marginBottom="52dp"
-                        android:background="#FFFFFF"
-                        android:gravity="center"
-                        android:text="NA"
-                        android:textColor="#000000"
-                        android:textSize="80dp"
-                        mapbox:layout_constraintBottom_toBottomOf="@+id/imageView4"
-                        mapbox:layout_constraintEnd_toEndOf="@+id/imageView4"
-                        mapbox:layout_constraintStart_toStartOf="@+id/imageView4"
-                        mapbox:layout_constraintTop_toTopOf="@+id/imageView4" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/acceleration"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="0"
-                android:textSize="100dp" />
-
-            <TextView
-                android:id="@+id/textView3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="mph per sec"
-                android:textSize="40dp" />
-
-            <TextView
-                android:id="@+id/tripTime"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Trip Time" />
-
-            <TextView
-                android:id="@+id/troubleCodes"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Trouble Codes" />
+        <TextView
+            android:id="@+id/speedLimitView"
+            android:layout_width="41dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginEnd="14dp"
+            android:layout_marginRight="14dp"
+            android:background="#FFFFFF"
+            android:gravity="center"
+            android:text="NA"
+            android:textColor="#000000"
+            android:textSize="28sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/speedLimitContainer"
+            app:layout_constraintStart_toStartOf="@+id/speedLimitContainer"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.627" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-        </LinearLayout>
-    </ScrollView>
-
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
