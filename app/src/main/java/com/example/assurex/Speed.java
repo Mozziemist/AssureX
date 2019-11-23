@@ -82,6 +82,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     private TextView acceleration;
     private TextView tripTime, troubleCodes;
     private TextView speedLimitView;
+    private String speedLimitString;
     CarDataReceiver receiver;
     SettingsReceiver settingsReceiver;
     SpeedLimitReceiver slReceiver;
@@ -136,7 +137,10 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         @Override
         public void onReceive(Context context, Intent intent) {
             if (("SpeedLimitUpdates").equals(intent.getAction())){
-                speedLimitView.setText(intent.getStringExtra("limit"));
+                //speedLimitView.setText(intent.getStringExtra("limit"));
+                speedLimitString = intent.getStringExtra("limit");
+                speedLimitView.setText(speedLimitString);
+                sendSpeedLimitToRDCollectionSvc(speedLimitString);
                 Log.d(TAG, "onReceive: Speed limit set");
             }
         }
@@ -234,6 +238,12 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
             }
 
         }
+    }
+
+    private void sendSpeedLimitToRDCollectionSvc(String s){
+        Intent sendSpeedLimitInfo = new Intent("SpeedLimitValueString");
+        sendSpeedLimitInfo.putExtra("speedLimit", speedLimitString);
+        sendBroadcast(sendSpeedLimitInfo);
     }
 
     public boolean isAlwaysOnSet() {

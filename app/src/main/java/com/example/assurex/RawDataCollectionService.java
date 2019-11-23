@@ -46,6 +46,8 @@ public class RawDataCollectionService extends Service implements LocationListene
     int rawSpeed;
     double rawAcceleration;
     double tripTime;
+    String speedLimitTemp;
+    int speedLimit;
 
     //for the tripSummary
     String engineTroubleCodes;
@@ -210,6 +212,18 @@ public class RawDataCollectionService extends Service implements LocationListene
         Intent sendDataCollectedInfo = new Intent("DataCollectedInfo");
         sendDataCollectedInfo.putExtra("DataCollected", b);
         sendBroadcast(sendDataCollectedInfo);
+    }
+
+    class SpeedLimitReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (("SpeedLimitValueString").equals(intent.getAction())){
+                //speedLimitView.setText(intent.getStringExtra("limit"));
+                speedLimitTemp = intent.getStringExtra("speedLimit");
+                speedLimit = Integer.parseInt(speedLimitTemp);
+                 Log.d(TAG, "onReceive: Speed limit set");
+            }
+        }
     }
 
     private boolean isServiceRunning(Class<?> serviceClass) {
