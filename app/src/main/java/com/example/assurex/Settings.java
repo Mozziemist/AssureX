@@ -5,6 +5,9 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
 
+import android.annotation.SuppressLint;
+import android.app.ActionBar;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -17,16 +20,29 @@ import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 public class Settings extends AppCompatActivity {
 
-    public boolean darkMode = false;
     CheckBox settingsBut;
     CheckBox alwaysOnCheckBox;
     LinearLayout settingsPage;
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //for dark mode
+        if (Speed.getDarkMode() == false) {
+            //settingsBut.setChecked(true);
+            //Toast.makeText(this, "Light Mode Picked", Toast.LENGTH_SHORT).show();
+            setTheme(R.style.AppTheme);
+        }
+        else if (Speed.getDarkMode() == true) {
+            //settingsBut.setChecked(false);
+            //Toast.makeText(this, "Dark Mode Picked", Toast.LENGTH_SHORT).show();
+            setTheme(R.style.DarkTheme);
+        }
+        //end for dark mode
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
@@ -41,8 +57,8 @@ public class Settings extends AppCompatActivity {
         else
             alwaysOnCheckBox.setChecked(false);
 
-        if (darkMode == false) settingsBut.setChecked(false);
-        if (darkMode == true) settingsBut.setChecked(true);
+        if (Speed.getDarkMode() == false) settingsBut.setChecked(false);
+        if (Speed.getDarkMode() == true) settingsBut.setChecked(true);
     }//end on create
 
     //for menu
@@ -73,7 +89,7 @@ public class Settings extends AppCompatActivity {
             }
             case R.id.infoPage: {
                 Toast.makeText(this, "infoPage selected", Toast.LENGTH_SHORT).show();
-                //startActivity(new Intent(getApplicationContext(), infoPage.class));
+                startActivity(new Intent(getApplicationContext(), infoPage.class));
                 break;
             }
             case R.id.connect: {
@@ -101,23 +117,27 @@ public class Settings extends AppCompatActivity {
     //end for menu --------
 
     public void darkMode(View view) {
-        if (darkMode == false) {
+        if (Speed.getDarkMode() == false) {
             //settingsBut.setChecked(true);
-            Toast.makeText(this, "Dark Mode Selected", Toast.LENGTH_SHORT).show();
-            darkMode = true;
-            settingsPage.setBackgroundResource(R.drawable.gradient_background_dark);
-
-
-            //the actual way to do this involves changing the theme, look into that later
-
-
+            Toast.makeText(this, "Dark Mode Activated", Toast.LENGTH_SHORT).show();
+            Speed.setDarkMode(true);
+            setTheme(R.style.DarkTheme);
+            Speed.themeChanged = true;
+            Intent intent = new Intent(this, Settings.class);
+            startActivity(intent);
+            finish();
         }
-        else if (darkMode == true) {
+        else if (Speed.getDarkMode() == true) {
             //settingsBut.setChecked(false);
             Toast.makeText(this, "Dark Mode Deactivated", Toast.LENGTH_SHORT).show();
-            darkMode = false;
-            settingsPage.setBackgroundResource(R.drawable.gradient_background);
+            Speed.setDarkMode(false);
+            setTheme(R.style.AppTheme);
+            Speed.themeChanged = true;
+            Intent intent = new Intent(this, Settings.class);
+            startActivity(intent);
+            finish();
         }
+
     }
 
     public void alwaysOnClicked(View view) {
@@ -129,12 +149,14 @@ public class Settings extends AppCompatActivity {
             Toast.makeText(this, "Screen won't turn off", Toast.LENGTH_SHORT).show();
             sendSettings.putExtra("alwaysOn", true);
             sendBroadcast(sendSettings);
+            //Speed.setDarkModeSpeed();
         }
         else
         {
             Toast.makeText(this, "Screen can now turn off", Toast.LENGTH_SHORT).show();
             sendSettings.putExtra("alwaysOn", false);
             sendBroadcast(sendSettings);
+            //Speed.setDarkModeSpeed();
         }
     }
 

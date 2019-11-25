@@ -23,6 +23,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //for dark mode
+        if (Speed.getDarkMode() == false) {
+            //settingsBut.setChecked(true);
+            //Toast.makeText(this, "Light Mode Picked", Toast.LENGTH_SHORT).show();
+            setTheme(R.style.AppTheme);
+        }
+        else if (Speed.getDarkMode() == true) {
+            //settingsBut.setChecked(false);
+            //Toast.makeText(this, "Dark Mode Picked", Toast.LENGTH_SHORT).show();
+            setTheme(R.style.DarkTheme);
+        }
+        //end for dark mode
         setContentView(R.layout.activity_main);
         username = findViewById(R.id.userText);
         password = findViewById(R.id.passText);

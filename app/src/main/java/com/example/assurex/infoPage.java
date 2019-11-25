@@ -82,27 +82,36 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     private boolean avSpButTrue = false;
     private Button avSpBut;
     private LinearLayout avSpButWindow;
+    private TextView dateSpeed;
+    private TextView topSpeed;
 
     //acceleration variables
     private boolean accButTrue = false;
     private Button accBut;
     private LinearLayout accButWindow;
+    private TextView dateAcc;
+    private TextView topAcc;
 
     //engine info variables
     private boolean engInfButTrue = false;
     private Button engInfBut;
     private LinearLayout engInfButWindow;
+    private TextView dateEngInf;
+    private TextView engStatus;
 
     //insurance variables
     private boolean insButTrue = false;
     private Button insBut;
     private LinearLayout insButWindow;
+    private TextView dateIns;
+    private TextView tripSum;
 
     //calender variables
     private boolean calShowing = false;
     private LinearLayout calenderWindow;
     private TextView calText;
     private CalendarView calender;
+    private String date;
 
     //drop down variables
     private boolean spinShowing = false;
@@ -133,24 +142,44 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //for dark mode
+        if (Speed.getDarkMode() == false) {
+            //settingsBut.setChecked(true);
+            //Toast.makeText(this, "Light Mode Picked", Toast.LENGTH_SHORT).show();
+            setTheme(R.style.AppTheme);
+        }
+        else if (Speed.getDarkMode() == true) {
+            //settingsBut.setChecked(false);
+            //Toast.makeText(this, "Dark Mode Picked", Toast.LENGTH_SHORT).show();
+            setTheme(R.style.DarkTheme);
+        }
+        //end for dark mode
         setContentView(R.layout.activity_info_page);
         db = AppDatabase.getInstance(this);
 
         //for average speed button
         avSpBut = findViewById(R.id.avSpBut);
         avSpButWindow = findViewById(R.id.avSpWindow);
+        dateSpeed = findViewById(R.id.dateSpeed);
+        topSpeed = findViewById(R.id.topSpeed);
 
         //for acceleration button
         accBut = findViewById(R.id.accBut);
         accButWindow = findViewById(R.id.accWindow);
+        dateAcc = findViewById(R.id.dateAcc);
+        topAcc = findViewById(R.id.topAcc);
 
         //for engine information
         engInfBut = findViewById(R.id.engInfBut);
         engInfButWindow = findViewById(R.id.engInfWindow);
+        dateEngInf = findViewById(R.id.dateEngInf);
+        engStatus = findViewById(R.id.engStatus);
 
         //for insurance button
         insBut = findViewById(R.id.insBut);
         insButWindow = findViewById(R.id.insWindow);
+        dateIns = findViewById(R.id.dateIns);
+        tripSum = findViewById(R.id.tripSum);
 
         //for calender drop down
         calenderWindow = findViewById(R.id.calender);
@@ -173,13 +202,13 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         //calender
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat mdformat = new SimpleDateFormat("MM - dd - yyyy ");
-        String strDate = mdformat.format(calendar.getTime());
-        calText.setText(strDate);
+        date = mdformat.format(calendar.getTime());
+        calText.setText(date);
 
         calender.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView calendarView, int year, int month, int day) {
-                String date = (month + 1) + " - " + day + " - " + year;
+                date = (month + 1) + " - " + day + " - " + year;
                 dbQueryDate = (month + 1) + "-" + day + "-" + year;
                 calText.setText(date);
                 addItemsOnSpinner();
@@ -188,6 +217,9 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         //end calender
         //calls the drop down spinner to be created
         //addItemsOnSpinner();
+
+        //update at start
+        updateData();
 
     }//end onCreate
 
@@ -348,6 +380,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
 
     private void addItemsOnSpinner() {
         tripSpinner.setAdapter(null);
+        updateData();
 
         tempTripSummaryList = null;
         DatabaseRequestThread drThread = new DatabaseRequestThread();
@@ -365,8 +398,8 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         }
 
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, list);
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                R.layout.color_spinner_layout, list);
+        dataAdapter.setDropDownViewResource(R.layout.spinner_dropdown_layout);
         tripSpinner.setAdapter(dataAdapter);
 
         tripSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -380,6 +413,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
                     displayedTopSpeed = tempTripSummary.getTopSpeed();
                     displayedTopAcceleration = tempTripSummary.getTopAcceleration();
                     displayedEngineTroubleCodes = tempTripSummary.getEngineStatus();
+                    updateData();
                 }
             }
 
@@ -390,6 +424,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         });
 
     }//end additemsonspinner
+
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long l) {
@@ -522,4 +557,32 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         super.onDestroy();
         AppDatabase.destroyInstance();
     }
+
+    //update the user view
+    private void updateData() {
+        //set date
+        dateSpeed.setText(date);
+        dateAcc.setText(date);
+        dateEngInf.setText(date);
+        dateIns.setText(date);
+
+        //set Av Speed
+        topSpeed.setText("Top Speed: "+displayedTopSpeed+ " mph");
+
+        //set Acceleration
+        topAcc.setText("Top Acceleration: "+displayedTopAcceleration);
+
+        //set Eng Inf
+        if (displayedEngineTroubleCodes ==  null){
+            engStatus.setText("Status: No outstanding problems");
+        }
+        else engStatus.setText("Status: "+displayedEngineTroubleCodes);
+
+        //tempTripSummary;
+        if (tempTripSummary ==  null){
+            tripSum.setText("Everything is looking good");
+        }
+        else tripSum.setText((CharSequence) tempTripSummary);
+
+    }//end update Data
 }
