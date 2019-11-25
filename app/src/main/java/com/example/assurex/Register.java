@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -25,6 +26,18 @@ public class Register extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //for dark mode
+        if (Speed.getDarkMode() == false) {
+            //settingsBut.setChecked(true);
+            //Toast.makeText(this, "Light Mode Picked", Toast.LENGTH_SHORT).show();
+            setTheme(R.style.AppTheme);
+        }
+        else if (Speed.getDarkMode() == true) {
+            //settingsBut.setChecked(false);
+            //Toast.makeText(this, "Dark Mode Picked", Toast.LENGTH_SHORT).show();
+            setTheme(R.style.DarkTheme);
+        }
+        //end for dark mode
         setContentView(R.layout.activity_register);
 
         Spinner spinner = findViewById(R.id.insurSpinner);

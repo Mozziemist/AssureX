@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
 import androidx.core.content.ContextCompat;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.Context;
@@ -19,6 +20,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.sip.SipSession;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -91,13 +93,30 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     private PermissionsManager permissionsManager;
     private MapboxMap mapboxMap;
     private MapView mapView;
+    //for theme
+    private static boolean darkMode = false;
+    public static boolean themeChanged = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Mapbox.getInstance(this, "pk.eyJ1IjoiY2xpZW50aW5ncyIsImEiOiJjazE5dzI1cWUwYjVkM2NwY2c5Z21neHJ6In0.UvUvFuBQpl-DdyK9DAmYVw");
+        //for dark mode
+        if (Speed.getDarkMode() == false) {
+            //settingsBut.setChecked(true);
+            //Toast.makeText(this, "Light Mode Picked", Toast.LENGTH_SHORT).show();
+            setTheme(R.style.AppTheme);
+        }
+        else if (Speed.getDarkMode() == true) {
+            //settingsBut.setChecked(false);
+            //Toast.makeText(this, "Dark Mode Picked", Toast.LENGTH_SHORT).show();
+            setTheme(R.style.DarkTheme);
+        }
+        //end for dark mode
+
         setContentView(R.layout.activity_speed);
 
+        //for display
         speed = findViewById(R.id.speed);
         acceleration = findViewById(R.id.acceleration);
         speedLimitView = findViewById(R.id.speedLimitView);
@@ -128,7 +147,6 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
 
         speedLimitThread = new SpeedLimitThread();
         speedLimitThread.start();
-
 
     }//end oncreate
 
@@ -392,7 +410,22 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     protected void onResume() {
         super.onResume();
         mapView.onResume();
-    }
+        if (Speed.getDarkMode() == false) {
+            //settingsBut.setChecked(true);
+            //Toast.makeText(this, "Light Mode Picked", Toast.LENGTH_SHORT).show();
+            setTheme(R.style.AppTheme);
+            //reCreate();
+        } else if (Speed.getDarkMode() == true) {
+            //settingsBut.setChecked(false);
+            //Toast.makeText(this, "Dark Mode Picked", Toast.LENGTH_SHORT).show();
+            setTheme(R.style.DarkTheme);
+            //reCreate();
+        }
+        if (themeChanged){
+            themeChanged = false;
+            this.recreate();
+        }//end if
+    }//end onResume
 
     @Override
     protected void onPause() {
@@ -427,11 +460,41 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        mapView.onSaveInstanceState(outState);
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        mapView.onSaveInstanceState(savedInstanceState);
     }
     //end for map ------
+
+    //for theme
+    public static boolean getDarkMode (){ return darkMode; }
+
+    public static void setDarkMode (boolean input){
+        darkMode = input;
+    }
+
+
+    //currently trying to figure out how to use
+    /*
+    public void setDarkModeSpeed (){
+        //for dark mode
+            if (Speed.getDarkMode() == false) {
+                //settingsBut.setChecked(true);
+                Toast.makeText(this, "Light Mode Picked", Toast.LENGTH_SHORT).show();
+                ThemeUtils.setTheme("light");
+                ThemeUtils.applyTheme(this);
+                //reCreate();
+            } else if (Speed.getDarkMode() == true) {
+                //settingsBut.setChecked(false);
+                Toast.makeText(this, "Dark Mode Picked", Toast.LENGTH_SHORT).show();
+                ThemeUtils.setTheme("dark");
+                ThemeUtils.applyTheme(this);
+                //reCreate();
+            }
+            //end for dark mode
+    }//end setDarmModeSpeed
+
+     */
 
     public class SpeedLimitRequester {
         private double speedLimit;

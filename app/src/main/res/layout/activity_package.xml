@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".Package"
     android:orientation="vertical"
-    android:background="@drawable/gradient_background">
+    android:background="?attr/background">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -35,6 +35,7 @@
                     android:textSize="27dp"
                     android:gravity="center"
                     android:textAlignment="center"
+                    android:textColor="?attr/editTextColor"
                     />
                 <TextView
                     android:paddingTop="25dp"
@@ -77,6 +78,7 @@
                     android:textSize="30dp"
                     android:gravity="center"
                     android:textAlignment="center"
+                    android:textColor="?attr/editTextColor"
                     />
                 <TextView
                     android:paddingTop="15dp"
@@ -85,7 +87,7 @@
                     android:layout_gravity="center_horizontal"
                     android:text="Standard"
                     android:textSize="50dp"
-                    android:textColor="#0F2027"
+                    android:textColor="?attr/editTextColor"
                     />
                 <TextView
                     android:layout_width="wrap_content"
@@ -93,7 +95,7 @@
                     android:layout_gravity="center_horizontal"
                     android:text="$240/m"
                     android:textSize="18dp"
-                    android:textColor="#0F2027"
+                    android:textColor="?attr/editTextColor"
                     />
 
             </LinearLayout>

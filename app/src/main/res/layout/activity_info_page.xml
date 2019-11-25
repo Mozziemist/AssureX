@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".infoPage"
     android:orientation="vertical"
-    android:background="@drawable/gradient_background">
+    android:background="?attr/background">
 
 
     <ScrollView
@@ -40,7 +40,8 @@
                     android:textSize="13dp"
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
-                    android:onClick="dateClicked"/>
+                    android:onClick="dateClicked"
+                    android:textColor="?attr/editTextColor"/>
 
                 <Button
                     android:layout_marginHorizontal="13dp"
@@ -52,7 +53,8 @@
                     android:textSize="13dp"
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
-                    android:onClick="tripClicked"/>
+                    android:onClick="tripClicked"
+                    android:textColor="?attr/editTextColor"/>
 
                 <Button
                     android:layout_marginHorizontal="13dp"
@@ -64,7 +66,8 @@
                     android:textSize="13dp"
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
-                    android:onClick="locationClicked"/>
+                    android:onClick="locationClicked"
+                    android:textColor="?attr/editTextColor"/>
 
             </LinearLayout>
 
@@ -97,7 +100,7 @@
                 android:textSize="16dp"
                 android:gravity="center"
                 android:layout_gravity="center"
-                android:textColor="#0F2027"
+                android:textColor="?attr/editTextColor"
                 android:text="Text here"
                 android:visibility="gone"
                 android:layout_marginVertical="20dp"
@@ -141,7 +144,7 @@
                     android:id="@+id/locText"
                     android:textSize="16dp"
                     android:gravity="center_horizontal"
-                    android:textColor="#0F2027"
+                    android:textColor="?attr/editTextColor"
                     android:text="No Location Found" />
 
 
@@ -176,7 +179,7 @@
                         android:text="Average Speed"
                         android:textSize="13dp"
                         android:gravity="center"
-                        android:textColor="#0F2027"
+                        android:textColor="?attr/editTextColor"
                         />
                     <TextView
                         android:layout_marginHorizontal="6dp"
@@ -186,7 +189,8 @@
                         android:text="MM/DD/YY"
                         android:textSize="13dp"
                         android:gravity="center"
-                        android:textColor="#0F2027"
+                        android:textColor="?attr/editTextColor"
+                        android:id="@+id/dateSpeed"
                         />
 
                     <TextView
@@ -196,7 +200,7 @@
                         android:layout_marginHorizontal="6dp"
                         android:gravity="center"
                         android:text="Rating"
-                        android:textColor="#0F2027"
+                        android:textColor="?attr/editTextColor"
                         android:textSize="13dp" />
                     <Button
                         android:id="@+id/avSpBut"
@@ -236,7 +240,7 @@
                         android:text="General Information of the Drivers Speed"
                         android:textSize="16dp"
                         android:gravity="center"
-                        android:textColor="#0F2027"
+                        android:textColor="?attr/editTextColor"
                         />
                     <TextView
                         android:layout_marginHorizontal="10dp"
@@ -246,7 +250,8 @@
                         android:text="Top Speed: 72 mph"
                         android:textSize="16dp"
                         android:gravity="center"
-                        android:textColor="#0F2027"
+                        android:textColor="?attr/editTextColor"
+                        android:id="@+id/topSpeed"
                         />
 
 
@@ -273,7 +278,7 @@
                         android:text="Acceleration"
                         android:textSize="13dp"
                         android:gravity="center"
-                        android:textColor="#0F2027"
+                        android:textColor="?attr/editTextColor"
                         />
                     <TextView
                         android:layout_marginHorizontal="10dp"
@@ -283,7 +288,8 @@
                         android:text="MM/DD/YY"
                         android:textSize="13dp"
                         android:gravity="center"
-                        android:textColor="#0F2027"
+                        android:textColor="?attr/editTextColor"
+                        android:id="@+id/dateAcc"
                         />
 
                     <TextView
@@ -293,7 +299,7 @@
                         android:layout_marginHorizontal="10dp"
                         android:gravity="center"
                         android:text="Rating"
-                        android:textColor="#0F2027"
+                        android:textColor="?attr/editTextColor"
                         android:textSize="13dp" />
                     <Button
                         android:id="@+id/accBut"
@@ -332,7 +338,7 @@
                         android:text="General Information of the Drivers Acceleration"
                         android:textSize="16dp"
                         android:gravity="center"
-                        android:textColor="#0F2027"
+                        android:textColor="?attr/editTextColor"
                         />
                     <TextView
                         android:layout_marginHorizontal="10dp"
@@ -342,7 +348,8 @@
                         android:text="Top Acceleration: LightSpeed"
                         android:textSize="16dp"
                         android:gravity="center"
-                        android:textColor="#0F2027"
+                        android:textColor="?attr/editTextColor"
+                        android:id="@+id/topAcc"
                         />
 
 
@@ -369,7 +376,7 @@
                         android:text="Engine Information"
                         android:textSize="13dp"
                         android:gravity="center"
-                        android:textColor="#0F2027"
+                        android:textColor="?attr/editTextColor"
                         />
                     <TextView
                         android:layout_marginHorizontal="10dp"
@@ -379,7 +386,8 @@
                         android:text="MM/DD/YY"
                         android:textSize="13dp"
                         android:gravity="center"
-                        android:textColor="#0F2027"
+                        android:textColor="?attr/editTextColor"
+                        android:id="@+id/dateEngInf"
                         />
                     <TextView
                         android:layout_marginHorizontal="10dp"
@@ -389,7 +397,7 @@
                         android:text="No Faults"
                         android:textSize="13dp"
                         android:gravity="center"
-                        android:textColor="#0F2027"
+                        android:textColor="?attr/editTextColor"
                         />
                     <Button
                         android:id="@+id/engInfBut"
@@ -428,7 +436,7 @@
                         android:text="General Information of the Engine"
                         android:textSize="16dp"
                         android:gravity="center"
-                        android:textColor="#0F2027"
+                        android:textColor="?attr/editTextColor"
                         />
                     <TextView
                         android:layout_marginHorizontal="10dp"
@@ -438,7 +446,8 @@
                         android:text="Status: On Fire"
                         android:textSize="16dp"
                         android:gravity="center"
-                        android:textColor="#0F2027"
+                        android:textColor="?attr/editTextColor"
+                        android:id="@+id/engStatus"
                         />
 
 
@@ -465,7 +474,7 @@
                         android:text="Insurance"
                         android:textSize="13dp"
                         android:gravity="center"
-                        android:textColor="#0F2027"
+                        android:textColor="?attr/editTextColor"
                         />
                     <TextView
                         android:layout_marginHorizontal="10dp"
@@ -475,7 +484,8 @@
                         android:text="MM/DD/YY"
                         android:textSize="13dp"
                         android:gravity="center"
-                        android:textColor="#0F2027"
+                        android:textColor="?attr/editTextColor"
+                        android:id="@+id/dateIns"
                         />
                     <Button
                         android:id="@+id/insBut"
@@ -505,7 +515,7 @@
                 android:orientation="horizontal"
                 android:layout_gravity="top"
                 android:layout_weight="1"
-                android:background="#6FCE5959"
+                android:background="@drawable/bg_button_grey"
                 android:gravity="center"
                 android:visibility="gone"
                 android:id="@+id/insWindow">
@@ -518,7 +528,8 @@
                     android:text="Accelerating to quickly\nRepeated action will cause ratings to drop"
                     android:textSize="16dp"
                     android:gravity="center"
-                    android:textColor="#0F2027"
+                    android:textColor="?attr/editTextColor"
+                    android:id="@+id/tripSum"
                     />
 
 

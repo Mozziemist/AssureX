@@ -6,8 +6,9 @@
     android:layout_height="match_parent"
     tools:context=".Settings"
     android:orientation="vertical"
-    android:background="@drawable/gradient_background"
+    android:background="?attr/background"
     android:id="@+id/settingsPage">
+
 
     <ScrollView
         android:layout_width="match_parent"
@@ -28,7 +29,9 @@
                 android:checked="false"
                 android:onClick="darkMode"
                 android:id="@+id/settingsBut"
-                android:layout_marginLeft="50dp"/>
+                android:layout_marginLeft="50dp"
+                android:textColor="?attr/editTextColor"
+                />
 
             <CheckBox
                 android:layout_width="wrap_content"
@@ -38,7 +41,9 @@
                 android:layout_gravity="left"
                 android:onClick="alwaysOnClicked"
                 android:id="@+id/alwaysOnBut"
-                android:layout_marginLeft="50dp"/>
+                android:layout_marginLeft="50dp"
+                android:textColor="?attr/editTextColor"
+                />
 
         </LinearLayout>
 
