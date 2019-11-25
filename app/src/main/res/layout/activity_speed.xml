@@ -8,8 +8,7 @@
     android:layout_height="match_parent"
     tools:context=".Speed"
     android:orientation="vertical"
-    android:background="?attr/background"
-    android:paddingTop="30dp">
+    android:background="?attr/background">
 
     <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mapView"

@@ -398,8 +398,8 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         }
 
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, list);
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                R.layout.color_spinner_layout, list);
+        dataAdapter.setDropDownViewResource(R.layout.spinner_dropdown_layout);
         tripSpinner.setAdapter(dataAdapter);
 
         tripSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
