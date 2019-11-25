@@ -82,7 +82,8 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     private TextView acceleration;
     private TextView tripTime, troubleCodes;
     private TextView speedLimitView;
-    private String speedLimitString;
+    private int speedLimitInt;
+    private int oldSpeedLimitInt;
     CarDataReceiver receiver;
     SettingsReceiver settingsReceiver;
     SpeedLimitReceiver slReceiver;
@@ -137,10 +138,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         @Override
         public void onReceive(Context context, Intent intent) {
             if (("SpeedLimitUpdates").equals(intent.getAction())){
-                //speedLimitView.setText(intent.getStringExtra("limit"));
-                speedLimitString = intent.getStringExtra("limit");
-                speedLimitView.setText(speedLimitString);
-                sendSpeedLimitToRDCollectionSvc(speedLimitString);
+                speedLimitView.setText(intent.getStringExtra("limit"));
                 Log.d(TAG, "onReceive: Speed limit set");
             }
         }
@@ -191,12 +189,15 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                             Log.d(TAG, "run: sending > 0: " + speedLimitRequester.getSpeedLimit() + wpnt);
                             spdlmtIntent.putExtra("limit", Integer.toString(speedLimitRequester.getSpeedLimit()));
                             sendBroadcast(spdlmtIntent);
+                            sendSpeedLimitToRDCollectionSvc(speedLimitRequester.getSpeedLimit());
+
                         }
                         else
                         {
                             Intent spdlmtIntent = new Intent("SpeedLimitUpdates");
                             spdlmtIntent.putExtra("limit", "NA");
                             sendBroadcast(spdlmtIntent);
+                            sendSpeedLimitToRDCollectionSvc(-1);
                             Log.d(TAG, "run: sent NA = 0");
                         }
 
@@ -206,6 +207,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                         Intent spdlmtIntent = new Intent("SpeedLimitUpdates");
                         spdlmtIntent.putExtra("limit", "NA");
                         sendBroadcast(spdlmtIntent);
+                        sendSpeedLimitToRDCollectionSvc(-1);
                         Log.d(TAG, "run: sent NA: not active");
                     }
                 }
@@ -240,9 +242,9 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         }
     }
 
-    private void sendSpeedLimitToRDCollectionSvc(String s){
-        Intent sendSpeedLimitInfo = new Intent("SpeedLimitValueString");
-        sendSpeedLimitInfo.putExtra("speedLimit", speedLimitString);
+    private void sendSpeedLimitToRDCollectionSvc(int n){
+        Intent sendSpeedLimitInfo = new Intent("SpeedLimitValueInt");
+        sendSpeedLimitInfo.putExtra("speedLimit", n);
         sendBroadcast(sendSpeedLimitInfo);
     }
 

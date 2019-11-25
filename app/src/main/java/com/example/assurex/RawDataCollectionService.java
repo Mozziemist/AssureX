@@ -39,20 +39,22 @@ public class RawDataCollectionService extends Service implements LocationListene
     private final static String TAG = "RawDataCollectService";
     private AppDatabase db;
     CarDataReceiver receiver;
+    SpeedLimitReceiver spdreceiver;
     boolean isEngineOn = false;
+    boolean shouldEndService = false;
 
 
     //for the RawDateItem
     int rawSpeed;
     double rawAcceleration;
     double tripTime;
-    String speedLimitTemp;
     int speedLimit;
 
     //for the tripSummary
     String engineTroubleCodes;
     String notableTripEvents;
     int accelOverSeven = 0;
+    int exceededSpeedLimitByTen = 0;
     double tAverageSpeed = 0;
     double tTopSpeed = 0;
     double tAverageAcceleration = 0;
@@ -72,6 +74,7 @@ public class RawDataCollectionService extends Service implements LocationListene
         super.onCreate();
         Log.d(TAG, "onCreate");
         receiver = new CarDataReceiver();
+        spdreceiver = new SpeedLimitReceiver();
         registerReceiver(receiver, new IntentFilter("CarDataUpdates"));
         Log.d(TAG, "receiver registered");
         getLocation();
@@ -96,6 +99,7 @@ public class RawDataCollectionService extends Service implements LocationListene
         Log.d(TAG, "onStartCommand");
         db = AppDatabase.getInstance(this);
         Log.d(TAG, "AppDB instance gotten");
+
         RawDataCollectionThread mRDThread = new RawDataCollectionThread();
         mRDThread.start();
 
@@ -106,87 +110,105 @@ public class RawDataCollectionService extends Service implements LocationListene
 
         @Override
         public void run() {
-            //while engine is not on but bluetooth service is running
-            while(!isEngineOn && isServiceRunning(BluetoothService.class)){
-                try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
-            }
-            //while engine is on, bt service is running and the speed is still 0 indicating vehicle
-            //has yet to move
-            myOriginAddress = myAddress;
-            while(isEngineOn && isServiceRunning(BluetoothService.class) && rawSpeed == 0){
-                try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
-            }
 
-            List<RawDataItem> tempRawDataItemList = new ArrayList<RawDataItem>();
-
-            //now start the collection of data if the bt service is on and the engine is on
-            if(isServiceRunning(BluetoothService.class) && isEngineOn) {
-                int tripNumber;
-                Calendar calendar = Calendar.getInstance();
-                String tsDate = calendar.get(Calendar.MONTH) + 1 + "-" + calendar.get(Calendar.DAY_OF_MONTH) + "-" + calendar.get(Calendar.YEAR);
-                List<TripSummary> tempTripSummaryList = db.tripSummaryDao().getAllByDate(tsDate);
-                TripSummary tempTripSummary;
-                if(tempTripSummaryList != null && !tempTripSummaryList.isEmpty()){
-                    tempTripSummary = tempTripSummaryList.get(tempTripSummaryList.size()-1);
-                    tripNumber = tempTripSummary.getTripNumber() + 1;
-                }else{
-                    tripNumber = 1;
+            while (!shouldEndService) {
+                //while engine is not on but bluetooth service is running
+                while(!isEngineOn && isServiceRunning(BluetoothService.class)){
+                    try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
                 }
-                String tripId = tsDate + "#" + tripNumber;
+                //while engine is on, bt service is running and the speed is still 0 indicating vehicle
+                //has yet to move
+                myOriginAddress = myAddress;
+                while(isEngineOn && isServiceRunning(BluetoothService.class) && rawSpeed == 0){
+                    try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
+                }
 
-                //while (!Thread.currentThread().isInterrupted() && isEngineOn && isServiceRunning(BluetoothService.class)) {
-                do{
-                    for(int i = 0; i < 5; i++){
-                        if(!isServiceRunning(BluetoothService.class) || !isEngineOn){
-                            i = 5;
-                        }
-                        calendar = Calendar.getInstance();
-                        String date = calendar.get(Calendar.MONTH) + 1 + "-" + calendar.get(Calendar.DAY_OF_MONTH) + "-" + calendar.get(Calendar.YEAR);
-                        String timeStamp = calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE) + ":" + calendar.get(Calendar.SECOND);
-                        String tripDatedTimeStamp = date + "#" + tripId + "@" + timeStamp;
-                        rawAcceleration = Math.floor(rawAcceleration * 1000) / 1000.0;
-                        tempRawDataItemList.add(new RawDataItem(tripDatedTimeStamp, tripId, date, timeStamp, rawSpeed, rawAcceleration, myLatitude, myLongitude, myAddress));
-                        tAverageSpeed = (tAverageSpeed + rawSpeed) / 2;
-                        tAverageSpeed = Math.floor(tAverageSpeed * 1000) / 1000.0;
-                        if(rawSpeed > tTopSpeed){
-                            tTopSpeed = rawSpeed;
-                        }
+                List<RawDataItem> tempRawDataItemList = new ArrayList<RawDataItem>();
 
-                        tAverageAcceleration = (tAverageAcceleration + Math.abs(rawAcceleration)) / 2;
-                        tAverageAcceleration = Math.floor(tAverageAcceleration * 1000) / 1000.0;
-                        if(Math.abs(rawAcceleration) > tTopAcceleration){
-                            tTopAcceleration = Math.abs(rawAcceleration);
-                        }
-
-                        if(Math.abs(rawAcceleration) > 7){
-                            accelOverSeven++;
-                        }
-                        tripSummaryShouldBeSaved = true;
-
-                        Bundle b = new Bundle();
-                        //b.putDouble("averagespeed", tAverageSpeed);
-                        b.putDouble("topspeed", tTopSpeed);
-                        //b.putDouble("averageaccel", tAverageAcceleration);
-                        b.putDouble("topaccel", tTopAcceleration);
-                        b.putString("engineTroubleCodes",engineTroubleCodes);
-                        try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
+                //now start the collection of data if the bt service is on and the engine is on
+                if(isServiceRunning(BluetoothService.class) && isEngineOn) {
+                    int tripNumber;
+                    Calendar calendar = Calendar.getInstance();
+                    String tsDate = calendar.get(Calendar.MONTH) + 1 + "-" + calendar.get(Calendar.DAY_OF_MONTH) + "-" + calendar.get(Calendar.YEAR);
+                    List<TripSummary> tempTripSummaryList = db.tripSummaryDao().getAllByDate(tsDate);
+                    TripSummary tempTripSummary;
+                    if(tempTripSummaryList != null && !tempTripSummaryList.isEmpty()){
+                        tempTripSummary = tempTripSummaryList.get(tempTripSummaryList.size()-1);
+                        tripNumber = tempTripSummary.getTripNumber() + 1;
+                    }else{
+                        tripNumber = 1;
                     }
+                    String tripId = tsDate + "#" + tripNumber;
 
-                    if(!tempRawDataItemList.isEmpty()) {
-                        db.rawDataItemDao().insertAll(tempRawDataItemList);
-                        Log.i(TAG, "raw data inserted into sqlite");
-                        tempRawDataItemList.clear();
+                    //while (!Thread.currentThread().isInterrupted() && isEngineOn && isServiceRunning(BluetoothService.class)) {
+                    do{
+                        for(int i = 0; i < 5; i++){
+                            if(!isServiceRunning(BluetoothService.class) || !isEngineOn){
+                                i = 5;
+                            }
+                            calendar = Calendar.getInstance();
+                            String date = calendar.get(Calendar.MONTH) + 1 + "-" + calendar.get(Calendar.DAY_OF_MONTH) + "-" + calendar.get(Calendar.YEAR);
+                            String timeStamp = calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE) + ":" + calendar.get(Calendar.SECOND);
+                            String tripDatedTimeStamp = date + "#" + tripId + "@" + timeStamp;
+                            rawAcceleration = Math.floor(rawAcceleration * 1000) / 1000.0;
+                            tempRawDataItemList.add(new RawDataItem(tripDatedTimeStamp, tripId, date, timeStamp,0, rawSpeed, rawAcceleration, myLatitude, myLongitude, myAddress));
+                            tAverageSpeed = (tAverageSpeed + rawSpeed) / 2;
+                            tAverageSpeed = Math.floor(tAverageSpeed * 1000) / 1000.0;
+                            if(rawSpeed > tTopSpeed){
+                                tTopSpeed = rawSpeed;
+                            }
+
+                            tAverageAcceleration = (tAverageAcceleration + Math.abs(rawAcceleration)) / 2;
+                            tAverageAcceleration = Math.floor(tAverageAcceleration * 1000) / 1000.0;
+                            if(Math.abs(rawAcceleration) > tTopAcceleration){
+                                tTopAcceleration = Math.abs(rawAcceleration);
+                            }
+
+                            if(Math.abs(rawAcceleration) > 7){
+                                accelOverSeven++;
+                            }
+
+                            if(speedLimit != -1){
+                                if(rawSpeed > speedLimit + 10){
+                                    exceededSpeedLimitByTen++;
+                                }
+                            }else{
+                                Log.d(TAG, "Speed Limit Data Not Available. Unable to check if current speed exceeds speed limit");
+                            }
+
+
+                            tripSummaryShouldBeSaved = true;
+
+                            Bundle b = new Bundle();
+                            //b.putDouble("averagespeed", tAverageSpeed);
+                            b.putDouble("topspeed", tTopSpeed);
+                            //b.putDouble("averageaccel", tAverageAcceleration);
+                            b.putDouble("topaccel", tTopAcceleration);
+                            b.putString("engineTroubleCodes",engineTroubleCodes);
+                            try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
+                        }
+
+                        if(!tempRawDataItemList.isEmpty()) {
+                            db.rawDataItemDao().insertAll(tempRawDataItemList);
+                            Log.i(TAG, "raw data inserted into sqlite");
+                            tempRawDataItemList.clear();
+                        }
+                    }while (!Thread.currentThread().isInterrupted() && isEngineOn && isServiceRunning(BluetoothService.class));
+
+                    myDestinationAddress = myAddress;
+
+                    if(tripSummaryShouldBeSaved){
+                        notableTripEvents = "Times Acceleration Exceeded 7 MPH/S: " + accelOverSeven + "\n" +
+                                            "Times Exceeded Speed Limit By 10 MPH: " + exceededSpeedLimitByTen;
+                        tempTripSummary = new TripSummary(tripId, tsDate, tripNumber, notableTripEvents,
+                                engineTroubleCodes, tAverageSpeed, tTopSpeed,
+                                tAverageAcceleration, tTopAcceleration, myOriginAddress, myDestinationAddress);
+                        db.tripSummaryDao().insert(tempTripSummary);
                     }
-                }while (!Thread.currentThread().isInterrupted() && isEngineOn && isServiceRunning(BluetoothService.class));
-
-                myDestinationAddress = myAddress;
-
-                if(tripSummaryShouldBeSaved){
-                    notableTripEvents = "Times Abs Accel Exceeded 7mph/s: " + accelOverSeven;
-                    tempTripSummary = new TripSummary(tripId, tsDate, tripNumber, notableTripEvents,
-                            engineTroubleCodes, tAverageSpeed, tTopSpeed,
-                            tAverageAcceleration, tTopAcceleration, myOriginAddress, myDestinationAddress);
-                    db.tripSummaryDao().insert(tempTripSummary);
+                }
+                //if bt service is no longer running, my service has no purpose in running
+                if(!isServiceRunning(BluetoothService.class)){
+                    shouldEndService = true;
                 }
             }
             stopSelf();
@@ -217,10 +239,9 @@ public class RawDataCollectionService extends Service implements LocationListene
     class SpeedLimitReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (("SpeedLimitValueString").equals(intent.getAction())){
+            if (("SpeedLimitValueInt").equals(intent.getAction())){
                 //speedLimitView.setText(intent.getStringExtra("limit"));
-                speedLimitTemp = intent.getStringExtra("speedLimit");
-                speedLimit = Integer.parseInt(speedLimitTemp);
+                speedLimit = intent.getIntExtra("speedLimit", -1);
                  Log.d(TAG, "onReceive: Speed limit set");
             }
         }
@@ -303,7 +324,9 @@ public class RawDataCollectionService extends Service implements LocationListene
     public void onDestroy() {
         super.onDestroy();
         unregisterReceiver(receiver);
+        unregisterReceiver(spdreceiver);
         locationManager.removeUpdates(this);
+        shouldEndService = true;
         AppDatabase.destroyInstance();
     }
 

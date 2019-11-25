@@ -27,6 +27,8 @@ public class RawDataItem implements Parcelable {
     @ColumnInfo
     private String timeStamp;
     @ColumnInfo
+    private int speedLimit;
+    @ColumnInfo
     private int speed;
     @ColumnInfo
     private double accelerationRate;
@@ -42,7 +44,8 @@ public class RawDataItem implements Parcelable {
 
     //public RawDataItem(String tripId, String date, String timeStamp, double topSpeed) {
     @Ignore
-    public RawDataItem(String tripDatedTimeStamp, String tripId, String date, String timeStamp, int speed, double accelerationRate,
+    public RawDataItem(String tripDatedTimeStamp, String tripId, String date, String timeStamp,
+                       int speedLimit, int speed, double accelerationRate,
                        double latitude, double longitude, String nearestAddress) {
 
         if (tripId == null) {
@@ -57,6 +60,7 @@ public class RawDataItem implements Parcelable {
         this.tripId = tripId;
         this.date = date;
         this.timeStamp = timeStamp;
+        this.speedLimit = speedLimit;
         this.speed = speed;
         this.accelerationRate = accelerationRate;
         this.latitude = latitude;
@@ -79,6 +83,10 @@ public class RawDataItem implements Parcelable {
     public String getTimeStamp() { return timeStamp; }
 
     public void setTimeStamp(String timeStamp) { this.timeStamp = timeStamp; }
+
+    public int getSpeedLimit() { return speedLimit; }
+
+    public void setSpeedLimit(int speedLimit) { this.speedLimit = speedLimit; }
 
     public int getSpeed() { return speed; }
 
@@ -120,6 +128,7 @@ public class RawDataItem implements Parcelable {
         dest.writeString(this.tripId);
         dest.writeString(this.date);
         dest.writeString(this.timeStamp);
+        dest.writeInt(this.speedLimit);
         dest.writeInt(this.speed);
         dest.writeDouble(this.accelerationRate);
         dest.writeDouble(this.latitude);
@@ -132,6 +141,7 @@ public class RawDataItem implements Parcelable {
         this.tripId = in.readString();
         this.date = in.readString();
         this.timeStamp = in.readString();
+        this.speedLimit = in.readInt();
         this.speed = in.readInt();
         this.accelerationRate = in.readDouble();
         this.latitude = in.readDouble();
