@@ -48,7 +48,7 @@ public class RawDataCollectionService extends Service implements LocationListene
     int rawSpeed;
     double rawAcceleration;
     double tripTime;
-    int speedLimit;
+    int speedLimit = -1;
 
     //for the tripSummary
     String engineTroubleCodes;
@@ -76,6 +76,7 @@ public class RawDataCollectionService extends Service implements LocationListene
         receiver = new CarDataReceiver();
         spdreceiver = new SpeedLimitReceiver();
         registerReceiver(receiver, new IntentFilter("CarDataUpdates"));
+        registerReceiver(spdreceiver, new IntentFilter("SpeedLimitValueInt"));
         Log.d(TAG, "receiver registered");
         getLocation();
 
@@ -148,10 +149,19 @@ public class RawDataCollectionService extends Service implements LocationListene
                             }
                             calendar = Calendar.getInstance();
                             String date = calendar.get(Calendar.MONTH) + 1 + "-" + calendar.get(Calendar.DAY_OF_MONTH) + "-" + calendar.get(Calendar.YEAR);
-                            String timeStamp = calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE) + ":" + calendar.get(Calendar.SECOND);
+                            String timeStamp;
+                            //String timeStamp = calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE) + ":" + calendar.get(Calendar.SECOND);
+                            int hourTemp = calendar.get(Calendar.HOUR_OF_DAY);
+                            int minuteTemp = calendar.get(Calendar.MINUTE);
+                            int secondTemp = calendar.get(Calendar.SECOND);
+                            if(secondTemp < 10){
+                                timeStamp = hourTemp + ":" + minuteTemp + ":" + "0" + secondTemp;
+                            }else{
+                                timeStamp = hourTemp + ":" + minuteTemp + ":" + secondTemp;
+                            }
                             String tripDatedTimeStamp = date + "#" + tripId + "@" + timeStamp;
                             rawAcceleration = Math.floor(rawAcceleration * 1000) / 1000.0;
-                            tempRawDataItemList.add(new RawDataItem(tripDatedTimeStamp, tripId, date, timeStamp,0, rawSpeed, rawAcceleration, myLatitude, myLongitude, myAddress));
+                            tempRawDataItemList.add(new RawDataItem(tripDatedTimeStamp, tripId, date, timeStamp,speedLimit, rawSpeed, rawAcceleration, myLatitude, myLongitude, myAddress));
                             tAverageSpeed = (tAverageSpeed + rawSpeed) / 2;
                             tAverageSpeed = Math.floor(tAverageSpeed * 1000) / 1000.0;
                             if(rawSpeed > tTopSpeed){
@@ -198,6 +208,10 @@ public class RawDataCollectionService extends Service implements LocationListene
                     myDestinationAddress = myAddress;
 
                     if(tripSummaryShouldBeSaved){
+                        if(engineTroubleCodes == "Pending Search"){
+                            engineTroubleCodes = "No Trouble Codes Reported";
+                        }
+
                         notableTripEvents = "Times Acceleration Exceeded 7 MPH/S: " + accelOverSeven + "\n" +
                                             "Times Exceeded Speed Limit By 10 MPH: " + exceededSpeedLimitByTen;
                         tempTripSummary = new TripSummary(tripId, tsDate, tripNumber, notableTripEvents,
