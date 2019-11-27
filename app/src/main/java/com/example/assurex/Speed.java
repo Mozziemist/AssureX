@@ -87,6 +87,8 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     private TextView acceleration;
     private TextView tripTime, troubleCodes;
     private TextView speedLimitView;
+    private int speedLimitInt;
+    private int oldSpeedLimitInt;
     CarDataReceiver receiver;
     SettingsReceiver settingsReceiver;
     SpeedLimitReceiver slReceiver;
@@ -208,12 +210,15 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                             Log.d(TAG, "run: sending > 0: " + speedLimitRequester.getSpeedLimit() + wpnt);
                             spdlmtIntent.putExtra("limit", Integer.toString(speedLimitRequester.getSpeedLimit()));
                             sendBroadcast(spdlmtIntent);
+                            sendSpeedLimitToRDCollectionSvc(speedLimitRequester.getSpeedLimit());
+
                         }
                         else
                         {
                             Intent spdlmtIntent = new Intent("SpeedLimitUpdates");
                             spdlmtIntent.putExtra("limit", "NA");
                             sendBroadcast(spdlmtIntent);
+                            sendSpeedLimitToRDCollectionSvc(-1);
                             Log.d(TAG, "run: sent NA = 0");
                         }
 
@@ -223,6 +228,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                         Intent spdlmtIntent = new Intent("SpeedLimitUpdates");
                         spdlmtIntent.putExtra("limit", "NA");
                         sendBroadcast(spdlmtIntent);
+                        sendSpeedLimitToRDCollectionSvc(-1);
                         Log.d(TAG, "run: sent NA: not active");
                     }
                 }
@@ -255,6 +261,12 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
             }
 
         }
+    }
+
+    private void sendSpeedLimitToRDCollectionSvc(int n){
+        Intent sendSpeedLimitInfo = new Intent("SpeedLimitValueInt");
+        sendSpeedLimitInfo.putExtra("speedLimit", n);
+        sendBroadcast(sendSpeedLimitInfo);
     }
 
     public boolean isAlwaysOnSet() {
