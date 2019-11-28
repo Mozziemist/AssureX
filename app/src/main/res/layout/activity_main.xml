@@ -48,7 +48,10 @@
                 android:layout_height="wrap_content"
                 android:hint="User Name"
                 android:inputType="text"
-                android:textColor="?attr/editTextStyle"
+
+                android:textColor="?attr/colorPrimary"
+
+
                 android:textSize="13dp"
                 android:textStyle="italic" />
         </LinearLayout>
@@ -73,7 +76,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Password"
                 android:inputType="textPassword"
-                android:textColor="?attr/editTextStyle"
+                android:textColor="?attr/colorPrimary"
                 android:textSize="13dp"
                 android:textStyle="italic" />
         </LinearLayout>

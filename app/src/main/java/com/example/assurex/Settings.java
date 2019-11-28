@@ -118,7 +118,7 @@ public class Settings extends AppCompatActivity {
     //end for menu --------
 
     public void darkMode(View view) {
-        if (Speed.getDarkMode() == false) {
+        if (Speed.getDarkMode() == false && !Speed.getIsEngineOn()) {
             //settingsBut.setChecked(true);
             Toast.makeText(this, "Dark Mode Activated", Toast.LENGTH_SHORT).show();
             Speed.setDarkMode(true);
@@ -128,7 +128,7 @@ public class Settings extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
-        else if (Speed.getDarkMode() == true) {
+        else if (Speed.getDarkMode() == true && !Speed.getIsEngineOn()) {
             //settingsBut.setChecked(false);
             Toast.makeText(this, "Dark Mode Deactivated", Toast.LENGTH_SHORT).show();
             Speed.setDarkMode(false);
@@ -137,6 +137,10 @@ public class Settings extends AppCompatActivity {
             Intent intent = new Intent(this, Settings.class);
             startActivity(intent);
             finish();
+        }
+        else {
+            settingsBut.setChecked(false);
+            Toast.makeText(this, "Must wait till engine is off", Toast.LENGTH_SHORT).show();
         }
 
     }

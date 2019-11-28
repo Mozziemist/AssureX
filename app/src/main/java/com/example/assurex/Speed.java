@@ -94,7 +94,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     SettingsReceiver settingsReceiver;
     SpeedLimitReceiver slReceiver;
     SpeedLimitThread speedLimitThread;
-    private Boolean isEngineOn;
+    private static Boolean isEngineOn;
     //for map
     private PermissionsManager permissionsManager;
     private MapboxMap mapboxMap;
@@ -491,6 +491,11 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         mapView.onSaveInstanceState(savedInstanceState);
+        //if you want to save stuff before dark mode changes it
+        //savedInstanceState.putBoolean("MyBoolean", true);
+        //savedInstanceState.putDouble("myDouble", 1.9);
+        //savedInstanceState.putInt("MyInt", 1);
+        savedInstanceState.putString("Username", username);
     }
     //end for map ------
 
@@ -589,11 +594,31 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
 
     }
 
+    //for username
     public static void setUsername(String username1){
         username=username1;
     }
     public static String getUsername(){
         return username;
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        // Restore UI state from the savedInstanceState.
+        // This bundle has also been passed to onCreate.
+        //boolean myBoolean = savedInstanceState.getBoolean("MyBoolean");
+        //double myDouble = savedInstanceState.getDouble("myDouble");
+        //int myInt = savedInstanceState.getInt("MyInt");
+        username = savedInstanceState.getString("Username");
+        //Toast.makeText(this, "restored user name: " + username, Toast.LENGTH_SHORT).show();
+
+    }
+
+    //end for username
+
+    public static boolean getIsEngineOn(){
+        return isEngineOn;
     }
 
 }//end class speed
