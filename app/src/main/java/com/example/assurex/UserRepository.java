@@ -2,9 +2,7 @@ package com.example.assurex;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.provider.ContactsContract;
 
-import androidx.lifecycle.LiveData;
 import androidx.room.Room;
 
 import com.example.assurex.database.AppDatabase;
@@ -39,7 +37,7 @@ public class UserRepository {
         }.execute();
     }
 
-    public void deleteUser(final String un) {
+    /*public void deleteUser(final String un) {
         final LiveData<User> user = getUser(un);
         if(user != null) {
             new AsyncTask<Void, Void, Void>() {
@@ -60,13 +58,13 @@ public class UserRepository {
                 return null;
             }
         }.execute();
-    }
+    }*/
 
-    public LiveData<User> getUser(String un) {
+    public User getUser(String un) {
         return appDatabase.userDao().getUser(un);
     }
 
-    public LiveData<List<User>> getUser() {
+    public List<User> getUser() {
         return appDatabase.userDao().fetchAllUsers();
     }
 }

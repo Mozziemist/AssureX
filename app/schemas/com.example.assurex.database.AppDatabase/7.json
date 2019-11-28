@@ -1,12 +1,12 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 1,
-    "identityHash": "6386d4b869d3c20cb4d52feac66bbdab",
+    "version": 7,
+    "identityHash": "99fb714121c485b62772d369a62a57eb",
     "entities": [
       {
         "tableName": "RawDataItem",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tripDatedTimeStamp` TEXT NOT NULL, `tripId` TEXT, `date` TEXT, `timeStamp` TEXT, `speedLimit` INTEGER NOT NULL, `speed` INTEGER NOT NULL, `accelerationRate` REAL NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `nearestAddress` TEXT, PRIMARY KEY(`tripDatedTimeStamp`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tripDatedTimeStamp` TEXT NOT NULL, `tripId` TEXT, `date` TEXT, `timeStamp` TEXT, `speed` INTEGER NOT NULL, `accelerationRate` REAL NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `nearestAddress` TEXT, PRIMARY KEY(`tripDatedTimeStamp`))",
         "fields": [
           {
             "fieldPath": "tripDatedTimeStamp",
@@ -31,12 +31,6 @@
             "columnName": "timeStamp",
             "affinity": "TEXT",
             "notNull": false
-          },
-          {
-            "fieldPath": "speedLimit",
-            "columnName": "speedLimit",
-            "affinity": "INTEGER",
-            "notNull": true
           },
           {
             "fieldPath": "speed",
@@ -200,7 +194,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6386d4b869d3c20cb4d52feac66bbdab')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '99fb714121c485b62772d369a62a57eb')"
     ]
   }
 }

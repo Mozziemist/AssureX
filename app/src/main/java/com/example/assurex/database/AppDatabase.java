@@ -10,7 +10,7 @@ import com.example.assurex.model.RawDataItem;
 import com.example.assurex.model.TripSummary;
 import com.example.assurex.model.User;
 
-@Database(entities = {RawDataItem.class, TripSummary.class, User.class}, version = 1, exportSchema = false)
+@Database(entities = {RawDataItem.class, TripSummary.class, User.class}, version = 1)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase instance;
