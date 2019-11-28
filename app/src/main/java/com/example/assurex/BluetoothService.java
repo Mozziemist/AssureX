@@ -1,3 +1,6 @@
+//Copyright [2019] [Assurex]
+//SPDX-License-Identifier: Apache-2.0
+
 package com.example.assurex;
 
 import android.app.Notification;
