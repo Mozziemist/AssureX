@@ -149,16 +149,30 @@ public class RawDataCollectionService extends Service implements LocationListene
                             }
                             calendar = Calendar.getInstance();
                             String date = calendar.get(Calendar.MONTH) + 1 + "-" + calendar.get(Calendar.DAY_OF_MONTH) + "-" + calendar.get(Calendar.YEAR);
-                            String timeStamp;
+                            String timeStamp = "";
                             //String timeStamp = calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE) + ":" + calendar.get(Calendar.SECOND);
                             int hourTemp = calendar.get(Calendar.HOUR_OF_DAY);
                             int minuteTemp = calendar.get(Calendar.MINUTE);
                             int secondTemp = calendar.get(Calendar.SECOND);
-                            if(secondTemp < 10){
-                                timeStamp = hourTemp + ":" + minuteTemp + ":" + "0" + secondTemp;
+
+                            if(hourTemp < 10){
+                                timeStamp = timeStamp + "0" + hourTemp + ":";
                             }else{
-                                timeStamp = hourTemp + ":" + minuteTemp + ":" + secondTemp;
+                                timeStamp = timeStamp + hourTemp + ":";
                             }
+
+                            if(minuteTemp < 10){
+                                timeStamp = timeStamp + "0" + minuteTemp + ":";
+                            }else{
+                                timeStamp = timeStamp + minuteTemp + ":";
+                            }
+
+                            if(secondTemp < 10){
+                                timeStamp = timeStamp + "0" + secondTemp;
+                            }else{
+                                timeStamp = timeStamp + secondTemp;
+                            }
+
                             String tripDatedTimeStamp = date + "#" + tripId + "@" + timeStamp;
                             rawAcceleration = Math.floor(rawAcceleration * 1000) / 1000.0;
                             tempRawDataItemList.add(new RawDataItem(tripDatedTimeStamp, tripId, date, timeStamp,speedLimit, rawSpeed, rawAcceleration, myLatitude, myLongitude, myAddress));
@@ -190,11 +204,11 @@ public class RawDataCollectionService extends Service implements LocationListene
                             tripSummaryShouldBeSaved = true;
 
                             Bundle b = new Bundle();
-                            //b.putDouble("averagespeed", tAverageSpeed);
                             b.putDouble("topspeed", tTopSpeed);
-                            //b.putDouble("averageaccel", tAverageAcceleration);
                             b.putDouble("topaccel", tTopAcceleration);
                             b.putString("engineTroubleCodes",engineTroubleCodes);
+                            sendMessageToActivity(b);
+
                             try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
                         }
 
@@ -208,7 +222,7 @@ public class RawDataCollectionService extends Service implements LocationListene
                     myDestinationAddress = myAddress;
 
                     if(tripSummaryShouldBeSaved){
-                        if(engineTroubleCodes == "Pending Search"){
+                        if(engineTroubleCodes.equals("Pending Search")){
                             engineTroubleCodes = "No Trouble Codes Reported";
                         }
 
@@ -218,6 +232,8 @@ public class RawDataCollectionService extends Service implements LocationListene
                                 engineTroubleCodes, tAverageSpeed, tTopSpeed,
                                 tAverageAcceleration, tTopAcceleration, myOriginAddress, myDestinationAddress);
                         db.tripSummaryDao().insert(tempTripSummary);
+                        tTopSpeed = 0;
+                        tTopAcceleration = 0;
                     }
                 }
                 //if bt service is no longer running, my service has no purpose in running
