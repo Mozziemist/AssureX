@@ -282,11 +282,13 @@ public class BluetoothService extends Service {
             if (myDevice == null) {
                 showToast("Target device not found");
                 Intent openBtSettings = new Intent(Settings.ACTION_BLUETOOTH_SETTINGS);
+                openBtSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(openBtSettings);
             }
         } else {
             showToast("No devices paired");
             Intent openBtSettings = new Intent(Settings.ACTION_BLUETOOTH_SETTINGS);
+            openBtSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(openBtSettings);
         }
 
