@@ -14,6 +14,7 @@ import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.location.Address;
@@ -138,6 +139,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     String displayedEngineTroubleCodes;
     double displayedTopSpeed = 0;
     double displayedTopAcceleration = 0;
+    RawDataReceiver rdreceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,6 +158,8 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         //end for dark mode
         setContentView(R.layout.activity_info_page);
         db = AppDatabase.getInstance(this);
+        rdreceiver = new RawDataReceiver();
+        registerReceiver(rdreceiver, new IntentFilter("DataCollectedInfo"));
 
         //for average speed button
         avSpBut = findViewById(R.id.avSpBut);
@@ -573,6 +577,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unregisterReceiver(rdreceiver);
         AppDatabase.destroyInstance();
     }
 
