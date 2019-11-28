@@ -1,6 +1,7 @@
 package com.example.assurex;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -17,8 +18,8 @@ import org.greenrobot.eventbus.EventBus;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
-    EditText username;
-    EditText password;
+    private EditText username;
+    private EditText password;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
         }
         //end for dark mode
         setContentView(R.layout.activity_main);
+
+        //initialize
         username = findViewById(R.id.userText);
         password = findViewById(R.id.passText);
     }
@@ -52,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     }
     public void LoginClicked(View view) {
         String name = username.getText().toString().trim();
+        Speed.setUsername(username.getText().toString().trim());
         UserRepository userRepository = new UserRepository(getApplicationContext());
         LiveData<User> user = userRepository.getUser(name);
 

@@ -66,6 +66,7 @@ public class Settings extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.home_menu, menu);
+        menu.findItem(R.id.profileUser).setTitle(Speed.getUsername());
         return true;
     }
 
