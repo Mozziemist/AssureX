@@ -232,8 +232,16 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                         spdlmtIntent.putExtra("limit", "NA");
                         sendBroadcast(spdlmtIntent);
                         sendSpeedLimitToRDCollectionSvc(-1);
-                        Log.d(TAG, "run: sent NA: not active");
+                        Log.d(TAG, "run: sent NA: mapbox not active");
                     }
+                }
+                else
+                {
+                    Intent spdlmtIntent = new Intent("SpeedLimitUpdates");
+                    spdlmtIntent.putExtra("limit", "NA");
+                    sendBroadcast(spdlmtIntent);
+                    sendSpeedLimitToRDCollectionSvc(-1);
+                    Log.d(TAG, "run: sent NA: Engine off");
                 }
 
                 try {
