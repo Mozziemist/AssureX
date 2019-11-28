@@ -190,11 +190,11 @@ public class RawDataCollectionService extends Service implements LocationListene
                             tripSummaryShouldBeSaved = true;
 
                             Bundle b = new Bundle();
-                            //b.putDouble("averagespeed", tAverageSpeed);
                             b.putDouble("topspeed", tTopSpeed);
-                            //b.putDouble("averageaccel", tAverageAcceleration);
                             b.putDouble("topaccel", tTopAcceleration);
                             b.putString("engineTroubleCodes",engineTroubleCodes);
+                            sendMessageToActivity(b);
+
                             try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
                         }
 
