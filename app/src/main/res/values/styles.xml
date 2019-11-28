@@ -10,7 +10,7 @@
         <item name="colorAccent">@color/colorAccentLight</item>
         <item name="background">@drawable/gradient_background</item>
         <item name="editTextColor">@color/textLight</item>
-        <item name="editTextStyle">@color/typeTextLight</item>
+        <item name="editTextStyle">@style/Widget.AppCompat.EditText</item>
     </style>
     
     <style name="TextAppearance.AppCompat.Widget.ActionBar.Title" parent="@android:style/TextAppearance">
@@ -27,7 +27,7 @@
         <item name="colorAccent">@color/colorAccentDark</item>
         <item name="background">@drawable/gradient_background_dark</item>
         <item name="editTextColor">@color/textDark</item>
-        <item name="editTextStyle">@color/typeTextDark</item>
+        <item name="editTextStyle">@style/Widget.AppCompat.EditText</item>
     </style>
 
     <style name="WindowAnimationTransition">
