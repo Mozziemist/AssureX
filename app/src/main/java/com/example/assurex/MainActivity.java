@@ -1,17 +1,14 @@
 package com.example.assurex;
+
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.LiveData;
-import androidx.room.Room;
 
 import com.example.assurex.database.AppDatabase;
-import com.example.assurex.database.UserDao;
 import com.example.assurex.model.User;
 
 import org.greenrobot.eventbus.EventBus;
@@ -53,24 +50,29 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
     }
+
     public void LoginClicked(View view) {
         String name = username.getText().toString().trim();
-        Speed.setUsername(username.getText().toString().trim());
+        String pass = password.getText().toString().trim();
         UserRepository userRepository = new UserRepository(getApplicationContext());
-        LiveData<User> user = userRepository.getUser(name);
+        User[] user = new User[1];
 
-        /*if (name.equals(user.getValue().getUsername())) {
-            //startActivity(new Intent(getApplicationContext(), Speed.class));
-            Intent intent = new Intent(getApplicationContext(), Speed.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-            finish();
-        }
-        else {
-            Toast.makeText(getApplicationContext(),
-                    "Invalid username or password", Toast.LENGTH_SHORT).show();
-        }*/
-        //startActivity(new Intent(getApplicationContext(), Speed.class));
+        new Thread(() -> {
+            try {
+                user[0] = userRepository.getUser(name);
+                if (name.equals(user[0].getUsername()) && pass.equals(user[0].getPassword())) {
+                    Intent intent = new Intent(getApplicationContext(), Speed.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Log.d("Invalid", "Invalid Username and Password");
+                }
+            } catch(Exception e) {
+                Log.d("Invalid", "No such user is registered");
+            }
+        }).start();
+
         Intent intent = new Intent(getApplicationContext(), Speed.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
