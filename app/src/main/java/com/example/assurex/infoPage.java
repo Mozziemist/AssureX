@@ -208,6 +208,8 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         SimpleDateFormat mdformat = new SimpleDateFormat("MM - dd - yyyy ");
         date = mdformat.format(calendar.getTime());
         calText.setText(date);
+        dbQueryDate = date.replaceAll("\\s+", "");
+        addItemsOnSpinner();
 
         calender.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
@@ -441,7 +443,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     }
 
     //end for spinner ------
-
+    /*
     //for location -------
     public void locationClicked(View view) {
         //location
@@ -535,6 +537,21 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     }//end onpermissionresult
 
     //end for location ------
+    */
+
+    public void currentClicked(View view){
+
+        if (tTopSpeed > 0 || tTopAcceleration > 0) {
+            topSpeed.setText("Top Speed: "+tTopSpeed+ " MPH");
+            topAcc.setText("Top Acceleration: "+tTopAcceleration + " MPH/S");
+            if (tEngineTroubleCodes ==  null){
+                engStatus.setText("Status: No outstanding problems");
+            }
+            else engStatus.setText("Status: "+tEngineTroubleCodes);
+        } else {
+            Toast.makeText(this, "Not Currently On Trip", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     class RawDataReceiver extends BroadcastReceiver {
 
@@ -572,10 +589,10 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         dateIns.setText(date);
 
         //set Av Speed
-        topSpeed.setText("Top Speed: "+displayedTopSpeed+ " mph");
+        topSpeed.setText("Top Speed: "+displayedTopSpeed+ " MPH");
 
         //set Acceleration
-        topAcc.setText("Top Acceleration: "+displayedTopAcceleration);
+        topAcc.setText("Top Acceleration: "+displayedTopAcceleration + " MPH/S");
 
         //set Eng Inf
         if (displayedEngineTroubleCodes ==  null){
@@ -587,7 +604,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         if (tempTripSummary ==  null){
             tripSum.setText("Everything is looking good");
         }
-        else tripSum.setText((CharSequence) tempTripSummary);
+        else tripSum.setText("No Trip Summary Selected");
 
     }//end update Data
 }
