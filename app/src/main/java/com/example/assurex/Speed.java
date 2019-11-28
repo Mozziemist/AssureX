@@ -83,6 +83,7 @@ import java.util.Queue;
 
 public class Speed extends AppCompatActivity implements OnMapReadyCallback, PermissionsListener {
     private static final String TAG = "Speed";
+    private static String username;
     private TextView speed;
     private TextView acceleration;
     private TextView tripTime, troubleCodes;
@@ -152,6 +153,8 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
 
         speedLimitThread = new SpeedLimitThread();
         speedLimitThread.start();
+
+
 
     }//end oncreate
 
@@ -229,8 +232,16 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                         spdlmtIntent.putExtra("limit", "NA");
                         sendBroadcast(spdlmtIntent);
                         sendSpeedLimitToRDCollectionSvc(-1);
-                        Log.d(TAG, "run: sent NA: not active");
+                        Log.d(TAG, "run: sent NA: mapbox not active");
                     }
+                }
+                else
+                {
+                    Intent spdlmtIntent = new Intent("SpeedLimitUpdates");
+                    spdlmtIntent.putExtra("limit", "NA");
+                    sendBroadcast(spdlmtIntent);
+                    sendSpeedLimitToRDCollectionSvc(-1);
+                    Log.d(TAG, "run: sent NA: Engine off");
                 }
 
                 try {
@@ -284,6 +295,8 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.home_menu, menu);
+        menu.findItem(R.id.profileUser).setTitle(Speed.getUsername());
+        //Toast.makeText(this, "username set + " + username, Toast.LENGTH_SHORT).show();
         return true;
     }
 
@@ -574,6 +587,13 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
 
 
 
+    }
+
+    public static void setUsername(String username1){
+        username=username1;
+    }
+    public static String getUsername(){
+        return username;
     }
 
 }//end class speed
