@@ -73,9 +73,9 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
 
-        Intent intent = new Intent(getApplicationContext(), Speed.class);
+        /*Intent intent = new Intent(getApplicationContext(), Speed.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
+        startActivity(intent);*/
     }
 
     public void SignUpClicked(View view) {
