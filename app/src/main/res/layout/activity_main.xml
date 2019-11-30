@@ -48,8 +48,10 @@
                 android:layout_height="wrap_content"
                 android:hint="User Name"
                 android:inputType="text"
-                android:text="guest"
-                android:textColor="?attr/editTextStyle"
+
+                android:textColor="?attr/colorPrimary"
+
+
                 android:textSize="13dp"
                 android:textStyle="italic" />
         </LinearLayout>
@@ -67,17 +69,16 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
             <EditText
                 android:id="@+id/passText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="guest"
                 android:hint="Password"
                 android:inputType="textPassword"
-                android:textColor="?attr/editTextStyle"
+                android:textColor="?attr/colorPrimary"
                 android:textSize="13dp"
-                android:textStyle="italic"
-                />
+                android:textStyle="italic" />
         </LinearLayout>
         <LinearLayout
             android:layout_width="wrap_content"
