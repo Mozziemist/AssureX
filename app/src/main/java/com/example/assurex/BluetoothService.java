@@ -42,6 +42,7 @@ import com.github.pires.obd.commands.temperature.AmbientAirTemperatureCommand;
 import com.github.pires.obd.enums.ObdProtocols;
 import com.github.pires.obd.exceptions.NoDataException;
 import com.github.pires.obd.exceptions.UnableToConnectException;
+import com.github.pires.obd.exceptions.UnknownErrorException;
 
 import java.io.IOException;
 import java.util.Set;
@@ -216,7 +217,7 @@ public class BluetoothService extends Service {
 
 
 
-                            } catch (NoDataException | UnableToConnectException e){
+                            } catch (NoDataException | UnableToConnectException | UnknownErrorException e){
                                 e.printStackTrace();
                                 isEngineOn = false;
                                 isBeingTimed = false;

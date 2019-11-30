@@ -60,6 +60,15 @@ public class MainActivity extends AppCompatActivity {
         new Thread(() -> {
             try {
                 user[0] = userRepository.getUser(name);
+                //=====================DEBUG BYPASS================================
+                if(name.equals("debug") && pass.equals("bypass")){
+                    Intent intent = new Intent(getApplicationContext(), Speed.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    finish();
+                }
+                else
+                //=====================END DEBUG BYPASS=============================
                 if (name.equals(user[0].getUsername()) && pass.equals(user[0].getPassword())) {
                     Intent intent = new Intent(getApplicationContext(), Speed.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
