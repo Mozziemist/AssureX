@@ -24,6 +24,7 @@ import androidx.core.app.NotificationCompat;
 import com.example.assurex.database.AppDatabase;
 import com.example.assurex.model.RawDataItem;
 import com.example.assurex.model.TripSummary;
+import com.mapbox.android.core.permissions.PermissionsManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,11 +36,11 @@ import java.util.TimeZone;
 import static com.example.assurex.App.BT_CHANNEL_ID;
 import static com.example.assurex.App.RD_CHANNEL_ID;
 
-public class RawDataCollectionService extends Service implements LocationListener {
+public class RawDataCollectionService extends Service {
     private final static String TAG = "RawDataCollectService";
     private AppDatabase db;
     CarDataReceiver receiver;
-    SpeedLimitReceiver spdreceiver;
+    SpeedDataReceiver spdreceiver;
     boolean isEngineOn = false;
     boolean shouldEndService = false;
 
@@ -65,20 +66,20 @@ public class RawDataCollectionService extends Service implements LocationListene
     //LocationListener locationListener;
     double myLatitude;
     double myLongitude;
-    String myAddress;
-    String myOriginAddress;
-    String myDestinationAddress;
+    String myAddress = "";
+    String myOriginAddress = "";
+    String myDestinationAddress = "";
 
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
         receiver = new CarDataReceiver();
-        spdreceiver = new SpeedLimitReceiver();
+        spdreceiver = new SpeedDataReceiver();
         registerReceiver(receiver, new IntentFilter("CarDataUpdates"));
-        registerReceiver(spdreceiver, new IntentFilter("SpeedLimitValueInt"));
+        registerReceiver(spdreceiver, new IntentFilter("MiscDataFromSpeedjava"));
         Log.d(TAG, "receiver registered");
-        getLocation();
+        //getLocation();
 
         Intent notificationIntent = new Intent(this, Speed.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
@@ -119,7 +120,16 @@ public class RawDataCollectionService extends Service implements LocationListene
                 }
                 //while engine is on, bt service is running and the speed is still 0 indicating vehicle
                 //has yet to move
-                myOriginAddress = myAddress;
+                while(isEngineOn && isServiceRunning(BluetoothService.class) && speedLimit <= 0 && rawSpeed == 0){
+                    try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
+                }
+
+                myOriginAddress = hereLocation(myLatitude, myLongitude);
+
+                if(myOriginAddress.equals("")){
+                    myOriginAddress = "Unable to determine origin address";
+                }
+
                 while(isEngineOn && isServiceRunning(BluetoothService.class) && rawSpeed == 0){
                     try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
                 }
@@ -173,8 +183,12 @@ public class RawDataCollectionService extends Service implements LocationListene
                                 timeStamp = timeStamp + secondTemp;
                             }
 
-                            String tripDatedTimeStamp = date + "#" + tripId + "@" + timeStamp;
+                            String tripDatedTimeStamp = tripId + "@" + timeStamp;
                             rawAcceleration = Math.floor(rawAcceleration * 1000) / 1000.0;
+                            myAddress = hereLocation(myLatitude, myLongitude);
+                            if(myAddress.equals("")){
+                                myAddress = "Unable to determine address";
+                            }
                             tempRawDataItemList.add(new RawDataItem(tripDatedTimeStamp, tripId, date, timeStamp,speedLimit, rawSpeed, rawAcceleration, myLatitude, myLongitude, myAddress));
                             tAverageSpeed = (tAverageSpeed + rawSpeed) / 2;
                             tAverageSpeed = Math.floor(tAverageSpeed * 1000) / 1000.0;
@@ -221,6 +235,10 @@ public class RawDataCollectionService extends Service implements LocationListene
 
                     myDestinationAddress = myAddress;
 
+                    if(myDestinationAddress.equals("")){
+                        myDestinationAddress = "Unable to determine destination address";
+                    }
+
                     if(tripSummaryShouldBeSaved){
                         if(engineTroubleCodes.equals("Pending Search")){
                             engineTroubleCodes = "No Trouble Codes Reported";
@@ -236,6 +254,7 @@ public class RawDataCollectionService extends Service implements LocationListene
                         tTopAcceleration = 0;
                     }
                 }
+
                 //if bt service is no longer running, my service has no purpose in running
                 if(!isServiceRunning(BluetoothService.class)){
                     shouldEndService = true;
@@ -266,13 +285,15 @@ public class RawDataCollectionService extends Service implements LocationListene
         sendBroadcast(sendDataCollectedInfo);
     }
 
-    class SpeedLimitReceiver extends BroadcastReceiver {
+    class SpeedDataReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (("SpeedLimitValueInt").equals(intent.getAction())){
-                //speedLimitView.setText(intent.getStringExtra("limit"));
-                speedLimit = intent.getIntExtra("speedLimit", -1);
-                 Log.d(TAG, "onReceive: Speed limit set");
+            if (("MiscDataFromSpeedjava").equals(intent.getAction())){
+                Bundle b = intent.getBundleExtra("miscData");
+                speedLimit = b.getInt("SpeedLimit", 0);
+                myLatitude = b.getDouble("Latitude", 0.0);
+                myLongitude = b.getDouble("Longitude", 0.0);
+                Log.d(TAG, "onReceive: Speed limit set");
             }
         }
     }
@@ -287,6 +308,7 @@ public class RawDataCollectionService extends Service implements LocationListene
         return false;
     }
 
+    /*
     void getLocation() {
         try {
             locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -320,6 +342,7 @@ public class RawDataCollectionService extends Service implements LocationListene
     public void onProviderEnabled(String provider) {
 
     }
+    */
 
     private String hereLocation(double lat, double lon) {
         String name = "";
@@ -355,7 +378,7 @@ public class RawDataCollectionService extends Service implements LocationListene
         super.onDestroy();
         unregisterReceiver(receiver);
         unregisterReceiver(spdreceiver);
-        locationManager.removeUpdates(this);
+        //locationManager.removeUpdates(this);
         shouldEndService = true;
         AppDatabase.destroyInstance();
     }
