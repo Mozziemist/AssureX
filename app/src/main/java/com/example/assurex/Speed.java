@@ -141,10 +141,6 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         Intent serviceIntent = new Intent(this, BluetoothService.class);
         startService(serviceIntent);
 
-        Intent rawDataIntent = new Intent(this, RawDataCollectionService.class);
-        startService(rawDataIntent);
-
-
         //for map
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
@@ -154,8 +150,8 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         speedLimitThread = new SpeedLimitThread();
         speedLimitThread.start();
 
-
-
+        Intent rawDataIntent = new Intent(this, RawDataCollectionService.class);
+        startService(rawDataIntent);
     }//end oncreate
 
     class SpeedLimitReceiver extends BroadcastReceiver {
@@ -199,12 +195,19 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
 
             while (!Thread.currentThread().isInterrupted())
             {
+
                 if (isEngineOn)
                 {
+                    Bundle b = new Bundle();
                     if (mapboxMap != null && mapboxMap.getLocationComponent().isLocationComponentActivated())
                     {
-                        String wpnt = Double.toString(mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude());
-                        wpnt += ',' + Double.toString(mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude());
+                        double latitude = mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude();
+                        double longitude = mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude();
+                        b.putDouble("Latitude", latitude);
+                        b.putDouble("Longitude", longitude);
+
+                        String wpnt = Double.toString(latitude);
+                        wpnt += ',' + Double.toString(longitude);
                         speedLimitRequester.sendRequest(wpnt);
 
                         if (speedLimitRequester.getSpeedLimit() > 0)
@@ -213,7 +216,9 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                             Log.d(TAG, "run: sending > 0: " + speedLimitRequester.getSpeedLimit() + wpnt);
                             spdlmtIntent.putExtra("limit", Integer.toString(speedLimitRequester.getSpeedLimit()));
                             sendBroadcast(spdlmtIntent);
-                            sendSpeedLimitToRDCollectionSvc(speedLimitRequester.getSpeedLimit());
+                            b.putInt("SpeedLimit", speedLimitRequester.getSpeedLimit());
+//                            sendSpeedLimitToRDCollectionSvc(speedLimitRequester.getSpeedLimit());
+
 
                         }
                         else
@@ -221,7 +226,8 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                             Intent spdlmtIntent = new Intent("SpeedLimitUpdates");
                             spdlmtIntent.putExtra("limit", "NA");
                             sendBroadcast(spdlmtIntent);
-                            sendSpeedLimitToRDCollectionSvc(-1);
+                            //sendSpeedLimitToRDCollectionSvc(-1);
+                            b.putInt("SpeedLimit", -1);
                             Log.d(TAG, "run: sent NA = 0");
                         }
 
@@ -231,16 +237,23 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                         Intent spdlmtIntent = new Intent("SpeedLimitUpdates");
                         spdlmtIntent.putExtra("limit", "NA");
                         sendBroadcast(spdlmtIntent);
-                        sendSpeedLimitToRDCollectionSvc(-1);
+                        //sendSpeedLimitToRDCollectionSvc(-1);
+                        b.putInt("SpeedLimit", -1);
                         Log.d(TAG, "run: sent NA: mapbox not active");
                     }
-                }
+                    sendSpeedDataToRDCollectionSvc(b);
+                }//end if engineOn = true
                 else
                 {
                     Intent spdlmtIntent = new Intent("SpeedLimitUpdates");
                     spdlmtIntent.putExtra("limit", "NA");
                     sendBroadcast(spdlmtIntent);
-                    sendSpeedLimitToRDCollectionSvc(-1);
+                    //sendSpeedLimitToRDCollectionSvc(-1);
+                    Bundle b = new Bundle();
+                    b.putDouble("Latitude", 0.0);
+                    b.putDouble("Longitude", 0.0);
+                    b.putInt("SpeedLimit", -1);
+                    sendSpeedDataToRDCollectionSvc(b);
                     Log.d(TAG, "run: sent NA: Engine off");
                 }
 
@@ -274,9 +287,9 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         }
     }
 
-    private void sendSpeedLimitToRDCollectionSvc(int n){
-        Intent sendSpeedLimitInfo = new Intent("SpeedLimitValueInt");
-        sendSpeedLimitInfo.putExtra("speedLimit", n);
+    private void sendSpeedDataToRDCollectionSvc(Bundle b){
+        Intent sendSpeedLimitInfo = new Intent("MiscDataFromSpeedjava");
+        sendSpeedLimitInfo.putExtra("miscData", b);
         sendBroadcast(sendSpeedLimitInfo);
     }
 
