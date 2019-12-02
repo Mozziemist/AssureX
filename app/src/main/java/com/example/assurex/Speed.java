@@ -317,27 +317,27 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.profilePic: {
-                Toast.makeText(this, "Insert Picture Selector Here", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "Insert Picture Selector Here", Toast.LENGTH_SHORT).show();
                 break;
             }
             case R.id.profileUser: {
-                Toast.makeText(this, "profileUser selected", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "profileUser selected", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), Package.class));
                 break;
             }
             case R.id.home: {
-                Toast.makeText(this, "home selected", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "home selected", Toast.LENGTH_SHORT).show();
                 //startActivity(new Intent(getApplicationContext(), Speed.class));
                 //NavUtils.navigateUpFromSameTask(this);
                 break;
             }
             case R.id.infoPage: {
-                Toast.makeText(this, "infoPage selected", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "infoPage selected", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), infoPage.class));
                 break;
             }
             case R.id.connect: {
-                Toast.makeText(this, "connect selected", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "connect selected", Toast.LENGTH_SHORT).show();
                 Intent serviceIntent = new Intent(this, BluetoothService.class);
                 startService(serviceIntent);
 
@@ -346,7 +346,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                 break;
             }
             case R.id.settings: {
-                Toast.makeText(this, "settings selected", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "settings selected", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getApplicationContext(), Settings.class);
 
                 if (isAlwaysOnSet())
@@ -358,7 +358,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                 break;
             }
             case R.id.signOut: {
-                Toast.makeText(this, "signOut selected", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "signOut selected", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), MainActivity.class));
                 finish();
                 break;
@@ -375,7 +375,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     //for map -----
     @Override
     public void onExplanationNeeded(List<String> permissionsToExplain) {
-        Toast.makeText(this, "user_location_permission_explanation", Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, "user_location_permission_explanation", Toast.LENGTH_LONG).show();
     }//end onExplanationNeeded
 
     @Override
@@ -388,7 +388,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                 }
             });
         } else {
-            Toast.makeText(this, "user_location_permission_not_granted", Toast.LENGTH_LONG).show();
+            //Toast.makeText(this, "user_location_permission_not_granted", Toast.LENGTH_LONG).show();
             finish();
         }
     }//end onPermissionResult

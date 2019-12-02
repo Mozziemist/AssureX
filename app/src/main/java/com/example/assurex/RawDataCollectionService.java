@@ -112,8 +112,8 @@ public class RawDataCollectionService extends Service {
 
         @Override
         public void run() {
-
             while (!shouldEndService) {
+                this.setPriority(Thread.MIN_PRIORITY);
                 //while engine is not on but bluetooth service is running
                 while(!isEngineOn && isServiceRunning(BluetoothService.class)){
                     try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
@@ -123,6 +123,7 @@ public class RawDataCollectionService extends Service {
                 while(isEngineOn && isServiceRunning(BluetoothService.class) && speedLimit <= 0 && rawSpeed == 0){
                     try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
                 }
+                this.setPriority(Thread.NORM_PRIORITY);
 
                 myOriginAddress = hereLocation(myLatitude, myLongitude);
 
@@ -138,6 +139,8 @@ public class RawDataCollectionService extends Service {
 
                 //now start the collection of data if the bt service is on and the engine is on
                 if(isServiceRunning(BluetoothService.class) && isEngineOn) {
+                    this.setPriority(Thread.MAX_PRIORITY);
+
                     int tripNumber;
                     Calendar calendar = Calendar.getInstance();
                     String tsDate = calendar.get(Calendar.MONTH) + 1 + "-" + calendar.get(Calendar.DAY_OF_MONTH) + "-" + calendar.get(Calendar.YEAR);
@@ -152,9 +155,9 @@ public class RawDataCollectionService extends Service {
                     String tripId = tsDate + "#" + tripNumber;
 
                     //while (!Thread.currentThread().isInterrupted() && isEngineOn && isServiceRunning(BluetoothService.class)) {
-                    do{
-                        for(int i = 0; i < 5; i++){
-                            if(!isServiceRunning(BluetoothService.class) || !isEngineOn){
+                    do {
+                        for (int i = 0; i < 5; i++) {
+                            if (!isServiceRunning(BluetoothService.class) || !isEngineOn) {
                                 i = 5;
                             }
                             calendar = Calendar.getInstance();
@@ -165,52 +168,52 @@ public class RawDataCollectionService extends Service {
                             int minuteTemp = calendar.get(Calendar.MINUTE);
                             int secondTemp = calendar.get(Calendar.SECOND);
 
-                            if(hourTemp < 10){
+                            if (hourTemp < 10) {
                                 timeStamp = timeStamp + "0" + hourTemp + ":";
-                            }else{
+                            } else {
                                 timeStamp = timeStamp + hourTemp + ":";
                             }
 
-                            if(minuteTemp < 10){
+                            if (minuteTemp < 10) {
                                 timeStamp = timeStamp + "0" + minuteTemp + ":";
-                            }else{
+                            } else {
                                 timeStamp = timeStamp + minuteTemp + ":";
                             }
 
-                            if(secondTemp < 10){
+                            if (secondTemp < 10) {
                                 timeStamp = timeStamp + "0" + secondTemp;
-                            }else{
+                            } else {
                                 timeStamp = timeStamp + secondTemp;
                             }
 
                             String tripDatedTimeStamp = tripId + "@" + timeStamp;
                             rawAcceleration = Math.floor(rawAcceleration * 1000) / 1000.0;
                             myAddress = hereLocation(myLatitude, myLongitude);
-                            if(myAddress.equals("")){
+                            if (myAddress.equals("")) {
                                 myAddress = "Unable to determine address";
                             }
-                            tempRawDataItemList.add(new RawDataItem(tripDatedTimeStamp, tripId, date, timeStamp,speedLimit, rawSpeed, rawAcceleration, myLatitude, myLongitude, myAddress));
+                            tempRawDataItemList.add(new RawDataItem(tripDatedTimeStamp, tripId, date, timeStamp, speedLimit, rawSpeed, rawAcceleration, myLatitude, myLongitude, myAddress));
                             tAverageSpeed = (tAverageSpeed + rawSpeed) / 2;
                             tAverageSpeed = Math.floor(tAverageSpeed * 1000) / 1000.0;
-                            if(rawSpeed > tTopSpeed){
+                            if (rawSpeed > tTopSpeed) {
                                 tTopSpeed = rawSpeed;
                             }
 
                             tAverageAcceleration = (tAverageAcceleration + Math.abs(rawAcceleration)) / 2;
                             tAverageAcceleration = Math.floor(tAverageAcceleration * 1000) / 1000.0;
-                            if(Math.abs(rawAcceleration) > tTopAcceleration){
+                            if (Math.abs(rawAcceleration) > tTopAcceleration) {
                                 tTopAcceleration = Math.abs(rawAcceleration);
                             }
 
-                            if(Math.abs(rawAcceleration) > 7){
+                            if (Math.abs(rawAcceleration) > 7) {
                                 accelOverSeven++;
                             }
 
-                            if(speedLimit != -1){
-                                if(rawSpeed > speedLimit + 10){
+                            if (speedLimit != -1) {
+                                if (rawSpeed > speedLimit + 10) {
                                     exceededSpeedLimitByTen++;
                                 }
-                            }else{
+                            } else {
                                 Log.d(TAG, "Speed Limit Data Not Available. Unable to check if current speed exceeds speed limit");
                             }
 
@@ -220,18 +223,19 @@ public class RawDataCollectionService extends Service {
                             Bundle b = new Bundle();
                             b.putDouble("topspeed", tTopSpeed);
                             b.putDouble("topaccel", tTopAcceleration);
-                            b.putString("engineTroubleCodes",engineTroubleCodes);
+                            b.putString("engineTroubleCodes", engineTroubleCodes);
                             sendMessageToActivity(b);
 
                             try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
                         }
 
-                        if(!tempRawDataItemList.isEmpty()) {
+                        if (!tempRawDataItemList.isEmpty()) {
                             db.rawDataItemDao().insertAll(tempRawDataItemList);
                             Log.i(TAG, "raw data inserted into sqlite");
                             tempRawDataItemList.clear();
                         }
-                    }while (!Thread.currentThread().isInterrupted() && isEngineOn && isServiceRunning(BluetoothService.class));
+                    }while (isEngineOn && isServiceRunning(BluetoothService.class));
+                    //}while (!Thread.currentThread().isInterrupted() && isEngineOn && isServiceRunning(BluetoothService.class));
 
                     myDestinationAddress = myAddress;
 
@@ -252,6 +256,7 @@ public class RawDataCollectionService extends Service {
                         db.tripSummaryDao().insert(tempTripSummary);
                         tTopSpeed = 0;
                         tTopAcceleration = 0;
+                        tripSummaryShouldBeSaved = false;
                     }
                 }
 
@@ -307,42 +312,6 @@ public class RawDataCollectionService extends Service {
         }
         return false;
     }
-
-    /*
-    void getLocation() {
-        try {
-            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 3, this);
-        }
-        catch(SecurityException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        //locationText.setText("Current Location: " + location.getLatitude() + ", " + location.getLongitude());
-        myLatitude = location.getLatitude();
-        myLongitude = location.getLongitude();
-        myAddress = hereLocation(myLatitude, myLongitude);
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-        //Toast.makeText(MainActivity.this, "Please Enable GPS and Internet", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-    */
 
     private String hereLocation(double lat, double lon) {
         String name = "";
