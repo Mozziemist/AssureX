@@ -10,13 +10,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -24,16 +21,13 @@ import androidx.core.app.NotificationCompat;
 import com.example.assurex.database.AppDatabase;
 import com.example.assurex.model.RawDataItem;
 import com.example.assurex.model.TripSummary;
-import com.mapbox.android.core.permissions.PermissionsManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 
-import static com.example.assurex.App.BT_CHANNEL_ID;
 import static com.example.assurex.App.RD_CHANNEL_ID;
 
 public class RawDataCollectionService extends Service {
@@ -167,6 +161,7 @@ public class RawDataCollectionService extends Service {
                             int hourTemp = calendar.get(Calendar.HOUR_OF_DAY);
                             int minuteTemp = calendar.get(Calendar.MINUTE);
                             int secondTemp = calendar.get(Calendar.SECOND);
+                            int milliSecondTemp = calendar.get(Calendar.MILLISECOND);
 
                             if (hourTemp < 10) {
                                 timeStamp = timeStamp + "0" + hourTemp + ":";
@@ -181,12 +176,16 @@ public class RawDataCollectionService extends Service {
                             }
 
                             if (secondTemp < 10) {
+                                //timeStamp = timeStamp + "0" + secondTemp + ":";
                                 timeStamp = timeStamp + "0" + secondTemp;
                             } else {
+                                //timeStamp = timeStamp + secondTemp + ":";
                                 timeStamp = timeStamp + secondTemp;
                             }
+                            //timeStamp = timeStamp + milliSecondTemp;
+                            Log.i(TAG, timeStamp + ":" + milliSecondTemp);
 
-                            String tripDatedTimeStamp = tripId + "@" + timeStamp;
+                            String tripDatedTimeStamp = tripId + "@" + timeStamp + ":" + milliSecondTemp;
                             rawAcceleration = Math.floor(rawAcceleration * 1000) / 1000.0;
                             myAddress = hereLocation(myLatitude, myLongitude);
                             if (myAddress.equals("")) {
@@ -226,7 +225,7 @@ public class RawDataCollectionService extends Service {
                             b.putString("engineTroubleCodes", engineTroubleCodes);
                             sendMessageToActivity(b);
 
-                            try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
+                            try { Thread.sleep(989); } catch (InterruptedException e) { e.printStackTrace(); }
                         }
 
                         if (!tempRawDataItemList.isEmpty()) {
