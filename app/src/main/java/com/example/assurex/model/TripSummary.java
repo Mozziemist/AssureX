@@ -32,7 +32,11 @@ public class TripSummary implements Parcelable {
     @ColumnInfo
     private double averageAcceleration;
     @ColumnInfo
+    private double averageDeceleration;
+    @ColumnInfo
     private double topAcceleration;
+    @ColumnInfo
+    private double topDeceleration;
     @ColumnInfo
     private String originLocation;
     @ColumnInfo
@@ -48,7 +52,8 @@ public class TripSummary implements Parcelable {
     @Ignore
     public TripSummary(String tripId, String date, int tripNumber, String notableTripEvents,
                        String engineStatus, double averageSpeed, double topSpeed,
-                       double averageAcceleration, double topAcceleration,
+                       double averageAcceleration, double averageDeceleration,
+                       double topAcceleration, double topDeceleration,
                        String originLocation, String destinationLocation){
 
         if (tripId == null) {
@@ -68,7 +73,9 @@ public class TripSummary implements Parcelable {
         this.averageSpeed = averageSpeed;
         this.topSpeed = topSpeed;
         this.averageAcceleration = averageAcceleration;
+        this.averageDeceleration = averageDeceleration;
         this.topAcceleration = topAcceleration;
+        this.topDeceleration = topDeceleration;
         this.originLocation = originLocation;
         this.destinationLocation = destinationLocation;
     }
@@ -133,9 +140,17 @@ public class TripSummary implements Parcelable {
 
     public void setAverageAcceleration(double averageAcceleration) { this.averageAcceleration = averageAcceleration; }
 
+    public double getAverageDeceleration() { return averageDeceleration; }
+
+    public void setAverageDeceleration(double averageDeceleration) { this.averageDeceleration = averageDeceleration; }
+
     public double getTopAcceleration() {
         return topAcceleration;
     }
+
+    public double getTopDeceleration() { return topDeceleration; }
+
+    public void setTopDeceleration(double topDeceleration) { this.topDeceleration = topDeceleration; }
 
     public void setTopAcceleration(double topAcceleration) { this.topAcceleration = topAcceleration; }
 
@@ -156,7 +171,9 @@ public class TripSummary implements Parcelable {
         this.averageSpeed = in.readDouble();
         this.topSpeed = in.readDouble();
         this.averageAcceleration = in.readDouble();
+        this.averageDeceleration = in.readDouble();
         this.topAcceleration = in.readDouble();
+        this.topDeceleration = in.readDouble();
         this.originLocation = in.readString();
         this.destinationLocation = in.readString();
 
@@ -172,7 +189,9 @@ public class TripSummary implements Parcelable {
         dest.writeDouble(this.averageSpeed);
         dest.writeDouble(this.topSpeed);
         dest.writeDouble(this.averageAcceleration);
+        dest.writeDouble(this.averageDeceleration);
         dest.writeDouble(this.topAcceleration);
+        dest.writeDouble(this.topDeceleration);
         dest.writeString(this.originLocation);
         dest.writeString(this.destinationLocation);
     }

@@ -15,24 +15,38 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.example.assurex.database.AppDatabase;
 import com.example.assurex.model.RawDataItem;
 import com.example.assurex.model.TripSummary;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
 import static com.example.assurex.App.RD_CHANNEL_ID;
 
 public class RawDataCollectionService extends Service {
+    //this boolean makes it so data collection runs without the car first having moved
+    boolean isDebugging = true;
     private final static String TAG = "RawDataCollectService";
-    private AppDatabase db;
+    //private AppDatabase db;
+    FirebaseFirestore db;
     CarDataReceiver receiver;
     SpeedDataReceiver spdreceiver;
     boolean isEngineOn = false;
@@ -47,17 +61,18 @@ public class RawDataCollectionService extends Service {
 
     //for the tripSummary
     String engineTroubleCodes;
-    String notableTripEvents;
-    int accelOverSeven = 0;
-    int exceededSpeedLimitByTen = 0;
+    int accelOverEight = 0;
+    int decelOverEight = 0;
+    int secondsSpentOverTenMPH = 0;
     double tAverageSpeed = 0;
     double tTopSpeed = 0;
     double tAverageAcceleration = 0;
+    double tAverageDeceleration = 0;
     double tTopAcceleration = 0;
+    double tTopDeceleration = 0;
     boolean tripSummaryShouldBeSaved = false;
 
-    LocationManager locationManager;
-    //LocationListener locationListener;
+    //for location related calculations
     double myLatitude;
     double myLongitude;
     String myAddress = "";
@@ -72,6 +87,7 @@ public class RawDataCollectionService extends Service {
         spdreceiver = new SpeedDataReceiver();
         registerReceiver(receiver, new IntentFilter("CarDataUpdates"));
         registerReceiver(spdreceiver, new IntentFilter("MiscDataFromSpeedjava"));
+
         Log.d(TAG, "receiver registered");
         //getLocation();
 
@@ -93,7 +109,8 @@ public class RawDataCollectionService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
-        db = AppDatabase.getInstance(this);
+        //db = AppDatabase.getInstance(this);
+        db = FirebaseFirestore.getInstance();
         Log.d(TAG, "AppDB instance gotten");
 
         RawDataCollectionThread mRDThread = new RawDataCollectionThread();
@@ -107,17 +124,15 @@ public class RawDataCollectionService extends Service {
         @Override
         public void run() {
             while (!shouldEndService) {
-                this.setPriority(Thread.MIN_PRIORITY);
                 //while engine is not on but bluetooth service is running
                 while(!isEngineOn && isServiceRunning(BluetoothService.class)){
                     try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
                 }
                 //while engine is on, bt service is running and the speed is still 0 indicating vehicle
                 //has yet to move
-                while(isEngineOn && isServiceRunning(BluetoothService.class) && speedLimit <= 0 && rawSpeed == 0){
+                while(isEngineOn && !isDebugging && isServiceRunning(BluetoothService.class) && speedLimit <= 0 && rawSpeed == 0){
                     try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
                 }
-                this.setPriority(Thread.NORM_PRIORITY);
 
                 myOriginAddress = hereLocation(myLatitude, myLongitude);
 
@@ -125,137 +140,144 @@ public class RawDataCollectionService extends Service {
                     myOriginAddress = "Unable to determine origin address";
                 }
 
-                while(isEngineOn && isServiceRunning(BluetoothService.class) && rawSpeed == 0){
+                while(isEngineOn && !isDebugging &&  isServiceRunning(BluetoothService.class) && rawSpeed == 0){
                     try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
                 }
 
-                List<RawDataItem> tempRawDataItemList = new ArrayList<RawDataItem>();
-
                 //now start the collection of data if the bt service is on and the engine is on
                 if(isServiceRunning(BluetoothService.class) && isEngineOn) {
-                    this.setPriority(Thread.MAX_PRIORITY);
 
+                    //====GET TRIP NUMBER====
                     int tripNumber;
                     Calendar calendar = Calendar.getInstance();
                     String tsDate = calendar.get(Calendar.MONTH) + 1 + "-" + calendar.get(Calendar.DAY_OF_MONTH) + "-" + calendar.get(Calendar.YEAR);
-                    List<TripSummary> tempTripSummaryList = db.tripSummaryDao().getAllByDate(tsDate);
+                    List<Object> tempTripSummaryList = new ArrayList<>();
+                    RawDataItem tempRawDataItem;
+
+                    //===CONTACTING FIREBASE FOR TRIP SUMMARIES===
+                    db.collection("users")
+                    .document("debug_user")
+                    .collection("tripsummaries")
+                    .whereEqualTo("date", tsDate)
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    try {
+                                        //tempTripSummaryList.add((TripSummary) document.getData());
+                                        tempTripSummaryList.add(document.getData());
+                                    }catch (NullPointerException e) {
+                                        e.printStackTrace();
+                                    }
+                                    Log.d(TAG, document.getId() + " => " + document.getData());
+                                }
+                            } else {
+                                Log.d(TAG, "Error getting documents: ", task.getException());
+                            }
+                        }
+                    });
+                    //===END OF CONTACTING FIREBASE===
+
                     TripSummary tempTripSummary;
-                    if(tempTripSummaryList != null && !tempTripSummaryList.isEmpty()){
-                        tempTripSummary = tempTripSummaryList.get(tempTripSummaryList.size()-1);
+
+                    if(!tempTripSummaryList.isEmpty() && tempTripSummaryList != null){
+                        tempTripSummary = (TripSummary) tempTripSummaryList.get(tempTripSummaryList.size()-1);
                         tripNumber = tempTripSummary.getTripNumber() + 1;
                     }else{
                         tripNumber = 1;
                     }
+                    //====END OF GET TRIP NUMBER====
+
                     String tripId = tsDate + "#" + tripNumber;
 
-                    //while (!Thread.currentThread().isInterrupted() && isEngineOn && isServiceRunning(BluetoothService.class)) {
+                    //by reaching this point, the do loop will complete at least once thus making it
+                    //necessary to save the trip summary
+                    tripSummaryShouldBeSaved = true;
+                    tempTripSummaryList.clear();
+
                     do {
-                        for (int i = 0; i < 5; i++) {
-                            if (!isServiceRunning(BluetoothService.class) || !isEngineOn) {
-                                i = 5;
-                            }
-                            calendar = Calendar.getInstance();
-                            String date = calendar.get(Calendar.MONTH) + 1 + "-" + calendar.get(Calendar.DAY_OF_MONTH) + "-" + calendar.get(Calendar.YEAR);
-                            String timeStamp = "";
-                            //String timeStamp = calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE) + ":" + calendar.get(Calendar.SECOND);
-                            int hourTemp = calendar.get(Calendar.HOUR_OF_DAY);
-                            int minuteTemp = calendar.get(Calendar.MINUTE);
-                            int secondTemp = calendar.get(Calendar.SECOND);
-                            int milliSecondTemp = calendar.get(Calendar.MILLISECOND);
+                        //===GENERATE THE TIMESTAMP===
+                        calendar = Calendar.getInstance();
+                        String date = calendar.get(Calendar.MONTH) + 1 + "-" + calendar.get(Calendar.DAY_OF_MONTH) + "-" + calendar.get(Calendar.YEAR);
+                        String timeStamp = "";
+                        int hourTemp = calendar.get(Calendar.HOUR_OF_DAY);
+                        int minuteTemp = calendar.get(Calendar.MINUTE);
+                        int secondTemp = calendar.get(Calendar.SECOND);
+                        int milliSecondTemp = calendar.get(Calendar.MILLISECOND);
 
-                            if (hourTemp < 10) {
-                                timeStamp = timeStamp + "0" + hourTemp + ":";
-                            } else {
-                                timeStamp = timeStamp + hourTemp + ":";
-                            }
-
-                            if (minuteTemp < 10) {
-                                timeStamp = timeStamp + "0" + minuteTemp + ":";
-                            } else {
-                                timeStamp = timeStamp + minuteTemp + ":";
-                            }
-
-                            if (secondTemp < 10) {
-                                //timeStamp = timeStamp + "0" + secondTemp + ":";
-                                timeStamp = timeStamp + "0" + secondTemp;
-                            } else {
-                                //timeStamp = timeStamp + secondTemp + ":";
-                                timeStamp = timeStamp + secondTemp;
-                            }
-                            //timeStamp = timeStamp + milliSecondTemp;
-                            Log.i(TAG, timeStamp + ":" + milliSecondTemp);
-
-                            String tripDatedTimeStamp = tripId + "@" + timeStamp + ":" + milliSecondTemp;
-                            rawAcceleration = Math.floor(rawAcceleration * 1000) / 1000.0;
-                            myAddress = hereLocation(myLatitude, myLongitude);
-                            if (myAddress.equals("")) {
-                                myAddress = "Unable to determine address";
-                            }
-                            tempRawDataItemList.add(new RawDataItem(tripDatedTimeStamp, tripId, date, timeStamp, speedLimit, rawSpeed, rawAcceleration, myLatitude, myLongitude, myAddress));
-                            tAverageSpeed = (tAverageSpeed + rawSpeed) / 2;
-                            tAverageSpeed = Math.floor(tAverageSpeed * 1000) / 1000.0;
-                            if (rawSpeed > tTopSpeed) {
-                                tTopSpeed = rawSpeed;
-                            }
-
-                            tAverageAcceleration = (tAverageAcceleration + Math.abs(rawAcceleration)) / 2;
-                            tAverageAcceleration = Math.floor(tAverageAcceleration * 1000) / 1000.0;
-                            if (Math.abs(rawAcceleration) > tTopAcceleration) {
-                                tTopAcceleration = Math.abs(rawAcceleration);
-                            }
-
-                            if (Math.abs(rawAcceleration) > 7) {
-                                accelOverSeven++;
-                            }
-
-                            if (speedLimit != -1) {
-                                if (rawSpeed > speedLimit + 10) {
-                                    exceededSpeedLimitByTen++;
-                                }
-                            } else {
-                                Log.d(TAG, "Speed Limit Data Not Available. Unable to check if current speed exceeds speed limit");
-                            }
-
-
-                            tripSummaryShouldBeSaved = true;
-
-                            Bundle b = new Bundle();
-                            b.putDouble("topspeed", tTopSpeed);
-                            b.putDouble("topaccel", tTopAcceleration);
-                            b.putString("engineTroubleCodes", engineTroubleCodes);
-                            sendMessageToActivity(b);
-
-                            try { Thread.sleep(989); } catch (InterruptedException e) { e.printStackTrace(); }
+                        if (hourTemp < 10) {
+                            timeStamp = timeStamp + "0" + hourTemp + ":";
+                        } else {
+                            timeStamp = timeStamp + hourTemp + ":";
                         }
 
-                        if (!tempRawDataItemList.isEmpty()) {
-                            db.rawDataItemDao().insertAll(tempRawDataItemList);
-                            Log.i(TAG, "raw data inserted into sqlite");
-                            tempRawDataItemList.clear();
+                        if (minuteTemp < 10) {
+                            timeStamp = timeStamp + "0" + minuteTemp + ":";
+                        } else {
+                            timeStamp = timeStamp + minuteTemp + ":";
                         }
+
+                        if (secondTemp < 10) {
+                            //timeStamp = timeStamp + "0" + secondTemp + ":";
+                            timeStamp = timeStamp + "0" + secondTemp;
+                        } else {
+                            //timeStamp = timeStamp + secondTemp + ":";
+                            timeStamp = timeStamp + secondTemp;
+                        }
+
+                        Log.i(TAG, timeStamp + ":" + milliSecondTemp);
+                        //====END OF GENERATE TIME STAMP====
+
+                        String tripDatedTimeStamp = tripId + "@" + timeStamp;
+
+                        //CALCULATE RAW ACCELERATION WITHIN 3 DIGITS
+                        rawAcceleration = Math.floor(rawAcceleration * 1000) / 1000.0;
+
+                        //DETERMINE NEAREST ADDRESS
+                        myAddress = hereLocation(myLatitude, myLongitude);
+                        if (myAddress.equals("")) {
+                            myAddress = "Unable to determine address";
+                        }
+
+                        //GENERATE THE RAW DATA ITEM FOR SAVING INTO DATABASE RAW DATA ENTRIES
+                        tempRawDataItem = new RawDataItem(tripDatedTimeStamp, tripId, date, timeStamp, speedLimit, rawSpeed, rawAcceleration, myLatitude, myLongitude, myAddress);
+
+                        //CALCULATES AVG SPEED AND ACCELERATOIN
+                        averagesCalculation();
+
+                        //KEEPS TRACK OF WATCHED FOR EVENTS
+                        eventsTracker();
+
+                        //SAVES RAW DATE ITEM INTO FIREBASE
+                        db.collection("users").document("debug_user").collection("rawdataitems")
+                                .document(tripDatedTimeStamp).set(tempRawDataItem);
+
+                        Log.i(TAG, "raw data inserted into firebase");
+
+                        //send received data out to be received by a broadcast in other windows
+                        Bundle b = new Bundle();
+                        b.putDouble("topspeed", tTopSpeed);
+                        b.putDouble("topaccel", tTopAcceleration);
+                        b.putString("engineTroubleCodes", engineTroubleCodes);
+                        sendMessageToActivity(b);
+
+                        //saving raw data entries every second
+                        try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
                     }while (isEngineOn && isServiceRunning(BluetoothService.class));
-                    //}while (!Thread.currentThread().isInterrupted() && isEngineOn && isServiceRunning(BluetoothService.class));
 
+                    //===SETS DESTINATION ADDRESS AS LAST NEAREST ADDRESS CHECKED===
                     myDestinationAddress = myAddress;
-
                     if(myDestinationAddress.equals("")){
                         myDestinationAddress = "Unable to determine destination address";
                     }
 
+                    //===THIS CREATES A TRIP SUMMARY ENTRY IN THE DATABASE===
+                    //it relies on a boolean value that should be set to true
+                    //given conditions set above
                     if(tripSummaryShouldBeSaved){
-                        if(engineTroubleCodes.equals("Pending Search")){
-                            engineTroubleCodes = "No Trouble Codes Reported";
-                        }
-
-                        notableTripEvents = "Times Acceleration Exceeded 7 MPH/S: " + accelOverSeven + "\n" +
-                                            "Times Exceeded Speed Limit By 10 MPH: " + exceededSpeedLimitByTen;
-                        tempTripSummary = new TripSummary(tripId, tsDate, tripNumber, notableTripEvents,
-                                engineTroubleCodes, tAverageSpeed, tTopSpeed,
-                                tAverageAcceleration, tTopAcceleration, myOriginAddress, myDestinationAddress);
-                        db.tripSummaryDao().insert(tempTripSummary);
-                        tTopSpeed = 0;
-                        tTopAcceleration = 0;
-                        tripSummaryShouldBeSaved = false;
+                        tripSummaryEntryCreation(tripId, tsDate, tripNumber);
                     }
                 }
 
@@ -341,6 +363,77 @@ public class RawDataCollectionService extends Service {
         return name;
     }//end herelocation
 
+    private void averagesCalculation(){
+        tAverageSpeed = (tAverageSpeed + rawSpeed) / 2;
+        tAverageSpeed = Math.floor(tAverageSpeed * 1000) / 1000.0;
+        if (rawSpeed > tTopSpeed) {
+            tTopSpeed = rawSpeed;
+        }
+
+        if(rawAcceleration >= 0){
+            tAverageAcceleration = (tAverageAcceleration + rawAcceleration) / 2;
+            tAverageAcceleration = Math.floor(tAverageAcceleration * 1000) / 1000.0;
+            if (rawAcceleration > tTopAcceleration) {
+                tTopAcceleration = rawAcceleration;
+            }
+        }else {
+            tAverageDeceleration = (tAverageDeceleration + rawAcceleration) / 2;
+            tAverageDeceleration = Math.ceil(tAverageDeceleration * 1000) / 1000.0;
+            if (rawAcceleration < tTopDeceleration){
+                tTopDeceleration = rawAcceleration;
+            }
+        }
+    }
+
+    private void eventsTracker(){
+        if (Math.abs(rawAcceleration) > 8) {
+            if(rawAcceleration > 8){
+                accelOverEight++;
+            }
+            else{
+                decelOverEight++;
+            }
+        }
+
+        if (speedLimit != -1) {
+            if (rawSpeed > speedLimit + 10) {
+                secondsSpentOverTenMPH++;
+            }
+        } else {
+            Log.d(TAG, "Speed Limit Data Not Available. Unable to check if current speed exceeds speed limit");
+        }
+    }
+
+    private void tripSummaryEntryCreation(String tripId, String tsDate, int tripNumber){
+        String notableTripEvents = "Times Acceleration Exceeded 8 MPH/S: " + accelOverEight + "\n" +
+                                   "Times Deceleration Exceeded -8 MPH/S: " + decelOverEight + "\n" +
+                                   "Cumulative Time Spent 10 MPH Over Speed Limit: " + secondsSpentOverTenMPH;
+
+        if(engineTroubleCodes.equals("Pending Search")){
+            engineTroubleCodes = "No Trouble Codes Reported";
+        }
+
+        TripSummary tempTripSummary = new TripSummary(tripId, tsDate, tripNumber, notableTripEvents,
+                engineTroubleCodes, tAverageSpeed, tTopSpeed, tAverageAcceleration,tAverageDeceleration,
+                tTopAcceleration, tTopDeceleration, myOriginAddress, myDestinationAddress);
+        db.collection("users").document("debug_user").collection("tripsummaries")
+                .document(tripId).set(tempTripSummary);
+
+        //clear variables that will still contain old info if the service is still running after the end of
+        //one trip and before the start of another
+        tTopSpeed = 0;
+        tTopAcceleration = 0;
+        tTopDeceleration = 0;
+        tAverageAcceleration = 0;
+        tAverageDeceleration = 0;
+        accelOverEight = 0;
+        decelOverEight = 0;
+        secondsSpentOverTenMPH = 0;
+        tripSummaryShouldBeSaved = false;
+    }
+
+
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -348,7 +441,7 @@ public class RawDataCollectionService extends Service {
         unregisterReceiver(spdreceiver);
         //locationManager.removeUpdates(this);
         shouldEndService = true;
-        AppDatabase.destroyInstance();
+        //AppDatabase.destroyInstance();
     }
 
     //must be implemented
