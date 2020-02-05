@@ -167,7 +167,7 @@ public class RawDataCollectionService extends Service {
                                 for (QueryDocumentSnapshot document : task.getResult()) {
                                     try {
                                         //tempTripSummaryList.add((TripSummary) document.getData());
-                                        tempTripSummaryList.add(document.getData());
+                                        //tempTripSummaryList.add(document.getData());
                                     }catch (NullPointerException e) {
                                         e.printStackTrace();
                                     }
