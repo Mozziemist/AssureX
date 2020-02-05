@@ -201,8 +201,14 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                     Bundle b = new Bundle();
                     if (mapboxMap != null && mapboxMap.getLocationComponent().isLocationComponentActivated())
                     {
-                        double latitude = mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude();
-                        double longitude = mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude();
+                        double latitude = 0;
+                        if (mapboxMap.getLocationComponent().getLastKnownLocation() != null) {
+                            latitude = mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude();
+                        }
+                        double longitude = 0;
+                        if (mapboxMap.getLocationComponent().getLastKnownLocation() != null) {
+                            longitude = mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude();
+                        }
                         b.putDouble("Latitude", latitude);
                         b.putDouble("Longitude", longitude);
 
@@ -217,7 +223,6 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                             spdlmtIntent.putExtra("limit", Integer.toString(speedLimitRequester.getSpeedLimit()));
                             sendBroadcast(spdlmtIntent);
                             b.putInt("SpeedLimit", speedLimitRequester.getSpeedLimit());
-//                            sendSpeedLimitToRDCollectionSvc(speedLimitRequester.getSpeedLimit());
 
 
                         }

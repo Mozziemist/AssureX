@@ -596,7 +596,8 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         topAcc.setText("Top Acceleration: "+displayedTopAcceleration + " MPH/S");
 
         //set Eng Inf
-        if (displayedEngineTroubleCodes ==  null){
+        if ((displayedEngineTroubleCodes ==  null) || displayedEngineTroubleCodes.equals("")){
+        //if (displayedEngineTroubleCodes.equals(""){
             engStatus.setText("Status: No outstanding problems");
         }
         else engStatus.setText("Status: "+displayedEngineTroubleCodes);

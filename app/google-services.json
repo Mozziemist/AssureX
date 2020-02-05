@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "771460083558",
+    "firebase_url": "https://assurex-376b6.firebaseio.com",
+    "project_id": "assurex-376b6",
+    "storage_bucket": "assurex-376b6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:771460083558:android:0b7843d02649888e8762a7",
+        "android_client_info": {
+          "package_name": "com.example.assurex"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "771460083558-dd9c8psch9773cfets72k03ke00m65s5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.assurex",
+            "certificate_hash": "afed800ab942df31c309b684b52274a108fa3331"
+          }
+        },
+        {
+          "client_id": "771460083558-7vk70bcj04v7srjodvcbdob95tjcs74a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBonOQhmBFUmTQZ_6n1X6RNXaIludlRnNU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "771460083558-7vk70bcj04v7srjodvcbdob95tjcs74a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
