@@ -162,6 +162,7 @@ public class BluetoothService extends Service {
                         float prevSpd = 0, currentSpd;
                         boolean isEngineOn = false, isBeingTimed = false;
                         long duration = 0;
+                        float totalDistance = 0;
 
 
 
@@ -174,6 +175,7 @@ public class BluetoothService extends Service {
                             {
                                 duration = 0;
                                 isBeingTimed = true;
+                                totalDistance = 0;
                             }
 
                             try {
@@ -196,6 +198,17 @@ public class BluetoothService extends Service {
                                     b.putDouble("tripTime", duration);
                                     b.putInt("speed", (int) currentSpd);
                                     b.putFloat("acceleration", (currentSpd - prevSpd)); // multiply by 0.0455853936 to get g force
+
+                                    // Determine delta distance
+                                    // todo: implement more accurate distance calculation
+                                    // More accurate way - calculating with average acceleration since last point.
+                                    // Not as accurate way - just assumes you've been traveling at this speed for one whole second.
+                                    // => Accuracy decreases as "acceleration changes" increases.
+                                    float deltaDistance = currentSpd / 3600;
+                                    totalDistance += deltaDistance;
+                                    b.putFloat("distance", totalDistance);
+
+
                                     sendMessageToActivity(b);
 
                                     prevSpd = currentSpd;
@@ -211,6 +224,7 @@ public class BluetoothService extends Service {
                                     b.putDouble("tripTime", 0);
                                     b.putInt("speed", 0);
                                     b.putFloat("acceleration", 0); // multiply by 0.0455853936 to get g force
+                                    b.putFloat("distance", 0);
                                     sendMessageToActivity(b);
                                 }
 
@@ -228,11 +242,13 @@ public class BluetoothService extends Service {
                                 b.putDouble("tripTime", 0);
                                 b.putInt("speed", 0);
                                 b.putFloat("acceleration", 0); // multiply by 0.0455853936 to get g force
+                                b.putFloat("distance", 0);
                                 sendMessageToActivity(b);
                             }
 
 
                             Thread.sleep(1000);
+                            // todo: Change duration system to non performance dependent system
                             duration++;
                         }
 
