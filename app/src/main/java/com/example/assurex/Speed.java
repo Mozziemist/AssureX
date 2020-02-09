@@ -88,6 +88,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     private TextView acceleration;
     private TextView tripTime, troubleCodes;
     private TextView speedLimitView;
+    private TextView totalDistance;
     private int speedLimitInt;
     private int oldSpeedLimitInt;
     CarDataReceiver receiver;
@@ -126,6 +127,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         speed = findViewById(R.id.speed);
         acceleration = findViewById(R.id.acceleration);
         speedLimitView = findViewById(R.id.speedLimitView);
+        totalDistance = findViewById(R.id.Distance);
         isEngineOn = false;
 //        tripTime = findViewById(R.id.tripTime);
 //        troubleCodes = findViewById(R.id.troubleCodes);
@@ -173,12 +175,14 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                 Bundle b = intent.getBundleExtra("CarData");
                 int spd = b.getInt("speed", 0);
                 float accel = b.getFloat("acceleration", 0);
+                int dist = b.getInt("distance", 0);
 
 
                 //troubleCodes.setText(b.getString("troubleCodes", "Trouble Codes"));
                 //tripTime.setText(Double.toString(b.getDouble("tripTime", 0)));
                 speed.setText(Integer.toString(spd));
                 acceleration.setText(Integer.toString((int)accel));
+                totalDistance.setText(Integer.toString(dist));
                 isEngineOn = b.getBoolean("isEngineOn", false);
 
                 Log.d(TAG, "onReceive: text has been set");

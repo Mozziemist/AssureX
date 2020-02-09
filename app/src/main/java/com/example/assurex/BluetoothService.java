@@ -204,9 +204,9 @@ public class BluetoothService extends Service {
                                     // More accurate way - calculating with average acceleration since last point.
                                     // Not as accurate way - just assumes you've been traveling at this speed for one whole second.
                                     // => Accuracy decreases as "acceleration changes" increases.
-                                    float deltaDistance = currentSpd / 3600;
+                                    float deltaDistance = currentSpd * 5280 / 3600; // converts mph to ft per sec then gets distance
                                     totalDistance += deltaDistance;
-                                    b.putFloat("distance", totalDistance);
+                                    b.putInt("distance", (int)totalDistance);
 
 
                                     sendMessageToActivity(b);

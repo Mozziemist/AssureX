@@ -57,9 +57,16 @@ public class MainActivity extends AppCompatActivity {
         UserRepository userRepository = new UserRepository(getApplicationContext());
         User[] user = new User[1];
 
+        Log.d(TAG, "LoginClicked: User: "+name+"\npass: "+pass);
+
         new Thread(() -> {
             try {
-                user[0] = userRepository.getUser(name);
+                try {
+                    user[0] = userRepository.getUser(name);
+                }catch (Exception e) {
+                    Log.d("Invalid", "No such user is registered");
+                }
+
                 //=====================DEBUG BYPASS================================
                 if(name.equals("debug") && pass.equals("bypass")){
                     Intent intent = new Intent(getApplicationContext(), Speed.class);
