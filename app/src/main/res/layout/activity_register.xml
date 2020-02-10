@@ -46,7 +46,7 @@
                 android:layout_gravity="center"
                 android:hint="user@address.com"
                 android:text=""
-                android:textColor="?attr/editTextStyle"
+                android:textColor="?attr/colorPrimary"
                 android:textSize="13dp"
                 android:textStyle="italic" />
         </LinearLayout>
@@ -70,7 +70,7 @@
                 android:layout_height="wrap_content"
                 android:hint="User Name"
                 android:text=""
-                android:textColor="?attr/editTextStyle"
+                android:textColor="?attr/colorPrimary"
                 android:textSize="13dp"
                 android:textStyle="italic" />
         </LinearLayout>
@@ -95,7 +95,7 @@
                 android:hint="Password"
                 android:inputType="textPassword"
                 android:text=""
-                android:textColor="?attr/editTextStyle"
+                android:textColor="?attr/colorPrimary"
                 android:textSize="13dp"
                 android:textStyle="italic" />
         </LinearLayout>
@@ -120,7 +120,7 @@
                 android:hint="Password"
                 android:inputType="textPassword"
                 android:text=""
-                android:textColor="?attr/editTextStyle"
+                android:textColor="?attr/colorPrimary"
                 android:textSize="13dp"
                 android:textStyle="italic" />
         </LinearLayout>
