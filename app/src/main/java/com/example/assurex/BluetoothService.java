@@ -42,6 +42,7 @@ import com.github.pires.obd.commands.temperature.AmbientAirTemperatureCommand;
 import com.github.pires.obd.enums.ObdProtocols;
 import com.github.pires.obd.exceptions.NoDataException;
 import com.github.pires.obd.exceptions.UnableToConnectException;
+import com.github.pires.obd.exceptions.UnknownErrorException;
 
 import java.io.IOException;
 import java.util.Set;
@@ -161,6 +162,7 @@ public class BluetoothService extends Service {
                         float prevSpd = 0, currentSpd;
                         boolean isEngineOn = false, isBeingTimed = false;
                         long duration = 0;
+                        float totalDistance = 0;
 
 
 
@@ -173,6 +175,7 @@ public class BluetoothService extends Service {
                             {
                                 duration = 0;
                                 isBeingTimed = true;
+                                totalDistance = 0;
                             }
 
                             try {
@@ -195,6 +198,17 @@ public class BluetoothService extends Service {
                                     b.putDouble("tripTime", duration);
                                     b.putInt("speed", (int) currentSpd);
                                     b.putFloat("acceleration", (currentSpd - prevSpd)); // multiply by 0.0455853936 to get g force
+
+                                    // Determine delta distance
+                                    // todo: implement more accurate distance calculation
+                                    // More accurate way - calculating with average acceleration since last point.
+                                    // Not as accurate way - just assumes you've been traveling at this speed for one whole second.
+                                    // => Accuracy decreases as "acceleration changes" increases.
+                                    float deltaDistance = currentSpd * 5280 / 3600; // converts mph to ft per sec then gets distance
+                                    totalDistance += deltaDistance;
+                                    b.putInt("distance", (int)totalDistance);
+
+
                                     sendMessageToActivity(b);
 
                                     prevSpd = currentSpd;
@@ -210,13 +224,14 @@ public class BluetoothService extends Service {
                                     b.putDouble("tripTime", 0);
                                     b.putInt("speed", 0);
                                     b.putFloat("acceleration", 0); // multiply by 0.0455853936 to get g force
+                                    b.putFloat("distance", 0);
                                     sendMessageToActivity(b);
                                 }
 
 
 
 
-                            } catch (NoDataException | UnableToConnectException e){
+                            } catch (NoDataException | UnableToConnectException | UnknownErrorException e){
                                 e.printStackTrace();
                                 isEngineOn = false;
                                 isBeingTimed = false;
@@ -227,11 +242,13 @@ public class BluetoothService extends Service {
                                 b.putDouble("tripTime", 0);
                                 b.putInt("speed", 0);
                                 b.putFloat("acceleration", 0); // multiply by 0.0455853936 to get g force
+                                b.putFloat("distance", 0);
                                 sendMessageToActivity(b);
                             }
 
 
                             Thread.sleep(1000);
+                            // todo: Change duration system to non performance dependent system
                             duration++;
                         }
 

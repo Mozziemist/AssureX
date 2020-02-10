@@ -171,15 +171,14 @@
                     android:gravity="center">
 
                     <TextView
-                        android:layout_marginHorizontal="6dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="Average Speed"
-                        android:textSize="13dp"
+                        android:layout_marginHorizontal="6dp"
                         android:gravity="center"
+                        android:text="Speed Info"
                         android:textColor="?attr/editTextColor"
-                        />
+                        android:textSize="13dp" />
                     <TextView
                         android:layout_marginHorizontal="6dp"
                         android:layout_width="wrap_content"
@@ -217,41 +216,40 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_marginVertical="5dp"
-                    android:layout_marginHorizontal="40dp"
+                    android:id="@+id/avSpWindow"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingTop="5dp"
-                    android:paddingBottom="5dp"
-                    android:orientation="vertical"
                     android:layout_gravity="top"
+                    android:layout_marginHorizontal="40dp"
+                    android:layout_marginVertical="5dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_button_grey"
                     android:gravity="center"
-                    android:visibility="gone"
-                    android:id="@+id/avSpWindow">
+                    android:orientation="vertical"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    android:visibility="gone">
 
                     <TextView
-                        android:layout_marginHorizontal="10dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
+                        android:layout_marginHorizontal="10dp"
+                        android:gravity="center"
                         android:text="General Information of the Drivers Speed"
-                        android:textSize="16dp"
-                        android:gravity="center"
                         android:textColor="?attr/editTextColor"
-                        />
+                        android:textSize="16dp" />
+
                     <TextView
-                        android:layout_marginHorizontal="10dp"
+                        android:id="@+id/topSpeed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="Top Speed: 72 mph"
-                        android:textSize="16dp"
+                        android:layout_marginHorizontal="10dp"
                         android:gravity="center"
+                        android:text="Top Speed: 0 MPH"
                         android:textColor="?attr/editTextColor"
-                        android:id="@+id/topSpeed"
-                        />
+                        android:textSize="16dp" />
 
 
                 </LinearLayout>
@@ -270,15 +268,14 @@
                     android:gravity="center">
 
                     <TextView
-                        android:layout_marginHorizontal="10dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="Acceleration"
-                        android:textSize="13dp"
+                        android:layout_marginHorizontal="10dp"
                         android:gravity="center"
+                        android:text="Acceleration Info"
                         android:textColor="?attr/editTextColor"
-                        />
+                        android:textSize="13dp" />
                     <TextView
                         android:layout_marginHorizontal="10dp"
                         android:layout_width="wrap_content"
@@ -315,41 +312,40 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_marginVertical="5dp"
-                    android:layout_marginHorizontal="40dp"
+                    android:id="@+id/accWindow"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingTop="5dp"
-                    android:paddingBottom="5dp"
-                    android:orientation="vertical"
                     android:layout_gravity="top"
+                    android:layout_marginHorizontal="40dp"
+                    android:layout_marginVertical="5dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_button_grey"
                     android:gravity="center"
-                    android:visibility="gone"
-                    android:id="@+id/accWindow">
+                    android:orientation="vertical"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    android:visibility="gone">
 
                     <TextView
-                        android:layout_marginHorizontal="10dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
+                        android:layout_marginHorizontal="10dp"
+                        android:gravity="center"
                         android:text="General Information of the Drivers Acceleration"
-                        android:textSize="16dp"
-                        android:gravity="center"
                         android:textColor="?attr/editTextColor"
-                        />
+                        android:textSize="16dp" />
+
                     <TextView
-                        android:layout_marginHorizontal="10dp"
+                        android:id="@+id/topAcc"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="Top Acceleration: LightSpeed"
-                        android:textSize="16dp"
+                        android:layout_marginHorizontal="10dp"
                         android:gravity="center"
+                        android:text="Top Acceleration: 0.0 MPH/S"
                         android:textColor="?attr/editTextColor"
-                        android:id="@+id/topAcc"
-                        />
+                        android:textSize="16dp" />
 
 
                 </LinearLayout>
@@ -368,15 +364,14 @@
                     android:gravity="center">
 
                     <TextView
-                        android:layout_marginHorizontal="10dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="Engine Information"
-                        android:textSize="13dp"
+                        android:layout_marginHorizontal="10dp"
                         android:gravity="center"
+                        android:text="Engine Info"
                         android:textColor="?attr/editTextColor"
-                        />
+                        android:textSize="13dp" />
                     <TextView
                         android:layout_marginHorizontal="10dp"
                         android:layout_width="wrap_content"

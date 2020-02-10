@@ -74,27 +74,27 @@ public class Settings extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.profilePic: {
-                Toast.makeText(this, "Insert Picture Selector Here", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "Insert Picture Selector Here", Toast.LENGTH_SHORT).show();
                 break;
             }
             case R.id.profileUser: {
-                Toast.makeText(this, "profileUser selected", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "profileUser selected", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), Package.class));
                 break;
             }
             case R.id.home: {
-                Toast.makeText(this, "home selected", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "home selected", Toast.LENGTH_SHORT).show();
                 //startActivity(new Intent(getApplicationContext(), Speed.class));
                 NavUtils.navigateUpFromSameTask(this);
                 break;
             }
             case R.id.infoPage: {
-                Toast.makeText(this, "infoPage selected", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "infoPage selected", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), infoPage.class));
                 break;
             }
             case R.id.connect: {
-                Toast.makeText(this, "connect selected", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "connect selected", Toast.LENGTH_SHORT).show();
                 Intent serviceIntent = new Intent(this, BluetoothService.class);
                 startService(serviceIntent);
 
@@ -103,12 +103,12 @@ public class Settings extends AppCompatActivity {
                 break;
             }
             case R.id.settings: {
-                Toast.makeText(this, "settings selected", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "settings selected", Toast.LENGTH_SHORT).show();
                 //startActivity(new Intent(getApplicationContext(), Settings.class));
                 break;
             }
             case R.id.signOut: {
-                Toast.makeText(this, "signOut selected", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "signOut selected", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), MainActivity.class));
                 break;
             }
@@ -120,7 +120,7 @@ public class Settings extends AppCompatActivity {
     public void darkMode(View view) {
         if (Speed.getDarkMode() == false && !Speed.getIsEngineOn()) {
             //settingsBut.setChecked(true);
-            Toast.makeText(this, "Dark Mode Activated", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Dark Mode Activated", Toast.LENGTH_SHORT).show();
             Speed.setDarkMode(true);
             setTheme(R.style.DarkTheme);
             Speed.themeChanged = true;
@@ -130,7 +130,7 @@ public class Settings extends AppCompatActivity {
         }
         else if (Speed.getDarkMode() == true && !Speed.getIsEngineOn()) {
             //settingsBut.setChecked(false);
-            Toast.makeText(this, "Dark Mode Deactivated", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Dark Mode Deactivated", Toast.LENGTH_SHORT).show();
             Speed.setDarkMode(false);
             setTheme(R.style.AppTheme);
             Speed.themeChanged = true;
@@ -140,7 +140,7 @@ public class Settings extends AppCompatActivity {
         }
         else {
             settingsBut.setChecked(false);
-            Toast.makeText(this, "Must wait till engine is off", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Must wait till engine is off", Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -151,14 +151,14 @@ public class Settings extends AppCompatActivity {
 
         if (alwaysOnCheckBox.isChecked())
         {
-            Toast.makeText(this, "Screen won't turn off", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Screen won't turn off", Toast.LENGTH_SHORT).show();
             sendSettings.putExtra("alwaysOn", true);
             sendBroadcast(sendSettings);
             //Speed.setDarkModeSpeed();
         }
         else
         {
-            Toast.makeText(this, "Screen can now turn off", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Screen can now turn off", Toast.LENGTH_SHORT).show();
             sendSettings.putExtra("alwaysOn", false);
             sendBroadcast(sendSettings);
             //Speed.setDarkModeSpeed();

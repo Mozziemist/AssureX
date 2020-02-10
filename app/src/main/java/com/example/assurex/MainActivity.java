@@ -58,9 +58,25 @@ public class MainActivity extends AppCompatActivity {
         UserRepository userRepository = new UserRepository(getApplicationContext());
         User[] user = new User[1];
 
+        Log.d(TAG, "LoginClicked: User: "+name+"\npass: "+pass);
+
         new Thread(() -> {
             try {
-                user[0] = userRepository.getUser(name);
+                try {
+                    user[0] = userRepository.getUser(name);
+                }catch (Exception e) {
+                    Log.d("Invalid", "No such user is registered");
+                }
+
+                //=====================DEBUG BYPASS================================
+                if(name.equals("debug") && pass.equals("bypass")){
+                    Intent intent = new Intent(getApplicationContext(), Speed.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    finish();
+                }
+                else
+                //=====================END DEBUG BYPASS=============================
                 if (name.equals(user[0].getUsername()) && pass.equals(user[0].getPassword())) {
                     Intent intent = new Intent(getApplicationContext(), Speed.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -74,9 +90,9 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
 
-        Intent intent = new Intent(getApplicationContext(), Speed.class);
+        /*Intent intent = new Intent(getApplicationContext(), Speed.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
+        startActivity(intent);*/
     }
 
     public void SignUpClicked(View view) {

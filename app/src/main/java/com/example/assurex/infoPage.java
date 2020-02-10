@@ -243,27 +243,27 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.profilePic: {
-                Toast.makeText(this, "Insert Picture Selector Here", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "Insert Picture Selector Here", Toast.LENGTH_SHORT).show();
                 break;
             }
             case R.id.profileUser: {
-                Toast.makeText(this, "profileUser selected", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "profileUser selected", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), Package.class));
                 break;
             }
             case R.id.home: {
-                Toast.makeText(this, "home selected", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "home selected", Toast.LENGTH_SHORT).show();
                 //startActivity(new Intent(getApplicationContext(), Speed.class));
                 NavUtils.navigateUpFromSameTask(this);
                 break;
             }
             case R.id.infoPage: {
-                Toast.makeText(this, "infoPage selected", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "infoPage selected", Toast.LENGTH_SHORT).show();
                 //startActivity(new Intent(getApplicationContext(), infoPage.class));
                 break;
             }
             case R.id.connect: {
-                Toast.makeText(this, "connect selected", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "connect selected", Toast.LENGTH_SHORT).show();
                 Intent serviceIntent = new Intent(this, BluetoothService.class);
                 startService(serviceIntent);
 
@@ -272,12 +272,12 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
                 break;
             }
             case R.id.settings: {
-                Toast.makeText(this, "settings selected", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "settings selected", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), Settings.class));
                 break;
             }
             case R.id.signOut: {
-                Toast.makeText(this, "signOut selected", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "signOut selected", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), MainActivity.class));
                 break;
             }
@@ -414,7 +414,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
             public void onItemSelected(AdapterView<?> parent, View view, int position, long l) {
                 //position is the index of the selection as if it is an array
                 String text = parent.getItemAtPosition(position).toString();
-                Toast.makeText(parent.getContext(), text + " new", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(parent.getContext(), text + " new", Toast.LENGTH_SHORT).show();
                 if (tempTripSummaryList.size() > 0) {
                     tempTripSummary = tempTripSummaryList.get(position);
                     displayedTopSpeed = tempTripSummary.getTopSpeed();
@@ -596,7 +596,8 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         topAcc.setText("Top Acceleration: "+displayedTopAcceleration + " MPH/S");
 
         //set Eng Inf
-        if (displayedEngineTroubleCodes ==  null){
+        if ((displayedEngineTroubleCodes ==  null) || displayedEngineTroubleCodes.equals("")){
+        //if (displayedEngineTroubleCodes.equals(""){
             engStatus.setText("Status: No outstanding problems");
         }
         else engStatus.setText("Status: "+displayedEngineTroubleCodes);

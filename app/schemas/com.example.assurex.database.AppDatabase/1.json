@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "6386d4b869d3c20cb4d52feac66bbdab",
+    "identityHash": "441bc1d67986ada70b01044af638f04b",
     "entities": [
       {
         "tableName": "RawDataItem",
@@ -80,7 +80,7 @@
       },
       {
         "tableName": "TripSummary",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tripId` TEXT NOT NULL, `date` TEXT, `tripNumber` INTEGER NOT NULL, `notableTripEvents` TEXT, `engineStatus` TEXT, `averageSpeed` REAL NOT NULL, `topSpeed` REAL NOT NULL, `averageAcceleration` REAL NOT NULL, `topAcceleration` REAL NOT NULL, `originLocation` TEXT, `destinationLocation` TEXT, PRIMARY KEY(`tripId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tripId` TEXT NOT NULL, `date` TEXT, `tripNumber` INTEGER NOT NULL, `notableTripEvents` TEXT, `engineStatus` TEXT, `averageSpeed` REAL NOT NULL, `topSpeed` REAL NOT NULL, `averageAcceleration` REAL NOT NULL, `averageDeceleration` REAL NOT NULL, `topAcceleration` REAL NOT NULL, `topDeceleration` REAL NOT NULL, `originLocation` TEXT, `destinationLocation` TEXT, PRIMARY KEY(`tripId`))",
         "fields": [
           {
             "fieldPath": "tripId",
@@ -131,8 +131,20 @@
             "notNull": true
           },
           {
+            "fieldPath": "averageDeceleration",
+            "columnName": "averageDeceleration",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
             "fieldPath": "topAcceleration",
             "columnName": "topAcceleration",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "topDeceleration",
+            "columnName": "topDeceleration",
             "affinity": "REAL",
             "notNull": true
           },
@@ -200,7 +212,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6386d4b869d3c20cb4d52feac66bbdab')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '441bc1d67986ada70b01044af638f04b')"
     ]
   }
 }
