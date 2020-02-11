@@ -58,6 +58,7 @@ public class RawDataCollectionService extends Service {
     double rawAcceleration;
     double tripTime;
     int speedLimit = -1;
+    int dist;
 
     //for the tripSummary
     String engineTroubleCodes;
@@ -71,6 +72,10 @@ public class RawDataCollectionService extends Service {
     double tTopAcceleration = 0;
     double tTopDeceleration = 0;
     boolean tripSummaryShouldBeSaved = false;
+    float currentTripScore = 100;
+    // todo: totalTripScore and numberOfScores need to at some point be initialized by value in database
+    float totalTripScore;
+    int numberOfScores;
 
     //for location related calculations
     double myLatitude;
@@ -301,6 +306,7 @@ public class RawDataCollectionService extends Service {
                 tripTime = b.getDouble("tripTime", 0);
                 isEngineOn = b.getBoolean("isEngineOn", false);
                 engineTroubleCodes = b.getString("troubleCodes", "No Data Available");
+                dist = b.getInt("distance", 0);
             }
         }
     }
@@ -412,6 +418,15 @@ public class RawDataCollectionService extends Service {
         if(engineTroubleCodes.equals("Pending Search")){
             engineTroubleCodes = "No Trouble Codes Reported";
         }
+
+
+        // Calculate trip score
+        // Default score is 100. Default score minus total events * 1000 and divide by distance of trip in miles
+        // todo: add number of speed events for total event count
+        currentTripScore -= ((accelOverEight + decelOverEight) * 1000) / (dist / 5280);
+
+        // todo: Once we have our totalTripScore and numberOfScores initialized by database we can update considering new score
+        // totalTripScore = ((totalTripScore * numberOfScores) + currentTripScore) / (numberOfScores + 1);
 
         TripSummary tempTripSummary = new TripSummary(tripId, tsDate, tripNumber, notableTripEvents,
                 engineTroubleCodes, tAverageSpeed, tTopSpeed, tAverageAcceleration,tAverageDeceleration,
