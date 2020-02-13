@@ -38,6 +38,8 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.example.assurex.App.RD_CHANNEL_ID;
 
@@ -51,6 +53,7 @@ public class RawDataCollectionService extends Service {
     SpeedDataReceiver spdreceiver;
     boolean isEngineOn = false;
     boolean shouldEndService = false;
+    String uniqueID;
 
 
     //for the RawDateItem
@@ -61,7 +64,7 @@ public class RawDataCollectionService extends Service {
     int dist;
 
     //for the tripSummary
-    String engineTroubleCodes;
+    String engineTroubleCodes = "Pending Search";
     int accelOverEight = 0;
     int decelOverEight = 0;
     int secondsSpentOverTenMPH = 0;
@@ -76,6 +79,7 @@ public class RawDataCollectionService extends Service {
     // todo: totalTripScore and numberOfScores need to at some point be initialized by value in database
     float totalTripScore;
     int numberOfScores;
+
 
     //for location related calculations
     double myLatitude;
@@ -95,6 +99,7 @@ public class RawDataCollectionService extends Service {
 
         Log.d(TAG, "receiver registered");
         //getLocation();
+        uniqueID = UUID.randomUUID().toString();
 
         Intent notificationIntent = new Intent(this, Speed.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
@@ -128,14 +133,23 @@ public class RawDataCollectionService extends Service {
 
         @Override
         public void run() {
+            //NOTE: This is here to do nothing. It literally just establishes a connection to firebase to do nothing.
+            //Why is it here? It solves a bug that required the RD service to be ran twice before getting data from firebase
+            db.collection("test_connect").whereEqualTo("test_connect", "test_connect").get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        }
+                    });
+
             while (!shouldEndService) {
                 //while engine is not on but bluetooth service is running
-                while(!isEngineOn && isServiceRunning(BluetoothService.class)){
+                while((!isEngineOn && isServiceRunning(BluetoothService.class)) || !isDebugging){
                     try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
                 }
                 //while engine is on, bt service is running and the speed is still 0 indicating vehicle
                 //has yet to move
-                while(isEngineOn && !isDebugging && isServiceRunning(BluetoothService.class) && speedLimit <= 0 && rawSpeed == 0){
+                while(((isEngineOn && isServiceRunning(BluetoothService.class) && speedLimit <= 0 && rawSpeed == 0)) || !isDebugging){
                     try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
                 }
 
@@ -145,12 +159,12 @@ public class RawDataCollectionService extends Service {
                     myOriginAddress = "Unable to determine origin address";
                 }
 
-                while(isEngineOn && !isDebugging &&  isServiceRunning(BluetoothService.class) && rawSpeed == 0){
+                while((isEngineOn &&  isServiceRunning(BluetoothService.class) && rawSpeed == 0) || !isDebugging){
                     try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
                 }
 
                 //now start the collection of data if the bt service is on and the engine is on
-                if(isServiceRunning(BluetoothService.class) && isEngineOn) {
+                if((isServiceRunning(BluetoothService.class) && isEngineOn) || isDebugging) {
 
                     //====GET TRIP NUMBER====
                     int tripNumber;
@@ -161,38 +175,45 @@ public class RawDataCollectionService extends Service {
 
                     //===CONTACTING FIREBASE FOR TRIP SUMMARIES===
                     db.collection("users")
-                    .document("debug_user")
-                    .collection("tripsummaries")
-                    .whereEqualTo("date", tsDate)
-                    .get()
-                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()) {
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    try {
-                                        //tempTripSummaryList.add((TripSummary) document.getData());
-                                        //tempTripSummaryList.add(document.getData());
-                                    }catch (NullPointerException e) {
-                                        e.printStackTrace();
+                        .document("debug_user")
+                        .collection("tripsummaries")
+                        .whereEqualTo("date", tsDate)
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    int i = 0;
+                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                        try {
+                                            tempTripSummaryList.add(document.getData());
+                                        }catch (NullPointerException e) {
+                                            e.printStackTrace();
+                                        }
+                                        Log.d(TAG, document.getId() + " => " + document.getData());
+                                        i++;
                                     }
-                                    Log.d(TAG, document.getId() + " => " + document.getData());
+                                } else {
+                                    Log.d(TAG, "Error getting documents: ", task.getException());
                                 }
-                            } else {
-                                Log.d(TAG, "Error getting documents: ", task.getException());
                             }
-                        }
-                    });
+                        });
+                    //sleep 1 second to hopefully prevent race conditions
+                    try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
                     //===END OF CONTACTING FIREBASE===
 
-                    TripSummary tempTripSummary;
-
-                    if(!tempTripSummaryList.isEmpty() && tempTripSummaryList != null){
-                        tempTripSummary = (TripSummary) tempTripSummaryList.get(tempTripSummaryList.size()-1);
-                        tripNumber = tempTripSummary.getTripNumber() + 1;
-                    }else{
-                        tripNumber = 1;
+                    Object[] tempTripSummaryArray = tempTripSummaryList.toArray();
+                    tripNumber = tempTripSummaryArray.length + 1;
+                    Object objLatestTripSummary = null;
+                    if(tempTripSummaryArray.length > 0) {
+                        objLatestTripSummary = tempTripSummaryArray[tempTripSummaryArray.length - 1];
                     }
+                    Map<String, Object> mapLatestTripSummary = new HashMap<>();
+                    if(objLatestTripSummary != null) {
+                        mapLatestTripSummary = (HashMap) objLatestTripSummary;
+                        Log.d(TAG, "retrieved date :" + mapLatestTripSummary.get("date"));
+                    }
+
                     //====END OF GET TRIP NUMBER====
 
                     String tripId = tsDate + "#" + tripNumber;
@@ -256,8 +277,13 @@ public class RawDataCollectionService extends Service {
                         eventsTracker();
 
                         //SAVES RAW DATE ITEM INTO FIREBASE
-                        db.collection("users").document("debug_user").collection("rawdataitems")
-                                .document(tripDatedTimeStamp).set(tempRawDataItem);
+                        db.collection("users")
+                                .document("debug_user")
+                                .collection("rawdataitems")
+                                .document(date)
+                                .collection("Trip Number " + tripNumber)
+                                .document(tripDatedTimeStamp)
+                                .set(tempRawDataItem);
 
                         Log.i(TAG, "raw data inserted into firebase");
 
@@ -423,15 +449,18 @@ public class RawDataCollectionService extends Service {
         // Calculate trip score
         // Default score is 100. Default score minus total events * 1000 and divide by distance of trip in miles
         // todo: add number of speed events for total event count
-        currentTripScore -= ((accelOverEight + decelOverEight) * 1000) / (dist / 5280);
-
+        if(!isDebugging) {
+            currentTripScore -= ((accelOverEight + decelOverEight) * 1000) / (dist / 5280);
+        }
         // todo: Once we have our totalTripScore and numberOfScores initialized by database we can update considering new score
         // totalTripScore = ((totalTripScore * numberOfScores) + currentTripScore) / (numberOfScores + 1);
 
         TripSummary tempTripSummary = new TripSummary(tripId, tsDate, tripNumber, notableTripEvents,
                 engineTroubleCodes, tAverageSpeed, tTopSpeed, tAverageAcceleration,tAverageDeceleration,
                 tTopAcceleration, tTopDeceleration, myOriginAddress, myDestinationAddress);
-        db.collection("users").document("debug_user").collection("tripsummaries")
+        db.collection("users")
+                .document("debug_user")
+                .collection("tripsummaries")
                 .document(tripId).set(tempTripSummary);
 
         //clear variables that will still contain old info if the service is still running after the end of
@@ -446,8 +475,6 @@ public class RawDataCollectionService extends Service {
         secondsSpentOverTenMPH = 0;
         tripSummaryShouldBeSaved = false;
     }
-
-
 
     @Override
     public void onDestroy() {

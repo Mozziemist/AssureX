@@ -24,6 +24,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -41,16 +42,23 @@ import android.widget.Toast;
 import com.example.assurex.database.AppDatabase;
 import com.example.assurex.database.TripSummaryDao;
 import com.example.assurex.model.TripSummary;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
 //for date
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Map;
 
 //for map
 /*
@@ -81,6 +89,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
 
     //average speed variables
     private boolean avSpButTrue = false;
+    private final static String TAG = "infoPage";
     private Button avSpBut;
     private LinearLayout avSpButWindow;
     private TextView dateSpeed;
@@ -129,9 +138,10 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
 
     //Trip Summary for database integration
     //List<TripSummary> tempTripSummaryList = new ArrayList<TripSummary>();
-    List<TripSummary> tempTripSummaryList;
+    List<Object> tempTripSummaryList;
     TripSummary tempTripSummary;
-    private AppDatabase db;
+    //private AppDatabase db;
+    FirebaseFirestore db;
     String dbQueryDate;
     String tEngineTroubleCodes;
     double tTopSpeed = 0;
@@ -157,7 +167,8 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         }
         //end for dark mode
         setContentView(R.layout.activity_info_page);
-        db = AppDatabase.getInstance(this);
+        //db = AppDatabase.getInstance(this);
+        db = FirebaseFirestore.getInstance();
         rdreceiver = new RawDataReceiver();
         registerReceiver(rdreceiver, new IntentFilter("DataCollectedInfo"));
 
@@ -390,36 +401,76 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         updateData();
 
         tempTripSummaryList = null;
-        DatabaseRequestThread drThread = new DatabaseRequestThread();
-        drThread.start();
-        try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace(); }
+        //DatabaseRequestThread drThread = new DatabaseRequestThread();
+        //drThread.start();
+
+        db.collection("users")
+            .document("debug_user")
+            .collection("tripsummaries")
+            .whereEqualTo("date", dbQueryDate)
+            .get()
+            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            try {
+                                tempTripSummaryList.add(document.getData());
+                            }catch (NullPointerException e) {
+                                e.printStackTrace();
+                            }
+                            Log.d(TAG, document.getId() + " => " + document.getData());
+                        }
+                    } else {
+                        Log.d(TAG, "Error getting documents: ", task.getException());
+                    }
+                }
+            });
+
+        try { Thread.sleep(150); } catch (InterruptedException e) { e.printStackTrace(); }
+
+        Object[] tempTripSummaryArray = new Object[0];
+
+        if(tempTripSummaryList != null){
+            if(!tempTripSummaryList.isEmpty()){
+                tempTripSummaryArray = tempTripSummaryList.toArray();
+            }
+        }
+
         List<String> list = new ArrayList<String>();
-        if(tempTripSummaryList.size() > 0) {
+        //if(tempTripSummaryList.size() > 0) {
+        if(tempTripSummaryArray.length > 0)
             for (int i = 0; i < tempTripSummaryList.size(); i++) {
                 list.add("Trip " + (i + 1));
-            }
-
-        }else {
+            }else {
             list.add("No Trips");
-
         }
+
 
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
                 R.layout.color_spinner_layout, list);
         dataAdapter.setDropDownViewResource(R.layout.spinner_dropdown_layout);
         tripSpinner.setAdapter(dataAdapter);
 
+        Object[] finalTempTripSummaryArray = tempTripSummaryArray;
         tripSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long l) {
                 //position is the index of the selection as if it is an array
                 String text = parent.getItemAtPosition(position).toString();
                 //Toast.makeText(parent.getContext(), text + " new", Toast.LENGTH_SHORT).show();
-                if (tempTripSummaryList.size() > 0) {
-                    tempTripSummary = tempTripSummaryList.get(position);
-                    displayedTopSpeed = tempTripSummary.getTopSpeed();
-                    displayedTopAcceleration = tempTripSummary.getTopAcceleration();
-                    displayedEngineTroubleCodes = tempTripSummary.getEngineStatus();
+                //if (tempTripSummaryList.size() > 0) {
+                if(finalTempTripSummaryArray.length > 0) {
+                    Map<String, Object> mapSelectedTripSummary = new HashMap<>();
+                    mapSelectedTripSummary = (HashMap) finalTempTripSummaryArray[position];
+                    displayedTopSpeed = (double) mapSelectedTripSummary.get("topSpeed");
+                    displayedTopAcceleration = (double) mapSelectedTripSummary.get("topAcceleration");
+                    displayedEngineTroubleCodes = (String) mapSelectedTripSummary.get("engineStatus");
+
+//                    tempTripSummary = tempTripSummaryList.get(position);
+//                    displayedTopSpeed = tempTripSummary.getTopSpeed();
+//                    displayedTopAcceleration = tempTripSummary.getTopAcceleration();
+//                    displayedEngineTroubleCodes = tempTripSummary.getEngineStatus();
                     updateData();
                 }
             }
@@ -567,18 +618,18 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         }
     }
 
-    class DatabaseRequestThread extends Thread {
-        @Override
-        public void run() {
-            tempTripSummaryList = db.tripSummaryDao().getAllByDate(dbQueryDate);
-        }
-    }
+//    class DatabaseRequestThread extends Thread {
+//        @Override
+//        public void run() {
+//            tempTripSummaryList = db.tripSummaryDao().getAllByDate(dbQueryDate);
+//        }
+//    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(rdreceiver);
-        AppDatabase.destroyInstance();
+        //AppDatabase.destroyInstance();
     }
 
     //update the user view
