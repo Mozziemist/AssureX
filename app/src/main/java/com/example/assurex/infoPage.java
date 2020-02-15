@@ -41,6 +41,7 @@ import android.widget.Toast;
 
 import com.example.assurex.database.AppDatabase;
 import com.example.assurex.database.TripSummaryDao;
+import com.example.assurex.model.RawDataItem;
 import com.example.assurex.model.TripSummary;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -139,6 +140,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     //Trip Summary for database integration
     //List<TripSummary> tempTripSummaryList = new ArrayList<TripSummary>();
     List<Object> tempTripSummaryList;
+    List<Object> tempRawDataItemList;
     TripSummary tempTripSummary;
     //private AppDatabase db;
     FirebaseFirestore db;
@@ -150,6 +152,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     double displayedTopSpeed = 0;
     double displayedTopAcceleration = 0;
     RawDataReceiver rdreceiver;
+    Object[] tempRawDataItemArray;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -400,9 +403,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         tripSpinner.setAdapter(null);
         updateData();
 
-        tempTripSummaryList = null;
-        //DatabaseRequestThread drThread = new DatabaseRequestThread();
-        //drThread.start();
+        tempTripSummaryList = new ArrayList<>();
 
         db.collection("users")
             .document("debug_user")
@@ -453,6 +454,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         tripSpinner.setAdapter(dataAdapter);
 
         Object[] finalTempTripSummaryArray = tempTripSummaryArray;
+
         tripSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long l) {
@@ -466,7 +468,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
                     displayedTopSpeed = (double) mapSelectedTripSummary.get("topSpeed");
                     displayedTopAcceleration = (double) mapSelectedTripSummary.get("topAcceleration");
                     displayedEngineTroubleCodes = (String) mapSelectedTripSummary.get("engineStatus");
-
+                    queryFirebaseRawDataItems(mapSelectedTripSummary);
 //                    tempTripSummary = tempTripSummaryList.get(position);
 //                    displayedTopSpeed = tempTripSummary.getTopSpeed();
 //                    displayedTopAcceleration = tempTripSummary.getTopAcceleration();
@@ -482,6 +484,58 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         });
 
     }//end additemsonspinner
+
+    private void queryFirebaseRawDataItems(Map<String, Object> mapSelectedTripSummary) {
+        tempRawDataItemList = new ArrayList<>();
+        tempRawDataItemArray = null;
+
+        db.collection("users")
+                .document("debug_user")
+                .collection("rawdataitems")
+                .document(dbQueryDate)
+                .collection("Trip Number " + mapSelectedTripSummary.get("tripNumber"))
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                try {
+                                    //tempTripSummaryList.add(document.getData());
+                                    tempRawDataItemList.add(document.getData());
+                                }catch (NullPointerException e) {
+                                    e.printStackTrace();
+                                }
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+        //hopefully prevents race conditions but I'm honestly not sure if the db collection search happens in the same thread
+        //or a different thread so it may be unneeded
+        try { Thread.sleep(150); } catch (InterruptedException e) { e.printStackTrace(); }
+
+        if(tempRawDataItemList != null){
+            if(!tempRawDataItemList.isEmpty()){
+                tempRawDataItemArray = tempRawDataItemList.toArray();
+            }
+        }
+
+        //at this point, tempRawDataItemArray *should* have all the raw data items in it
+        //to work with this data, you need to do something like
+        //for(...){
+        //      Map<String, Object> mapTempRawDataItem = new HashMap<>();
+        //      mapTempRawDataItem = (HashMap) tempRawDataItemArray[i];
+        //      latitude = mapTempRawDataItem.get("latitude");
+        //      longitude = mapTempRawDataItem.get("longitude");
+        //      ...
+        //      do whatever you need to do with the longitudes and latitudes, either store them somewhere else
+        //      or work with them as they are received
+        //      ...
+        //}
+    }
 
 
     @Override
