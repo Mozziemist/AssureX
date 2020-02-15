@@ -151,6 +151,24 @@
             </LinearLayout>
 
             <LinearLayout
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:mapbox="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                tools:context=".examples.styles.LineLayerActivity">
+
+                <com.mapbox.mapboxsdk.maps.MapView
+                    android:id="@+id/mapView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    mapbox:mapbox_cameraTargetLat="33.39243835"
+                    mapbox:mapbox_cameraTargetLng="-118.38265415000001"
+                    mapbox:mapbox_cameraZoom="13.448986053466797"/>
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
