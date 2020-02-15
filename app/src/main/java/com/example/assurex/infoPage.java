@@ -760,6 +760,20 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     }//end update Data
 
     //for map line
+    private void setRouteCoordinates () {
+        /*
+        clear arraylist of past corrdinates;
+
+        while(database has coordinates){
+            fetch next entry;
+            retrieve coordinate;
+            add to array list;
+        }//end while
+
+        refresh map;
+         */
+    }
+
     private void initRouteCoordinates() {
         // Create a list to store our line coordinates.
         routeCoordinates = new ArrayList<>();
