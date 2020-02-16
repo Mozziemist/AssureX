@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     public void LoginClicked(View view) {
         String name = username.getText().toString().trim();
         String pass = password.getText().toString().trim();
+        Speed.setUsername(name);
         UserRepository userRepository = new UserRepository(getApplicationContext());
         User[] user = new User[1];
 

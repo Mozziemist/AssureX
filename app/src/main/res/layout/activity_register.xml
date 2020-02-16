@@ -44,6 +44,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:hint="user@address.com"
+                android:text=""
                 android:inputType="text"
                 android:textColor="?attr/colorPrimary"
                 android:textSize="13dp"
@@ -68,6 +69,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:hint="User Name"
+                android:text=""
                 android:inputType="text"
                 android:textColor="?attr/colorPrimary"
                 android:textSize="13dp"
@@ -93,6 +95,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Password"
                 android:inputType="textPassword"
+                android:text=""
                 android:textColor="?attr/colorPrimary"
                 android:textSize="13dp"
                 android:textStyle="italic" />
@@ -117,6 +120,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Password"
                 android:inputType="textPassword"
+                android:text=""
                 android:textColor="?attr/colorPrimary"
                 android:textSize="13dp"
                 android:textStyle="italic" />
