@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
@@ -57,11 +58,13 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     private TextView tripTime, troubleCodes;
     private TextView speedLimitView;
     private TextView totalDistance;
+    private TextView lastScore;
     private int speedLimitInt;
     private int oldSpeedLimitInt;
     CarDataReceiver receiver;
     SettingsReceiver settingsReceiver;
     SpeedLimitReceiver slReceiver;
+    ScoreReceiver scoreReceiver;
     SpeedLimitThread speedLimitThread;
     private static Boolean isEngineOn;
     //for map
@@ -98,6 +101,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         acceleration = findViewById(R.id.acceleration);
         speedLimitView = findViewById(R.id.speedLimitView);
         totalDistance = findViewById(R.id.Distance);
+        lastScore = findViewById(R.id.tripScore);
         isEngineOn = false;
 //        tripTime = findViewById(R.id.tripTime);
 //        troubleCodes = findViewById(R.id.troubleCodes);
@@ -105,9 +109,11 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         receiver = new CarDataReceiver();
         settingsReceiver = new SettingsReceiver();
         slReceiver = new SpeedLimitReceiver();
+        scoreReceiver = new ScoreReceiver();
         registerReceiver(receiver, new IntentFilter("CarDataUpdates"));
         registerReceiver(settingsReceiver, new IntentFilter("SettingsUpdate"));
         registerReceiver(slReceiver, new IntentFilter("SpeedLimitUpdates"));
+        registerReceiver(scoreReceiver, new IntentFilter("ScoreUpdates"));
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         Intent serviceIntent = new Intent(this, BluetoothService.class);
@@ -137,6 +143,16 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
             }
         }
     }
+    class ScoreReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (("ScoreUpdates").equals(intent.getAction())){
+                int temp = (int)intent.getFloatExtra("score", 100);
+                lastScore.append(Integer.toString(temp) + " ft");
+                lastScore.setVisibility(View.VISIBLE);
+            }
+        }
+    }
 
     class CarDataReceiver extends BroadcastReceiver {
 
@@ -156,6 +172,12 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                 acceleration.setText(Integer.toString((int)accel));
                 totalDistance.setText(Integer.toString(dist));
                 isEngineOn = b.getBoolean("isEngineOn", false);
+
+                if (isEngineOn)
+                {
+                    lastScore.setVisibility(View.INVISIBLE);
+                    lastScore.setText("Trip Score: ");
+                }
 
                 Log.d(TAG, "onReceive: text has been set");
             }
@@ -474,6 +496,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         unregisterReceiver(receiver);
         unregisterReceiver(settingsReceiver);
         unregisterReceiver(slReceiver);
+        unregisterReceiver(scoreReceiver);
         Intent serviceIntent = new Intent(this, BluetoothService.class);
         stopService(serviceIntent);
 

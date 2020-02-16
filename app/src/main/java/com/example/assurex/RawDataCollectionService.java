@@ -449,8 +449,19 @@ public class RawDataCollectionService extends Service {
         // Calculate trip score
         // Default score is 100. Default score minus total events * 1000 and divide by distance of trip in miles
         // todo: add number of speed events for total event count
-        if(!isDebugging) {
-            currentTripScore -= ((accelOverNine + decelOverThirteen) * 1000) / (dist / 5280);
+        if(isDebugging) {
+            currentTripScore -= ((accelOverNine + decelOverThirteen) * 1000) / ((((float)dist+1) / 5280));
+            if (currentTripScore < 0)
+            {
+                currentTripScore = 0;
+            }
+            Intent sendScoreData = new Intent("ScoreUpdates");
+
+            sendScoreData.putExtra("score", currentTripScore);
+
+            sendBroadcast(sendScoreData);
+
+            Log.d(TAG, "tripSummaryEntryCreation: Score sent");
         }
         // todo: Once we have our totalTripScore and numberOfScores initialized by database we can update considering new score
         // totalTripScore = ((totalTripScore * numberOfScores) + currentTripScore) / (numberOfScores + 1);
