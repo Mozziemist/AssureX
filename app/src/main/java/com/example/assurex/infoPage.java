@@ -143,7 +143,8 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     List<Object> tempTripSummaryList = new ArrayList<>();
     List<Object> tempRawDataItemList = new ArrayList<>();
     TripSummary tempTripSummary;
-    //private AppDatabase db;
+    boolean FirebaseTripSummaryQueryIsCompleted = false;
+    boolean FirebaseRawDataItemQueryIsCompleted = false;
     FirebaseFirestore db;
     String dbQueryDate;
     String tEngineTroubleCodes;
@@ -228,9 +229,11 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         //calender
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat mdformat = new SimpleDateFormat("MM - dd - yyyy ");
-        date = mdformat.format(calendar.getTime());
+        //date = mdformat.format(calendar.getTime());
+        date = "Select Date First";
         calText.setText(date);
         dbQueryDate = date.replaceAll("\\s+", "");
+
         addItemsOnSpinner();
 
         calender.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
@@ -447,33 +450,36 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
 
         tempTripSummaryList.clear();
 
-        //waits until the very end of this function to actually execute for some reason..
-        //todo: fix this
         db.collection("users")
-            .document("debug_user")
-            .collection("tripsummaries")
-            .whereEqualTo("date", dbQueryDate)
-            .get()
-            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            try {
-                                tempTripSummaryList.add(document.getData());
-                            }catch (NullPointerException e) {
-                                e.printStackTrace();
+                .document("debug_user")
+                .collection("tripsummaries")
+                .whereEqualTo("date", dbQueryDate)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                try {
+                                    tempTripSummaryList.add(document.getData());
+                                }catch (NullPointerException e) {
+                                    e.printStackTrace();
+                                }
+                                Log.d(TAG, document.getId() + " => " + document.getData());
                             }
-                            Log.d(TAG, document.getId() + " => " + document.getData());
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
                         }
-                    } else {
-                        Log.d(TAG, "Error getting documents: ", task.getException());
+
+                        addItemsOnSpinnerHelper();
                     }
-                }
-            });
+                });
 
-        try { Thread.sleep(150); } catch (InterruptedException e) { e.printStackTrace(); }
 
+
+    }//end additemsonspinner
+
+    public void addItemsOnSpinnerHelper(){
         Object[] tempTripSummaryArray = tempTripSummaryList.toArray();
 
         List<String> list = new ArrayList<>();
@@ -486,10 +492,9 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
             list.add("No Trips");
         }
 
-
-
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
                 R.layout.color_spinner_layout, list);
+
         dataAdapter.setDropDownViewResource(R.layout.spinner_dropdown_layout);
         tripSpinner.setAdapter(dataAdapter);
 
@@ -504,8 +509,64 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
                     displayedTopSpeed = (double) mapSelectedTripSummary.get("topSpeed");
                     displayedTopAcceleration = (double) mapSelectedTripSummary.get("topAcceleration");
                     displayedEngineTroubleCodes = (String) mapSelectedTripSummary.get("engineStatus");
-                    queryFirebaseRawDataItems(mapSelectedTripSummary);
-                    updateData();
+
+                    tempRawDataItemList.clear();
+
+                    db.collection("users")
+                            .document("debug_user")
+                            .collection("rawdataitems")
+                            .document(dbQueryDate)
+                            .collection("Trip Number " + mapSelectedTripSummary.get("tripNumber"))
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            try {
+                                                tempRawDataItemList.add(document.getData());
+                                            }catch (NullPointerException e) {
+                                                e.printStackTrace();
+                                            }
+                                            Log.d(TAG, document.getId() + " => " + document.getData());
+                                        }
+                                    } else {
+                                        Log.d(TAG, "Error getting documents: ", task.getException());
+                                    }
+
+                                    if(tempRawDataItemList != null){
+                                        if(!tempRawDataItemList.isEmpty()){
+                                            tempRawDataItemArray = tempRawDataItemList.toArray();
+                                        }
+                                    }
+
+                                    if(tempRawDataItemArray.length > 0){
+                                        routeCoordinates = new ArrayList<>();
+                                        for(int i = 0; i < tempRawDataItemArray.length; i++){
+                                            HashMap mapTempRawDataItem = (HashMap) tempRawDataItemArray[i];
+                                            routeCoordinates.add(Point.fromLngLat((double) mapTempRawDataItem.get("longitude"),(double) mapTempRawDataItem.get("latitude") ));
+                                        }
+                                    }
+
+                                    //at this point, tempRawDataItemArray *should* have all the raw data items in it
+                                    //to work with this data, you need to do something like
+                                    //for(...){
+                                    //      Map<String, Object> mapTempRawDataItem = new HashMap<>();
+                                    //      mapTempRawDataItem = (HashMap) tempRawDataItemArray[i];
+                                    //      latitude = mapTempRawDataItem.get("latitude");
+                                    //      longitude = mapTempRawDataItem.get("longitude");
+                                    //      ...
+                                    //      do whatever you need to do with the longitudes and latitudes, either store them somewhere else
+                                    //      or work with them as they are received
+                                    //      ...
+                                    //
+
+                                    updateData();
+                                }
+                            });
+
+
+
                 }
             }
 
@@ -514,60 +575,10 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
                 //place holder
             }
         });
-
-    }//end additemsonspinner
-
-    private void queryFirebaseRawDataItems(Map<String, Object> mapSelectedTripSummary) {
-        tempRawDataItemList = new ArrayList<>();
-        tempRawDataItemArray = null;
-
-        db.collection("users")
-                .document("debug_user")
-                .collection("rawdataitems")
-                .document(dbQueryDate)
-                .collection("Trip Number " + mapSelectedTripSummary.get("tripNumber"))
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                try {
-                                    //tempTripSummaryList.add(document.getData());
-                                    tempRawDataItemList.add(document.getData());
-                                }catch (NullPointerException e) {
-                                    e.printStackTrace();
-                                }
-                                Log.d(TAG, document.getId() + " => " + document.getData());
-                            }
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
-        //hopefully prevents race conditions but I'm honestly not sure if the db collection search happens in the same thread
-        //or a different thread so it may be unneeded
-        try { Thread.sleep(150); } catch (InterruptedException e) { e.printStackTrace(); }
-
-        if(tempRawDataItemList != null){
-            if(!tempRawDataItemList.isEmpty()){
-                tempRawDataItemArray = tempRawDataItemList.toArray();
-            }
-        }
-
-        //at this point, tempRawDataItemArray *should* have all the raw data items in it
-        //to work with this data, you need to do something like
-        //for(...){
-        //      Map<String, Object> mapTempRawDataItem = new HashMap<>();
-        //      mapTempRawDataItem = (HashMap) tempRawDataItemArray[i];
-        //      latitude = mapTempRawDataItem.get("latitude");
-        //      longitude = mapTempRawDataItem.get("longitude");
-        //      ...
-        //      do whatever you need to do with the longitudes and latitudes, either store them somewhere else
-        //      or work with them as they are received
-        //      ...
-        //}
     }
+
+
+
 
 
     @Override
