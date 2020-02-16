@@ -140,8 +140,8 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
 
     //Trip Summary for database integration
     //List<TripSummary> tempTripSummaryList = new ArrayList<TripSummary>();
-    List<Object> tempTripSummaryList;
-    List<Object> tempRawDataItemList;
+    List<Object> tempTripSummaryList = new ArrayList<>();
+    List<Object> tempRawDataItemList = new ArrayList<>();
     TripSummary tempTripSummary;
     //private AppDatabase db;
     FirebaseFirestore db;
@@ -445,8 +445,10 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         tripSpinner.setAdapter(null);
         updateData();
 
-        tempTripSummaryList = new ArrayList<>();
+        tempTripSummaryList.clear();
 
+        //waits until the very end of this function to actually execute for some reason..
+        //todo: fix this
         db.collection("users")
             .document("debug_user")
             .collection("tripsummaries")
@@ -472,22 +474,18 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
 
         try { Thread.sleep(150); } catch (InterruptedException e) { e.printStackTrace(); }
 
-        Object[] tempTripSummaryArray = new Object[0];
+        Object[] tempTripSummaryArray = tempTripSummaryList.toArray();
 
-        if(tempTripSummaryList != null){
-            if(!tempTripSummaryList.isEmpty()){
-                tempTripSummaryArray = tempTripSummaryList.toArray();
-            }
-        }
+        List<String> list = new ArrayList<>();
 
-        List<String> list = new ArrayList<String>();
-        //if(tempTripSummaryList.size() > 0) {
-        if(tempTripSummaryArray.length > 0)
-            for (int i = 0; i < tempTripSummaryList.size(); i++) {
+        if(tempTripSummaryArray.length > 0){
+            for (int i = 0; i < tempTripSummaryArray.length; i++) {
                 list.add("Trip " + (i + 1));
-            }else {
+            }
+        }else {
             list.add("No Trips");
         }
+
 
 
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
@@ -495,26 +493,18 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         dataAdapter.setDropDownViewResource(R.layout.spinner_dropdown_layout);
         tripSpinner.setAdapter(dataAdapter);
 
-        Object[] finalTempTripSummaryArray = tempTripSummaryArray;
-
         tripSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long l) {
                 //position is the index of the selection as if it is an array
-                String text = parent.getItemAtPosition(position).toString();
-                //Toast.makeText(parent.getContext(), text + " new", Toast.LENGTH_SHORT).show();
                 //if (tempTripSummaryList.size() > 0) {
-                if(finalTempTripSummaryArray.length > 0) {
-                    Map<String, Object> mapSelectedTripSummary = new HashMap<>();
-                    mapSelectedTripSummary = (HashMap) finalTempTripSummaryArray[position];
+                if(tempTripSummaryArray.length > 0) {
+                    HashMap mapSelectedTripSummary;
+                    mapSelectedTripSummary = (HashMap) tempTripSummaryArray[position];
                     displayedTopSpeed = (double) mapSelectedTripSummary.get("topSpeed");
                     displayedTopAcceleration = (double) mapSelectedTripSummary.get("topAcceleration");
                     displayedEngineTroubleCodes = (String) mapSelectedTripSummary.get("engineStatus");
                     queryFirebaseRawDataItems(mapSelectedTripSummary);
-//                    tempTripSummary = tempTripSummaryList.get(position);
-//                    displayedTopSpeed = tempTripSummary.getTopSpeed();
-//                    displayedTopAcceleration = tempTripSummary.getTopAcceleration();
-//                    displayedEngineTroubleCodes = tempTripSummary.getEngineStatus();
                     updateData();
                 }
             }
