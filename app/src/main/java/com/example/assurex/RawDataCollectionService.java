@@ -65,8 +65,8 @@ public class RawDataCollectionService extends Service {
 
     //for the tripSummary
     String engineTroubleCodes = "Pending Search";
-    int accelOverEight = 0;
-    int decelOverEight = 0;
+    int accelOverNine = 0;
+    int decelOverThirteen = 0;
     int secondsSpentOverTenMPH = 0;
     double tAverageSpeed = 0;
     double tTopSpeed = 0;
@@ -208,7 +208,7 @@ public class RawDataCollectionService extends Service {
                     if(tempTripSummaryArray.length > 0) {
                         objLatestTripSummary = tempTripSummaryArray[tempTripSummaryArray.length - 1];
                     }
-                    Map<String, Object> mapLatestTripSummary = new HashMap<>();
+                    HashMap mapLatestTripSummary;
                     if(objLatestTripSummary != null) {
                         mapLatestTripSummary = (HashMap) objLatestTripSummary;
                         Log.d(TAG, "retrieved date :" + mapLatestTripSummary.get("date"));
@@ -420,10 +420,10 @@ public class RawDataCollectionService extends Service {
     private void eventsTracker(){
         if (Math.abs(rawAcceleration) > 8) {
             if(rawAcceleration > 8){
-                accelOverEight++;
+                accelOverNine++;
             }
             else{
-                decelOverEight++;
+                decelOverThirteen++;
             }
         }
 
@@ -437,8 +437,8 @@ public class RawDataCollectionService extends Service {
     }
 
     private void tripSummaryEntryCreation(String tripId, String tsDate, int tripNumber){
-        String notableTripEvents = "Times Acceleration Exceeded 8 MPH/S: " + accelOverEight + "\n" +
-                                   "Times Deceleration Exceeded -8 MPH/S: " + decelOverEight + "\n" +
+        String notableTripEvents = "Times Acceleration Exceeded 9 MPH/S: " + accelOverNine + "\n" +
+                                   "Times Deceleration Exceeded -13 MPH/S: " + decelOverThirteen + "\n" +
                                    "Cumulative Time Spent 10 MPH Over Speed Limit: " + secondsSpentOverTenMPH;
 
         if(engineTroubleCodes.equals("Pending Search")){
@@ -450,7 +450,7 @@ public class RawDataCollectionService extends Service {
         // Default score is 100. Default score minus total events * 1000 and divide by distance of trip in miles
         // todo: add number of speed events for total event count
         if(!isDebugging) {
-            currentTripScore -= ((accelOverEight + decelOverEight) * 1000) / (dist / 5280);
+            currentTripScore -= ((accelOverNine + decelOverThirteen) * 1000) / (dist / 5280);
         }
         // todo: Once we have our totalTripScore and numberOfScores initialized by database we can update considering new score
         // totalTripScore = ((totalTripScore * numberOfScores) + currentTripScore) / (numberOfScores + 1);
@@ -470,8 +470,8 @@ public class RawDataCollectionService extends Service {
         tTopDeceleration = 0;
         tAverageAcceleration = 0;
         tAverageDeceleration = 0;
-        accelOverEight = 0;
-        decelOverEight = 0;
+        accelOverNine = 0;
+        decelOverThirteen = 0;
         secondsSpentOverTenMPH = 0;
         tripSummaryShouldBeSaved = false;
     }
