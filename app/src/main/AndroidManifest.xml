@@ -18,6 +18,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".PopupWarning"
+            android:theme="@style/AppTheme.PopMe"
+            ></activity>
         <activity
             android:name=".Settings"
             android:label="Settings"
@@ -58,13 +61,12 @@
             android:name=".Register"
             android:label="Register"
             android:parentActivityName=".MainActivity" />
-
         <activity
             android:name=".Speed"
             android:configChanges="orientation"
             android:label="Home"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
 
         <service android:name=".BluetoothService" />
         <service android:name=".RawDataCollectionService" />

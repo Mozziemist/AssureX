@@ -5,38 +5,19 @@ package com.example.assurex;
 //for map
 //package com.mapbox.mapboxandroiddemo.examples.location;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NavUtils;
-import androidx.core.content.ContextCompat;
-
-import android.app.Activity;
 import android.content.BroadcastReceiver;
-import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
-import android.location.Location;
-import android.location.LocationManager;
-import android.net.sip.SipSession;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Request;
@@ -44,20 +25,9 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.assurex.database.AppDatabase;
-
-//for map
-import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import android.widget.Toast;
-
-import com.google.gson.JsonArray;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
-//import com.mapbox.mapboxandroiddemo.R;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
@@ -68,17 +38,15 @@ import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 
-//for profile pic
-import android.net.Uri;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.List;
-import java.util.Queue;
+
+//for map
+//import com.mapbox.mapboxandroiddemo.R;
+//for profile pic
 
 
 public class Speed extends AppCompatActivity implements OnMapReadyCallback, PermissionsListener {
@@ -103,6 +71,8 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     //for theme
     private static boolean darkMode = false;
     public static boolean themeChanged = false;
+
+    private boolean warning;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -154,6 +124,8 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
 
         Intent rawDataIntent = new Intent(this, RawDataCollectionService.class);
         startService(rawDataIntent);
+
+        warning = false;
     }//end oncreate
 
     class SpeedLimitReceiver extends BroadcastReceiver {
@@ -228,7 +200,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                             sendBroadcast(spdlmtIntent);
                             b.putInt("SpeedLimit", speedLimitRequester.getSpeedLimit());
 
-
+                            SpeedWarning(speedLimitRequester.getSpeedLimit());
                         }
                         else
                         {
@@ -608,12 +580,21 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
             });
 
             mQueue.add(request);
+        }
+    }
 
+    public void SpeedWarning(int spdl) {
+        Intent popup = new Intent(getApplicationContext(), PopupWarning.class);
+        int spd = Integer.parseInt(speed.getText().toString());
 
+        if(warning == false && spdl + 5 <= spd) {
+            warning = true;
+            startActivity(popup);
         }
 
-
-
+        if(warning == true && spdl + 5 > spd) {
+            warning = false;
+        }
     }
 
     //for username
