@@ -75,9 +75,9 @@ public class RawDataCollectionService extends Service {
     double tTopAcceleration = 0;
     double tTopDeceleration = 0;
     boolean tripSummaryShouldBeSaved = false;
-    float currentTripScore = 100;
+    double currentTripScore = 100;
     // todo: totalTripScore and numberOfScores need to at some point be initialized by value in database
-    float totalTripScore;
+    double totalTripScore;
     int numberOfScores;
 
 
@@ -445,6 +445,33 @@ public class RawDataCollectionService extends Service {
             engineTroubleCodes = "No Trouble Codes Reported";
         }
 
+        final Object[] userInfoObject = new Object[1];
+
+        db.collection("users")
+                .document("debug_user")
+                .collection("userinfo")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                try {
+                                    userInfoObject[0] = document.getData();
+                                }catch (NullPointerException e) {
+                                    e.printStackTrace();
+                                }
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+
+        HashMap userInfoHashMap = (HashMap) userInfoObject[0];
+
+
 
         // Calculate trip score
         // Default score is 100. Default score minus total events * 1000 and divide by distance of trip in miles
@@ -464,18 +491,47 @@ public class RawDataCollectionService extends Service {
             Log.d(TAG, "tripSummaryEntryCreation: Score sent");
         }
         // todo: Once we have our totalTripScore and numberOfScores initialized by database we can update considering new score
-        // totalTripScore = ((totalTripScore * numberOfScores) + currentTripScore) / (numberOfScores + 1);
+        if (userInfoHashMap != null) {
+            totalTripScore = (double) userInfoHashMap.get("totalTripScore");
+        }else{
+            totalTripScore = 80;
+        }
+        if (userInfoHashMap != null) {
+            numberOfScores = (int) userInfoHashMap.get("numberOfScores");
+        }else{
+            numberOfScores = 0;
+        }
+
+        totalTripScore = ((totalTripScore * numberOfScores) + currentTripScore) / (numberOfScores + 1);
 
         TripSummary tempTripSummary = new TripSummary(tripId, tsDate, tripNumber, notableTripEvents,
-                engineTroubleCodes, tAverageSpeed, tTopSpeed, tAverageAcceleration,tAverageDeceleration,
-                tTopAcceleration, tTopDeceleration, myOriginAddress, myDestinationAddress);
+                engineTroubleCodes,currentTripScore, totalTripScore, tAverageSpeed, tTopSpeed,
+                tAverageAcceleration,tAverageDeceleration, tTopAcceleration, tTopDeceleration,
+                myOriginAddress, myDestinationAddress);
+
         db.collection("users")
                 .document("debug_user")
                 .collection("tripsummaries")
                 .document(tripId).set(tempTripSummary);
 
+        if(userInfoHashMap == null){
+            userInfoHashMap = new HashMap();
+        }
+
+        userInfoHashMap.remove("totalTripScore");
+        userInfoHashMap.put("totalTripScore", totalTripScore);
+        userInfoHashMap.remove("numberOfScores");
+        userInfoHashMap.put("numberOfScores", numberOfScores);
+
+        db.collection("users")
+                .document("debug_user")
+                .collection("userinfo")
+                .document("User Info Page").set(userInfoHashMap);
+
         //clear variables that will still contain old info if the service is still running after the end of
         //one trip and before the start of another
+        totalTripScore = 0;
+        currentTripScore = 0;
         tTopSpeed = 0;
         tTopAcceleration = 0;
         tTopDeceleration = 0;
