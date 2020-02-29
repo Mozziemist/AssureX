@@ -3,20 +3,23 @@ package com.example.assurex;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.assurex.database.AppDatabase;
-import com.example.assurex.model.User;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.greenrobot.eventbus.EventBus;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
-    private EditText username;
+    private EditText email;
     private EditText password;
+    private FirebaseAuth fAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,8 +39,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //initialize
-        username = findViewById(R.id.userText);
+        email = findViewById(R.id.userText);
         password = findViewById(R.id.passText);
+        fAuth = FirebaseAuth.getInstance();
+
+        if (fAuth.getCurrentUser() != null) {
+            startActivity(new Intent(getApplicationContext(), Speed.class));
+            finish();
+        }
     }
 
     @Override
@@ -52,47 +61,63 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void LoginClicked(View view) {
-        String name = username.getText().toString().trim();
+        String name = email.getText().toString().trim();
         String pass = password.getText().toString().trim();
         Speed.setUsername(name);
-        UserRepository userRepository = new UserRepository(getApplicationContext());
-        User[] user = new User[1];
 
         Log.d(TAG, "LoginClicked: User: "+name+"\npass: "+pass);
 
-        new Thread(() -> {
-            try {
-                try {
-                    user[0] = userRepository.getUser(name);
-                }catch (Exception e) {
-                    Log.d("Invalid", "No such user is registered");
-                }
+        //=====================DEBUG BYPASS================================
+        if (name.equals("debug") && pass.equals("bypass")) {
+            Intent intent = new Intent(getApplicationContext(), Speed.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
+        }
 
-                //=====================DEBUG BYPASS================================
-                if(name.equals("debug") && pass.equals("bypass")){
-                    Intent intent = new Intent(getApplicationContext(), Speed.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(intent);
+        boolean emailPass = emailCheck(name);
+        boolean passwordPass = passCheck(pass);
+
+        if(emailPass && passwordPass) {
+            fAuth.signInWithEmailAndPassword(name, pass).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    startActivity(new Intent(getApplicationContext(), Speed.class));
                     finish();
                 }
-                else
-                //=====================END DEBUG BYPASS=============================
-                if (name.equals(user[0].getUsername()) && pass.equals(user[0].getPassword())) {
-                    Intent intent = new Intent(getApplicationContext(), Speed.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(intent);
-                    finish();
-                } else {
-                    Log.d("Invalid", "Invalid Username and Password");
+                else {
+                    Toast.makeText(MainActivity.this, "Error! " +
+                            task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                 }
-            } catch(Exception e) {
-                Log.d("Invalid", "No such user is registered");
-            }
-        }).start();
+            });
+        }
+    }
 
-        /*Intent intent = new Intent(getApplicationContext(), Speed.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);*/
+    public boolean emailCheck(String em) {
+        if(em.isEmpty()) {
+            email.setError("Please enter an Email address");
+            return false;
+        }
+        else if(!Patterns.EMAIL_ADDRESS.matcher(em).matches()) {
+            email.setError("Invalid Email address");
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    public boolean passCheck(String pw) {
+        if(pw.isEmpty()) {
+            password.setError("Please enter a password");
+            return false;
+        }
+        else if(pw.length() < 6) {
+            password.setError("Password must be at least 6 characters long");
+            return false;
+        }
+        else {
+            return true;
+        }
     }
 
     public void SignUpClicked(View view) {

@@ -54,23 +54,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="User Name:"
+                android:text="Full Name:"
                 android:textColor="?attr/editTextColor"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
             <EditText
                 android:id="@+id/newUserText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="User Name"
-                android:text=""
+                android:hint="John Doe"
                 android:inputType="text"
+                android:text=""
                 android:textColor="?attr/colorPrimary"
                 android:textSize="13dp"
                 android:textStyle="italic" />

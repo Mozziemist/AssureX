@@ -1,4 +1,5 @@
 package com.example.assurex;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
@@ -14,13 +15,12 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import com.example.assurex.database.AppDatabase;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.io.IOException;
 import java.util.Set;
 
 public class Register extends AppCompatActivity{
@@ -33,6 +33,9 @@ public class Register extends AppCompatActivity{
     String newEmail;
     String newPass;
     String rePass;
+    String newInsur;
+    FirebaseAuth fAuth;
+    Spinner spinner;
 
     String deviceAddress = "";
 
@@ -53,7 +56,7 @@ public class Register extends AppCompatActivity{
         //end for dark mode
         setContentView(R.layout.activity_register);
 
-        Spinner spinner = findViewById(R.id.insurSpinner);
+        spinner = findViewById(R.id.insurSpinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.insurArray, android.R.layout.simple_spinner_item);
 
@@ -65,6 +68,12 @@ public class Register extends AppCompatActivity{
         secPass = findViewById(R.id.rePassText);
         userInput = findViewById(R.id.newUserText);
         regDevice = findViewById(R.id.deviceReg);
+        fAuth = FirebaseAuth.getInstance();
+
+        if (fAuth.getCurrentUser() != null) {
+            startActivity(new Intent(getApplicationContext(), Speed.class));
+            finish();
+        }
     }
 
     @Override
@@ -75,10 +84,11 @@ public class Register extends AppCompatActivity{
     }
 
     public void RegisterClicked(View view) {
-        newEmail = emailInput.getText().toString();
-        newPass = passInput.getText().toString();
-        rePass = secPass.getText().toString();
-        newUser = userInput.getText().toString();
+        newEmail = emailInput.getText().toString().trim();
+        newPass = passInput.getText().toString().trim();
+        rePass = secPass.getText().toString().trim();
+        newUser = userInput.getText().toString().trim();
+        newInsur = spinner.getSelectedItem().toString();
 
         boolean userPass = userCheck(newUser);
         boolean emailPass = emailCheck(newEmail);
@@ -87,12 +97,16 @@ public class Register extends AppCompatActivity{
 
 
         if(userPass && emailPass && passwordPass && devicePass) {
-            UserRepository register = new UserRepository(getApplicationContext());
-            // todo: insert deviceAddress along with other info
-            register.insertUser(newUser, newPass, newEmail);
-
-            startActivity(new Intent(getApplicationContext(), Speed.class));
-            //finish();
+            fAuth.createUserWithEmailAndPassword(newEmail, newPass).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    startActivity(new Intent(getApplicationContext(), Speed.class));
+                    finish();
+                }
+                else {
+                    Toast.makeText(Register.this, "Error! " +
+                            task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 
@@ -136,6 +150,10 @@ public class Register extends AppCompatActivity{
     public boolean passCheck(String pass, String sec) {
         if(pass.isEmpty()) {
             passInput.setError("Please enter a password");
+            return false;
+        }
+        else if(pass.length() < 6) {
+            passInput.setError("Password must be at least 6 characters long");
             return false;
         }
         else if(!pass.equals(sec)) {
@@ -182,9 +200,5 @@ public class Register extends AppCompatActivity{
                 break;
             }
         }
-
-
-
-
     }
 }
