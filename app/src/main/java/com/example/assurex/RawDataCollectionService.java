@@ -105,7 +105,8 @@ public class RawDataCollectionService extends Service {
 
         if (user != null) {
             // User is signed in
-            uid = user.getUid();
+            //uid = user.getUid();
+            uid = user.getEmail();
         } else {
             // No user is signed in
             uid = "debug_user";
