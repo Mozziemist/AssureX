@@ -87,6 +87,7 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 //import com.mapbox.mapboxandroiddemo.R;
 
+
 import java.util.ArrayList;
 import java.util.List;
 //end for map
@@ -795,6 +796,8 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
 
         //mapboxMap.setCameraPosition(firstLocationArray[0], firstLocationArray[1]);
         //move the camera
+        LatLng point;
+
         CameraPosition position = new CameraPosition.Builder()
                 .target(new LatLng(firstLocationArray[0], firstLocationArray[1])) // Sets the new camera position
                 .zoom(17) // Sets the zoom
@@ -882,6 +885,8 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         routeCoordinates.add(Point.fromLngLat(-118.37546662390886, 33.38847843095069));
         routeCoordinates.add(Point.fromLngLat(-118.37091717142867, 33.39114243958559));
 
+        firstLocationArray[0] = 33.39243835;
+        firstLocationArray[1] = -118.38265415000001;
     }//end coordinates
 
     @Override
