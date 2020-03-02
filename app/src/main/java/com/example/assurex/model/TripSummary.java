@@ -26,6 +26,10 @@ public class TripSummary implements Parcelable {
     @ColumnInfo
     private String engineStatus;
     @ColumnInfo
+    private double currentTripScore;
+    @ColumnInfo
+    private double totalTripScore;
+    @ColumnInfo
     private double averageSpeed;
     @ColumnInfo
     private double topSpeed;
@@ -51,9 +55,9 @@ public class TripSummary implements Parcelable {
     //actual constructor
     @Ignore
     public TripSummary(String tripId, String date, int tripNumber, String notableTripEvents,
-                       String engineStatus, double averageSpeed, double topSpeed,
-                       double averageAcceleration, double averageDeceleration,
-                       double topAcceleration, double topDeceleration,
+                       String engineStatus, double currentTripScore, double totalTripScore,
+                       double averageSpeed, double topSpeed, double averageAcceleration,
+                       double averageDeceleration, double topAcceleration, double topDeceleration,
                        String originLocation, String destinationLocation){
 
         if (tripId == null) {
@@ -70,6 +74,8 @@ public class TripSummary implements Parcelable {
         this.tripNumber = tripNumber;
         this.notableTripEvents = notableTripEvents;
         this.engineStatus = engineStatus;
+        this.currentTripScore = currentTripScore;
+        this.totalTripScore = totalTripScore;
         this.averageSpeed = averageSpeed;
         this.topSpeed = topSpeed;
         this.averageAcceleration = averageAcceleration;
@@ -117,6 +123,14 @@ public class TripSummary implements Parcelable {
     public void setEngineStatus(String engineStatus) {
         this.engineStatus = engineStatus;
     }
+
+    public double getCurrentTripScore() { return currentTripScore; }
+
+    public void setCurrentTripScore(double currentTripScore) { this.currentTripScore = currentTripScore; }
+
+    public double getTotalTripScore() { return totalTripScore; }
+
+    public void setTotalTripScore(double totalTripScore) { this.totalTripScore = totalTripScore; }
 
     public double getAverageSpeed() {
         return averageSpeed;
@@ -168,6 +182,8 @@ public class TripSummary implements Parcelable {
         this.notableTripEvents = in.readString();
         this.tripNumber = in.readInt();
         this.engineStatus = in.readString();
+        this.currentTripScore = in.readDouble();
+        this.totalTripScore = in.readDouble();
         this.averageSpeed = in.readDouble();
         this.topSpeed = in.readDouble();
         this.averageAcceleration = in.readDouble();
@@ -186,6 +202,8 @@ public class TripSummary implements Parcelable {
         dest.writeString(this.notableTripEvents);
         dest.writeInt(this.tripNumber);
         dest.writeString(this.engineStatus);
+        dest.writeDouble(this.currentTripScore);
+        dest.writeDouble(this.totalTripScore);
         dest.writeDouble(this.averageSpeed);
         dest.writeDouble(this.topSpeed);
         dest.writeDouble(this.averageAcceleration);
