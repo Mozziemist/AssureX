@@ -24,6 +24,8 @@ import com.example.assurex.model.RawDataItem;
 import com.example.assurex.model.TripSummary;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -47,13 +49,13 @@ public class RawDataCollectionService extends Service {
     //this boolean makes it so data collection runs without the car first having moved
     boolean isDebugging = true;
     private final static String TAG = "RawDataCollectService";
-    //private AppDatabase db;
     FirebaseFirestore db;
+    FirebaseUser user;
+    String uid;
     CarDataReceiver receiver;
     SpeedDataReceiver spdreceiver;
     boolean isEngineOn = false;
     boolean shouldEndService = false;
-    String uniqueID;
 
 
     //for the RawDateItem
@@ -98,8 +100,17 @@ public class RawDataCollectionService extends Service {
         registerReceiver(spdreceiver, new IntentFilter("MiscDataFromSpeedjava"));
 
         Log.d(TAG, "receiver registered");
-        //getLocation();
-        uniqueID = UUID.randomUUID().toString();
+
+        user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user != null) {
+            // User is signed in
+            uid = user.getUid();
+        } else {
+            // No user is signed in
+            uid = "debug_user";
+            Log.d(TAG, "Error. No User appears to be signed in");
+        }
 
         Intent notificationIntent = new Intent(this, Speed.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
@@ -175,7 +186,7 @@ public class RawDataCollectionService extends Service {
 
                     //===CONTACTING FIREBASE FOR TRIP SUMMARIES===
                     db.collection("users")
-                        .document("debug_user")
+                        .document(uid)
                         .collection("tripsummaries")
                         .whereEqualTo("date", tsDate)
                         .get()
@@ -278,7 +289,7 @@ public class RawDataCollectionService extends Service {
 
                         //SAVES RAW DATE ITEM INTO FIREBASE
                         db.collection("users")
-                                .document("debug_user")
+                                .document(uid)
                                 .collection("rawdataitems")
                                 .document(date)
                                 .collection("Trip Number " + tripNumber)
@@ -448,7 +459,7 @@ public class RawDataCollectionService extends Service {
         final Object[] userInfoObject = new Object[1];
 
         db.collection("users")
-                .document("debug_user")
+                .document(uid)
                 .collection("userinfo")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -510,7 +521,7 @@ public class RawDataCollectionService extends Service {
                 myOriginAddress, myDestinationAddress);
 
         db.collection("users")
-                .document("debug_user")
+                .document(uid)
                 .collection("tripsummaries")
                 .document(tripId).set(tempTripSummary);
 
@@ -524,7 +535,7 @@ public class RawDataCollectionService extends Service {
         userInfoHashMap.put("numberOfScores", numberOfScores);
 
         db.collection("users")
-                .document("debug_user")
+                .document(uid)
                 .collection("userinfo")
                 .document("User Info Page").set(userInfoHashMap);
 
@@ -548,9 +559,7 @@ public class RawDataCollectionService extends Service {
         super.onDestroy();
         unregisterReceiver(receiver);
         unregisterReceiver(spdreceiver);
-        //locationManager.removeUpdates(this);
         shouldEndService = true;
-        //AppDatabase.destroyInstance();
     }
 
     //must be implemented
