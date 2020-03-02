@@ -27,6 +27,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.firebase.auth.FirebaseAuth;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.mapboxsdk.Mapbox;
@@ -170,7 +171,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                 //tripTime.setText(Double.toString(b.getDouble("tripTime", 0)));
                 speed.setText(Integer.toString(spd));
                 acceleration.setText(Integer.toString((int)accel));
-                totalDistance.setText(Integer.toString(dist));
+                totalDistance.setText(Integer.toString(dist) + " ft");
                 isEngineOn = b.getBoolean("isEngineOn", false);
 
                 if (isEngineOn)
@@ -319,10 +320,12 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.profilePic: {
+            /*case R.id.profilePic: {
                 //Toast.makeText(this, "Insert Picture Selector Here", Toast.LENGTH_SHORT).show();
                 break;
             }
+
+             */
             case R.id.profileUser: {
                 //Toast.makeText(this, "profileUser selected", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), Package.class));
@@ -362,6 +365,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
             }
             case R.id.signOut: {
                 //Toast.makeText(this, "signOut selected", Toast.LENGTH_SHORT).show();
+                FirebaseAuth.getInstance().signOut();
                 startActivity(new Intent(getApplicationContext(), MainActivity.class));
                 finish();
                 break;

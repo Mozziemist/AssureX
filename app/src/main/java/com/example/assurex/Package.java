@@ -57,10 +57,12 @@ public class Package extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.profilePic: {
+            /*case R.id.profilePic: {
                 //Toast.makeText(this, "Insert Picture Selector Here", Toast.LENGTH_SHORT).show();
                 break;
             }
+
+             */
             case R.id.profileUser: {
                 //Toast.makeText(this, "profileUser selected", Toast.LENGTH_SHORT).show();
                 //startActivity(new Intent(getApplicationContext(), Package.class));
