@@ -73,6 +73,10 @@ import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.Point;
 //import com.mapbox.mapboxandroiddemo.R;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.camera.CameraPosition;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
+import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
@@ -81,13 +85,14 @@ import com.mapbox.mapboxsdk.style.layers.LineLayer;
 import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
+//import com.mapbox.mapboxandroiddemo.R;
 
 import java.util.ArrayList;
 import java.util.List;
 //end for map
 
 
-public class infoPage extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class infoPage extends AppCompatActivity implements AdapterView.OnItemSelectedListener, OnMapReadyCallback {
 
     //average speed variables
     private boolean avSpButTrue = false;
@@ -158,7 +163,10 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
 
     //for map
     private MapView mapView;
+    private MapboxMap mapboxMap;
     private List<Point> routeCoordinates;
+    private boolean isFirstLocation = true;
+    private double[] firstLocationArray = new double[2];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -250,38 +258,10 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         //addItemsOnSpinner();
 
         //for map
+        initRouteCoordinates();
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(@NonNull final MapboxMap mapboxMap) {
-
-                mapboxMap.setStyle(Style.OUTDOORS, new Style.OnStyleLoaded() {
-                    @Override
-                    public void onStyleLoaded(@NonNull Style style) {
-
-                        initRouteCoordinates();
-
-                        // Create the LineString from the list of coordinates and then make a GeoJSON
-                        // FeatureCollection so we can add the line to our map as a layer.
-                        style.addSource(new GeoJsonSource("line-source",
-                                FeatureCollection.fromFeatures(new Feature[] {Feature.fromGeometry(
-                                        LineString.fromLngLats(routeCoordinates)
-                                )})));
-
-                        // The layer properties for our line. This is where we make the line dotted, set the
-                        // color, etc.
-                        style.addLayer(new LineLayer("linelayer", "line-source").withProperties(
-                                PropertyFactory.lineDasharray(new Float[] {0.01f, 2f}),
-                                PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
-                                PropertyFactory.lineJoin(Property.LINE_JOIN_ROUND),
-                                PropertyFactory.lineWidth(5f),
-                                PropertyFactory.lineColor(Color.parseColor("#e55e5e"))
-                        ));
-                    }
-                });
-            }
-        });
+        mapView.getMapAsync(this);
 
         //update at start
         updateData();
@@ -301,10 +281,11 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.profilePic: {
+            /*case R.id.profilePic: {
                 //Toast.makeText(this, "Insert Picture Selector Here", Toast.LENGTH_SHORT).show();
                 break;
             }
+             */
             case R.id.profileUser: {
                 //Toast.makeText(this, "profileUser selected", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), Package.class));
@@ -446,7 +427,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
 
     private void addItemsOnSpinner() {
         tripSpinner.setAdapter(null);
-        updateData();
+        //updateData();
 
         tempTripSummaryList.clear();
 
@@ -480,6 +461,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     }//end additemsonspinner
 
     public void addItemsOnSpinnerHelper(){
+        isFirstLocation = true;
         Object[] tempTripSummaryArray = tempTripSummaryList.toArray();
 
         List<String> list = new ArrayList<>();
@@ -545,6 +527,12 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
                                         for(int i = 0; i < tempRawDataItemArray.length; i++){
                                             HashMap mapTempRawDataItem = (HashMap) tempRawDataItemArray[i];
                                             routeCoordinates.add(Point.fromLngLat((double) mapTempRawDataItem.get("longitude"),(double) mapTempRawDataItem.get("latitude") ));
+
+                                            if (isFirstLocation == true) {
+                                                firstLocationArray[0] = (double)mapTempRawDataItem.get("longitude");
+                                                firstLocationArray[1] = (double) mapTempRawDataItem.get("latitude");
+                                                isFirstLocation = false;
+                                            }//find where camera should look
                                         }
                                     }
 
@@ -702,6 +690,18 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         }
     }
 
+    @Override
+    public void onMapReady(@NonNull MapboxMap mapboxMap) {
+        infoPage.this.mapboxMap = mapboxMap;
+
+        mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
+            @Override
+            public void onStyleLoaded(@NonNull Style style) {
+
+            }
+        });
+    }
+
     class RawDataReceiver extends BroadcastReceiver {
 
         @Override
@@ -758,6 +758,52 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         }
         else tripSum.setText("No Trip Summary Selected");
 
+        //for map
+        //for map
+        mapView = findViewById(R.id.mapView);
+
+        //mapView.onCreate(savedInstanceState);
+        mapView.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(@NonNull final MapboxMap mapboxMap) {
+
+                mapboxMap.setStyle(Style.OUTDOORS, new Style.OnStyleLoaded() {
+                    @Override
+                    public void onStyleLoaded(@NonNull Style style) {
+
+                        // Create the LineString from the list of coordinates and then make a GeoJSON
+                        // FeatureCollection so we can add the line to our map as a layer.
+                        style.addSource(new GeoJsonSource("line-source",
+                                FeatureCollection.fromFeatures(new Feature[] {Feature.fromGeometry(
+                                        LineString.fromLngLats(routeCoordinates)
+                                )})));
+
+                        // The layer properties for our line. This is where we make the line dotted, set the
+                        // color, etc.
+                        style.addLayer(new LineLayer("linelayer", "line-source").withProperties(
+                                PropertyFactory.lineDasharray(new Float[] {0.01f, 2f}),
+                                PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
+                                PropertyFactory.lineJoin(Property.LINE_JOIN_ROUND),
+                                PropertyFactory.lineWidth(5f),
+                                PropertyFactory.lineColor(Color.parseColor("#e55e5e"))
+                        ));
+                    }
+
+                });
+            }
+        });
+
+        //mapboxMap.setCameraPosition(firstLocationArray[0], firstLocationArray[1]);
+        //move the camera
+        CameraPosition position = new CameraPosition.Builder()
+                .target(new LatLng(firstLocationArray[0], firstLocationArray[1])) // Sets the new camera position
+                .zoom(17) // Sets the zoom
+                .bearing(180) // Rotate the camera
+                .tilt(30) // Set the camera tilt
+                .build(); // Creates a CameraPosition from the builder
+
+        mapboxMap.animateCamera(CameraUpdateFactory
+                .newCameraPosition(position), 7000);
     }//end update Data
 
     //for map line
