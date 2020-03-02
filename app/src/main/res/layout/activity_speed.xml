@@ -25,21 +25,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <EditText
-                android:id="@+id/tripScore"
-                android:layout_width="152dp"
-                android:layout_height="50dp"
-                android:ems="10"
-                android:inputType="textPersonName"
-                android:text="Trip Score: "
-                android:visibility="invisible"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.505"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.06" />
-
             <TextView
                 android:id="@+id/Distance"
                 android:layout_width="150dp"
@@ -50,6 +35,20 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/tripScore"
+                android:layout_width="143dp"
+                android:layout_height="48dp"
+                android:text="Score: "
+                android:textSize="30sp"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toTopOf="@+id/Distance"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.514"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.081" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.mapbox.mapboxsdk.maps.MapView>
 
