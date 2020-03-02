@@ -796,6 +796,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
 
         //mapboxMap.setCameraPosition(firstLocationArray[0], firstLocationArray[1]);
         //move the camera
+        /*
         LatLng point;
 
         CameraPosition position = new CameraPosition.Builder()
@@ -807,6 +808,8 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
 
         mapboxMap.animateCamera(CameraUpdateFactory
                 .newCameraPosition(position), 7000);
+                
+         */
     }//end update Data
 
     //for map line
