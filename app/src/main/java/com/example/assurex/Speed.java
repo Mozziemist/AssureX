@@ -149,7 +149,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         public void onReceive(Context context, Intent intent) {
             if (("ScoreUpdates").equals(intent.getAction())){
                 int temp = (int)intent.getFloatExtra("score", 100);
-                lastScore.append(Integer.toString(temp) + " ft");
+                lastScore.append(Integer.toString(temp));
                 lastScore.setVisibility(View.VISIBLE);
             }
         }
