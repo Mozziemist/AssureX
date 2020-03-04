@@ -47,7 +47,7 @@ import static com.example.assurex.App.RD_CHANNEL_ID;
 
 public class RawDataCollectionService extends Service {
     //this boolean makes it so data collection runs without the car first having moved
-    boolean isDebugging = true;
+    boolean isDebugging = false;
     private final static String TAG = "RawDataCollectService";
     FirebaseFirestore db;
     FirebaseUser user;
@@ -69,6 +69,7 @@ public class RawDataCollectionService extends Service {
     String engineTroubleCodes = "Pending Search";
     int accelOverNine = 0;
     int decelOverThirteen = 0;
+    boolean accelEvent = false;
     int secondsSpentOverTenMPH = 0;
     double tAverageSpeed = 0;
     double tTopSpeed = 0;
@@ -430,13 +431,17 @@ public class RawDataCollectionService extends Service {
     }
 
     private void eventsTracker(){
-        if (Math.abs(rawAcceleration) > 8) {
-            if(rawAcceleration > 8){
+
+        //attempted to implement catches for acceleration events
+        if (!accelEvent && Math.abs(rawAcceleration) > 9) {
+            if(rawAcceleration > 9){
                 accelOverNine++;
-            }
-            else{
+            }else if(rawAcceleration < -13){
                 decelOverThirteen++;
             }
+            accelEvent =  true;
+        }else{
+            accelEvent = false;
         }
 
         if (speedLimit != -1) {
@@ -551,6 +556,7 @@ public class RawDataCollectionService extends Service {
         tAverageDeceleration = 0;
         accelOverNine = 0;
         decelOverThirteen = 0;
+        accelEvent = false;
         secondsSpentOverTenMPH = 0;
         tripSummaryShouldBeSaved = false;
     }
