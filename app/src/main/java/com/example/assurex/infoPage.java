@@ -93,7 +93,7 @@ import java.util.List;
 //end for map
 
 
-public class infoPage extends AppCompatActivity implements AdapterView.OnItemSelectedListener, OnMapReadyCallback {
+public class infoPage extends AppCompatActivity implements AdapterView.OnItemSelectedListener, OnMapReadyCallback, MapboxMap.OnMapClickListener {
 
     //average speed variables
     private boolean avSpButTrue = false;
@@ -168,6 +168,8 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     private List<Point> routeCoordinates;
     private boolean isFirstLocation = true;
     private double[] firstLocationArray = new double[2];
+    private static LatLng locationOne = new LatLng();
+    private static LatLng locationTwo = new LatLng();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -263,6 +265,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
+        Toast.makeText(this, "Called getMapAsync", Toast.LENGTH_SHORT).show();
 
         //update at start
         updateData();
@@ -529,11 +532,18 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
                                             HashMap mapTempRawDataItem = (HashMap) tempRawDataItemArray[i];
                                             routeCoordinates.add(Point.fromLngLat((double) mapTempRawDataItem.get("longitude"),(double) mapTempRawDataItem.get("latitude") ));
 
+
                                             if (isFirstLocation == true) {
                                                 firstLocationArray[0] = (double)mapTempRawDataItem.get("longitude");
                                                 firstLocationArray[1] = (double) mapTempRawDataItem.get("latitude");
+                                                locationOne = new LatLng((double)mapTempRawDataItem.get("longitude"), (double) mapTempRawDataItem.get("latitude"));
                                                 isFirstLocation = false;
                                             }//find where camera should look
+                                            if (i==tempRawDataItemArray.length-1) {
+                                                locationTwo = new LatLng((double)mapTempRawDataItem.get("longitude"), (double) mapTempRawDataItem.get("latitude"));
+                                            }//find where camera should look
+
+
                                         }
                                     }
 
@@ -692,15 +702,33 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     }
 
     @Override
-    public void onMapReady(@NonNull MapboxMap mapboxMap) {
+    public void onMapReady(@NonNull final MapboxMap mapboxMap) {
         infoPage.this.mapboxMap = mapboxMap;
 
         mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
+
             @Override
             public void onStyleLoaded(@NonNull Style style) {
-
+                mapboxMap.addOnMapClickListener(infoPage.this);
+                Toast.makeText(infoPage.this, "Added onmapclicklistener", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public boolean onMapClick(@NonNull LatLng point) {
+        LatLngBounds latLngBounds = new LatLngBounds.Builder()
+                .include(locationOne) // Northeast
+                .include(locationTwo) // Southwest
+                .build();
+        Toast.makeText(
+                infoPage.this,
+                "got points and gonna easeCamera",
+                Toast.LENGTH_LONG
+        ).show();
+
+        mapboxMap.easeCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 50), 5000);
+        return true;
     }
 
     class RawDataReceiver extends BroadcastReceiver {
@@ -729,6 +757,9 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         unregisterReceiver(rdreceiver);
         AppDatabase.destroyInstance();
         mapView.onDestroy();
+        if (mapboxMap != null) {
+            mapboxMap.removeOnMapClickListener(this);
+        }
         //AppDatabase.destroyInstance();
     }
 
@@ -797,8 +828,6 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         //mapboxMap.setCameraPosition(firstLocationArray[0], firstLocationArray[1]);
         //move the camera
         /*
-        LatLng point;
-
         CameraPosition position = new CameraPosition.Builder()
                 .target(new LatLng(firstLocationArray[0], firstLocationArray[1])) // Sets the new camera position
                 .zoom(17) // Sets the zoom
@@ -806,26 +835,20 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
                 .tilt(30) // Set the camera tilt
                 .build(); // Creates a CameraPosition from the builder
 
-        mapboxMap.animateCamera(CameraUpdateFactory
-                .newCameraPosition(position), 7000);
-                
-         */
-    }//end update Data
+        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 7000);
 
-    //for map line
-    private void setRouteCoordinates () {
+         */
         /*
-        clear arraylist of past corrdinates;
+        LatLngBounds latLngBounds = new LatLngBounds.Builder()
+                .include(locationOne) // Northeast
+                .include(locationTwo) // Southwest
+                .build();
 
-        while(database has coordinates){
-            fetch next entry;
-            retrieve coordinate;
-            add to array list;
-        }//end while
+        mapboxMap.easeCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 50), 5000);
 
-        refresh map;
          */
-    }
+
+    }//end update Data
 
     private void initRouteCoordinates() {
         // Create a list to store our line coordinates.
@@ -890,6 +913,8 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
 
         firstLocationArray[0] = 33.39243835;
         firstLocationArray[1] = -118.38265415000001;
+        LatLng locationOne = new LatLng(-89, 33.397676454651766);
+        LatLng locationTwo = new LatLng(-70, 33.39114243958559);
     }//end coordinates
 
     @Override
