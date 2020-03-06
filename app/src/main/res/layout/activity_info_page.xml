@@ -156,7 +156,7 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
-                tools:context=".examples.styles.LineLayerActivity"
+                tools:context=".examples.styles.infoPage"
                 android:paddingTop="20dp">
 
                 <com.mapbox.mapboxsdk.maps.MapView
