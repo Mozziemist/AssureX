@@ -1,26 +1,21 @@
 package com.example.assurex;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NavUtils;
-
-import android.annotation.SuppressLint;
-import android.app.ActionBar;
-import android.app.Activity;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
-import android.widget.Toast;
-import android.widget.Toolbar;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NavUtils;
+
+import com.google.firebase.auth.FirebaseAuth;
 
 public class Settings extends AppCompatActivity {
 
@@ -109,7 +104,9 @@ public class Settings extends AppCompatActivity {
             }
             case R.id.signOut: {
                 //Toast.makeText(this, "signOut selected", Toast.LENGTH_SHORT).show();
+                FirebaseAuth.getInstance().signOut();
                 startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                finish();
                 break;
             }
         }
