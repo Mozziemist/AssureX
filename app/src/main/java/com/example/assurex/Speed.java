@@ -44,6 +44,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
 
 //for map
@@ -82,7 +87,10 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Mapbox.getInstance(this, "pk.eyJ1IjoiY2xpZW50aW5ncyIsImEiOiJjazE5dzI1cWUwYjVkM2NwY2c5Z21neHJ6In0.UvUvFuBQpl-DdyK9DAmYVw");
-        //for dark mode
+
+        loadSettings();
+
+       /* //for dark mode
         if (Speed.getDarkMode() == false) {
             //settingsBut.setChecked(true);
             //Toast.makeText(this, "Light Mode Picked", Toast.LENGTH_SHORT).show();
@@ -93,7 +101,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
             //Toast.makeText(this, "Dark Mode Picked", Toast.LENGTH_SHORT).show();
             setTheme(R.style.DarkTheme);
         }
-        //end for dark mode
+        //end for dark mode */
 
         setContentView(R.layout.activity_speed);
 
@@ -134,6 +142,59 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
 
         warning = false;
     }//end oncreate
+
+    public void loadSettings() {
+        FileInputStream fis = null;
+
+        try {
+            fis = openFileInput("assurexSettings.txt");
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader br = new BufferedReader(isr);
+            String text;
+
+            while ((text = br.readLine()) != null)
+            {
+                if (text.equals("isScreenAlwaysOn=true"))
+                {
+                    // flag on
+                    getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                }
+                else if (text.equals("isScreenAlwaysOn=false"))
+                {
+                    // flag off
+                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                }
+                else if (text.equals("isDarkmode=true"))
+                {
+                    // set darkmode true
+                    setTheme(R.style.DarkTheme);
+                    setDarkMode(true);
+                    // this.recreate();
+                }
+                else if (text.equals("isDarkmode=false"))
+                {
+                    // set darkmode false
+                    setTheme(R.style.AppTheme);
+                    setDarkMode(false);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fis != null)
+            {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+
+    }
 
     class SpeedLimitReceiver extends BroadcastReceiver {
         @Override
@@ -456,6 +517,9 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     protected void onResume() {
         super.onResume();
         mapView.onResume();
+
+        loadSettings();
+/*
         if (Speed.getDarkMode() == false) {
             //settingsBut.setChecked(true);
             //Toast.makeText(this, "Light Mode Picked", Toast.LENGTH_SHORT).show();
@@ -467,6 +531,8 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
             setTheme(R.style.DarkTheme);
             //reCreate();
         }
+
+ */
         if (themeChanged){
             themeChanged = false;
             this.recreate();
