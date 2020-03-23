@@ -11,39 +11,23 @@ import androidx.room.PrimaryKey;
 
 import java.util.UUID;
 
-@Entity
-public class TripSummary implements Parcelable {
+public class TripSummary {
 
-    @PrimaryKey
-    @NonNull
+
     private String tripId;
-    @ColumnInfo
     private String date;
-    @ColumnInfo
     private int tripNumber;
-    @ColumnInfo
     private String notableTripEvents;
-    @ColumnInfo
     private String engineStatus;
-    @ColumnInfo
     private double currentTripScore;
-    @ColumnInfo
     private double totalTripScore;
-    @ColumnInfo
     private double averageSpeed;
-    @ColumnInfo
     private double topSpeed;
-    @ColumnInfo
     private double averageAcceleration;
-    @ColumnInfo
     private double averageDeceleration;
-    @ColumnInfo
     private double topAcceleration;
-    @ColumnInfo
     private double topDeceleration;
-    @ColumnInfo
     private String originLocation;
-    @ColumnInfo
     private String destinationLocation;
 
 
@@ -176,58 +160,4 @@ public class TripSummary implements Parcelable {
 
     public void setDestinationLocation(String destinationLocation) { this.destinationLocation = destinationLocation; }
 
-    protected TripSummary(Parcel in) {
-        this.tripId = in.readString();
-        this.date = in.readString();
-        this.notableTripEvents = in.readString();
-        this.tripNumber = in.readInt();
-        this.engineStatus = in.readString();
-        this.currentTripScore = in.readDouble();
-        this.totalTripScore = in.readDouble();
-        this.averageSpeed = in.readDouble();
-        this.topSpeed = in.readDouble();
-        this.averageAcceleration = in.readDouble();
-        this.averageDeceleration = in.readDouble();
-        this.topAcceleration = in.readDouble();
-        this.topDeceleration = in.readDouble();
-        this.originLocation = in.readString();
-        this.destinationLocation = in.readString();
-
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.tripId);
-        dest.writeString(this.date);
-        dest.writeString(this.notableTripEvents);
-        dest.writeInt(this.tripNumber);
-        dest.writeString(this.engineStatus);
-        dest.writeDouble(this.currentTripScore);
-        dest.writeDouble(this.totalTripScore);
-        dest.writeDouble(this.averageSpeed);
-        dest.writeDouble(this.topSpeed);
-        dest.writeDouble(this.averageAcceleration);
-        dest.writeDouble(this.averageDeceleration);
-        dest.writeDouble(this.topAcceleration);
-        dest.writeDouble(this.topDeceleration);
-        dest.writeString(this.originLocation);
-        dest.writeString(this.destinationLocation);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public static final Creator<TripSummary> CREATOR = new Creator<TripSummary>() {
-        @Override
-        public TripSummary createFromParcel(Parcel in) {
-            return new TripSummary(in);
-        }
-
-        @Override
-        public TripSummary[] newArray(int size) {
-            return new TripSummary[size];
-        }
-    };
 }

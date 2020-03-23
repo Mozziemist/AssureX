@@ -16,7 +16,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.assurex.database.AppDatabase;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.greenrobot.eventbus.EventBus;
@@ -78,7 +77,6 @@ public class Register extends AppCompatActivity{
 
     @Override
     protected void onDestroy() {
-        AppDatabase.destroyInstance();
         EventBus.getDefault().unregister(this);
         super.onDestroy();
     }

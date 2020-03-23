@@ -19,7 +19,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-import com.example.assurex.database.AppDatabase;
 import com.example.assurex.model.RawDataItem;
 import com.example.assurex.model.TripSummary;
 import com.google.android.gms.tasks.OnCompleteListener;
