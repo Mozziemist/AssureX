@@ -17,6 +17,10 @@ import androidx.core.app.NavUtils;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 public class Settings extends AppCompatActivity {
 
     CheckBox settingsBut;
@@ -26,6 +30,7 @@ public class Settings extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         //for dark mode
         if (Speed.getDarkMode() == false) {
             //settingsBut.setChecked(true);
@@ -38,6 +43,7 @@ public class Settings extends AppCompatActivity {
             setTheme(R.style.DarkTheme);
         }
         //end for dark mode
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
@@ -117,7 +123,7 @@ public class Settings extends AppCompatActivity {
     //end for menu --------
 
     public void darkMode(View view) {
-        if (Speed.getDarkMode() == false && !Speed.getIsEngineOn()) {
+        /*if (Speed.getDarkMode() == false && !Speed.getIsEngineOn()) {
             //settingsBut.setChecked(true);
             //Toast.makeText(this, "Dark Mode Activated", Toast.LENGTH_SHORT).show();
             Speed.setDarkMode(true);
@@ -142,26 +148,108 @@ public class Settings extends AppCompatActivity {
             //Toast.makeText(this, "Must wait till engine is off", Toast.LENGTH_SHORT).show();
         }
 
+         */
+        FileOutputStream fos = null;
+
+        try {
+            fos = openFileOutput("assurexSettings.txt", MODE_PRIVATE);
+
+            if (settingsBut.isChecked())
+            {
+                if (alwaysOnCheckBox.isChecked())
+                {
+                    fos.write("isScreenAlwaysOn=true\nisDarkmode=true".getBytes());
+                }
+                else
+                    fos.write("isScreenAlwaysOn=true\nisDarkmode=false".getBytes());
+
+                settingsBut.setChecked(true);
+                Speed.setDarkMode(true);
+                setTheme(R.style.DarkTheme);
+                Speed.themeChanged = true;
+                Intent intent = new Intent(this, Settings.class);
+                startActivity(intent);
+                finish();
+            }
+            else
+            {
+                if (alwaysOnCheckBox.isChecked())
+                {
+                    fos.write("isScreenAlwaysOn=false\nisDarkmode=true".getBytes());
+                }
+                else
+                    fos.write("isScreenAlwaysOn=false\nisDarkmode=false".getBytes());
+
+                settingsBut.setChecked(false);
+                Speed.setDarkMode(false);
+                setTheme(R.style.AppTheme);
+                Speed.themeChanged = true;
+                Intent intent = new Intent(this, Settings.class);
+                startActivity(intent);
+                finish();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
     }
 
     public void alwaysOnClicked(View view) {
 
-        Intent sendSettings = new Intent("SettingsUpdate");
+        FileOutputStream fos = null;
 
-        if (alwaysOnCheckBox.isChecked())
-        {
-            //Toast.makeText(this, "Screen won't turn off", Toast.LENGTH_SHORT).show();
-            sendSettings.putExtra("alwaysOn", true);
-            sendBroadcast(sendSettings);
-            //Speed.setDarkModeSpeed();
+        try {
+            fos = openFileOutput("assurexSettings.txt", MODE_PRIVATE);
+
+            if (alwaysOnCheckBox.isChecked())
+            {
+                //Toast.makeText(this, "Screen won't turn off", Toast.LENGTH_SHORT).show();
+                if (settingsBut.isChecked())
+                {
+                    fos.write("isScreenAlwaysOn=true\nisDarkmode=true".getBytes());
+                }
+                else
+                    fos.write("isScreenAlwaysOn=true\nisDarkmode=false".getBytes());
+
+                //Speed.setDarkModeSpeed();
+            }
+            else
+            {
+                //Toast.makeText(this, "Screen can now turn off", Toast.LENGTH_SHORT).show();
+                if (settingsBut.isChecked())
+                {
+                    fos.write("isScreenAlwaysOn=false\nisDarkmode=true".getBytes());
+                }
+                else
+                    fos.write("isScreenAlwaysOn=false\nisDarkmode=false".getBytes());
+
+                //Speed.setDarkModeSpeed();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
-        else
-        {
-            //Toast.makeText(this, "Screen can now turn off", Toast.LENGTH_SHORT).show();
-            sendSettings.putExtra("alwaysOn", false);
-            sendBroadcast(sendSettings);
-            //Speed.setDarkModeSpeed();
-        }
+
+
     }
 
 
