@@ -56,7 +56,7 @@ public class Package extends AppCompatActivity {
 
         //for database
         db = FirebaseFirestore.getInstance();
-        totalTripScore = getTotalTripScore();
+        //totalTripScore = getTotalTripScore();
 
         //instantiate bar
         prog();
@@ -127,6 +127,9 @@ public class Package extends AppCompatActivity {
     public void prog() {
 
         bar = (ProgressBar)findViewById(R.id.progressBar);
+
+        //test location
+        totalTripScore = getTotalTripScore();
 
         final Timer t = new Timer();
         TimerTask tt = new TimerTask() {
