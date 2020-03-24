@@ -139,6 +139,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     //for map
     private MapView mapView;
     private MapboxMap mapboxMap;
+    private LinearLayout infoMap;
     private List<Point> routeCoordinates;
     private boolean isFirstLocation = true;
     private double[] firstLocationArray = new double[2];
@@ -236,6 +237,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
 
         //for map
         initRouteCoordinates();
+        infoMap = findViewById(R.id.infoMap);
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
@@ -466,6 +468,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
                 //position is the index of the selection as if it is an array
                 //if (tempTripSummaryList.size() > 0) {
                 if(tempTripSummaryArray.length > 0) {
+                    infoMap.setVisibility(View.VISIBLE);
                     HashMap mapSelectedTripSummary;
                     mapSelectedTripSummary = (HashMap) tempTripSummaryArray[position];
                     displayedTopSpeed = (double) mapSelectedTripSummary.get("topSpeed");
@@ -680,6 +683,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     @Override
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
         infoPage.this.mapboxMap = mapboxMap;
+        Toast.makeText(infoPage.this, "called onMapReady", Toast.LENGTH_SHORT).show();
 
         mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
 
@@ -795,6 +799,16 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
                                 PropertyFactory.lineWidth(5f),
                                 PropertyFactory.lineColor(Color.parseColor("#e55e5e"))
                         ));
+
+                        CameraPosition position = new CameraPosition.Builder()
+                                .target(new LatLng(firstLocationArray[0], firstLocationArray[1])) // Sets the new camera position
+                                .zoom(14) // Sets the zoom
+                                .bearing(180) // Rotate the camera
+                                .tilt(30) // Set the camera tilt
+                                .build(); // Creates a CameraPosition from the builder
+
+                        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 7000);
+
                     }
 
                 });
@@ -802,18 +816,6 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         });
 
         //mapboxMap.setCameraPosition(firstLocationArray[0], firstLocationArray[1]);
-        //move the camera
-        /*
-        CameraPosition position = new CameraPosition.Builder()
-                .target(new LatLng(firstLocationArray[0], firstLocationArray[1])) // Sets the new camera position
-                .zoom(17) // Sets the zoom
-                .bearing(180) // Rotate the camera
-                .tilt(30) // Set the camera tilt
-                .build(); // Creates a CameraPosition from the builder
-
-        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 7000);
-
-         */
         /*
         LatLngBounds latLngBounds = new LatLngBounds.Builder()
                 .include(locationOne) // Northeast
@@ -887,8 +889,8 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         routeCoordinates.add(Point.fromLngLat(-118.37546662390886, 33.38847843095069));
         routeCoordinates.add(Point.fromLngLat(-118.37091717142867, 33.39114243958559));
 
-        firstLocationArray[0] = 33.39243835;
-        firstLocationArray[1] = -118.38265415000001;
+        firstLocationArray[0] = 33.397676454651766;
+        firstLocationArray[1] = -118.39439114221236;
         LatLng locationOne = new LatLng(-89, 33.397676454651766);
         LatLng locationTwo = new LatLng(-70, 33.39114243958559);
     }//end coordinates

@@ -5,6 +5,7 @@ package com.example.assurex;
 //for map
 //package com.mapbox.mapboxandroiddemo.examples.location;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +21,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -141,6 +143,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         startService(rawDataIntent);
 
         warning = false;
+
     }//end oncreate
 
     public void loadSettings() {
