@@ -47,20 +47,27 @@ public class MainActivity extends AppCompatActivity {
         //for location permissions
         boolean permissionAccessCoarseLocationApproved =
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                         == PackageManager.PERMISSION_GRANTED;
-        Toast.makeText(this, "accessing fine location", Toast.LENGTH_SHORT).show();
 
         if (permissionAccessCoarseLocationApproved) {
-            Toast.makeText(this, "accessing background location", Toast.LENGTH_SHORT).show();
             boolean backgroundLocationPermissionApproved =
                     ActivityCompat.checkSelfPermission(this,
                             Manifest.permission.ACCESS_BACKGROUND_LOCATION)
                             == PackageManager.PERMISSION_GRANTED;
+            Toast.makeText(this, "background location was approved?: " + backgroundLocationPermissionApproved, Toast.LENGTH_SHORT).show();
             if (backgroundLocationPermissionApproved) {
                 // App can access location both in the foreground and in the background.
                 // Start your service that doesn't have a foreground service type
                 // defined.
                 Toast.makeText(this, "can access background location", Toast.LENGTH_SHORT).show();
+                fAuth = FirebaseAuth.getInstance();
+
+                if (fAuth.getCurrentUser() != null) {
+                    Speed.setUsername(fAuth.getCurrentUser().getEmail());
+                    startActivity(new Intent(getApplicationContext(), Speed.class));
+                    finish();
+                }
             } else {
                 // App can only access location in the foreground. Display a dialog
                 // warning the user that your app must have all-the-time access to
@@ -70,6 +77,13 @@ public class MainActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this, new String[]{
                                 Manifest.permission.ACCESS_BACKGROUND_LOCATION},
                         1);
+                fAuth = FirebaseAuth.getInstance();
+
+                if (fAuth.getCurrentUser() != null) {
+                    Speed.setUsername(fAuth.getCurrentUser().getEmail());
+                    startActivity(new Intent(getApplicationContext(), Speed.class));
+                    finish();
+                }
             }
         } else {
             // App doesn't have access to the device's location at all. Make full request
@@ -82,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
             fAuth = FirebaseAuth.getInstance();
 
             if (fAuth.getCurrentUser() != null) {
+                Speed.setUsername(fAuth.getCurrentUser().getEmail());
                 startActivity(new Intent(getApplicationContext(), Speed.class));
                 finish();
             }

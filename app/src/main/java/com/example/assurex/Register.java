@@ -100,6 +100,7 @@ public class Register extends AppCompatActivity{
             fAuth.createUserWithEmailAndPassword(newEmail, newPass).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     startActivity(new Intent(getApplicationContext(), Speed.class));
+                    Speed.setUsername(newEmail);
                     finish();
                 }
                 else {
