@@ -443,7 +443,6 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     }//end additemsonspinner
 
     public void addItemsOnSpinnerHelper(){
-        isFirstLocation = true;
         Object[] tempTripSummaryArray = tempTripSummaryList.toArray();
 
         List<String> list = new ArrayList<>();
@@ -465,6 +464,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         tripSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long l) {
+                isFirstLocation = true;
                 //position is the index of the selection as if it is an array
                 //if (tempTripSummaryList.size() > 0) {
                 if(tempTripSummaryArray.length > 0) {
@@ -803,7 +803,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
                         CameraPosition position = new CameraPosition.Builder()
                                 .target(new LatLng(firstLocationArray[0], firstLocationArray[1])) // Sets the new camera position
                                 .zoom(14) // Sets the zoom
-                                .bearing(180) // Rotate the camera
+                                .bearing(0) // Rotate the camera/
                                 .tilt(30) // Set the camera tilt
                                 .build(); // Creates a CameraPosition from the builder
 
