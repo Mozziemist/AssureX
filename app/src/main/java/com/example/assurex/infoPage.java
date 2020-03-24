@@ -136,6 +136,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     RawDataReceiver rdreceiver;
     Object[] tempRawDataItemArray;
 
+
     //for map
     private MapView mapView;
     private MapboxMap mapboxMap;
@@ -145,6 +146,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     private double[] firstLocationArray = new double[2];
     private static LatLng locationOne = new LatLng();
     private static LatLng locationTwo = new LatLng();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
