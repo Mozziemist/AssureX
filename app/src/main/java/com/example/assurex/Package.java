@@ -6,6 +6,7 @@ import androidx.core.app.NavUtils;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Debug;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -33,7 +34,7 @@ public class Package extends AppCompatActivity {
     private ProgressBar bar;
     int counter = 0;
     FirebaseFirestore db;
-    private double totalTripScore = getTotalTripScore();
+    private double totalTripScore;
 
 
     @Override
@@ -53,7 +54,11 @@ public class Package extends AppCompatActivity {
         //end for dark mode
         setContentView(R.layout.activity_package);
 
+        //for database
+        db = FirebaseFirestore.getInstance();
+        totalTripScore = getTotalTripScore();
 
+        //instantiate bar
         prog();
 
 
