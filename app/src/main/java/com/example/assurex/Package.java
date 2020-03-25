@@ -6,6 +6,8 @@ import androidx.core.app.NavUtils;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Debug;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -14,13 +16,26 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class Package extends AppCompatActivity {
 
+    private final static String TAG = "Package";
     private ProgressBar bar;
     int counter = 0;
+    FirebaseFirestore db;
+    private double totalTripScore;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,8 +54,13 @@ public class Package extends AppCompatActivity {
         //end for dark mode
         setContentView(R.layout.activity_package);
 
+        //for database
+        db = FirebaseFirestore.getInstance();
+        //totalTripScore = getTotalTripScore();
 
+        //instantiate bar
         prog();
+
 
     }//end onCreate
 
@@ -108,6 +128,9 @@ public class Package extends AppCompatActivity {
 
         bar = (ProgressBar)findViewById(R.id.progressBar);
 
+        //test location
+        totalTripScore = getTotalTripScore();
+
         final Timer t = new Timer();
         TimerTask tt = new TimerTask() {
             @Override
@@ -115,7 +138,7 @@ public class Package extends AppCompatActivity {
                 counter++;
                 bar.setProgress(counter);
 
-                if (counter == 100)
+                if (counter == totalTripScore)
                     t.cancel();
             }
         };
@@ -123,6 +146,51 @@ public class Package extends AppCompatActivity {
         t.schedule(tt,0,100);
 
     }//and prog
+
+    private double getTotalTripScore() {
+        FirebaseUser user;
+        String uid;
+
+        user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user != null) {
+            // User is signed in
+            //uid = user.getUid();
+            uid = user.getEmail();
+        } else {
+            // No user is signed in
+            uid = "debug_user";
+            Log.d(TAG, "Error. No User appears to be signed in");
+        }
+
+        final Object[] userInfoObject = new Object[1];
+
+        db.collection("users")
+                .document(uid)
+                .collection("userinfo")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                try {
+                                    userInfoObject[0] = document.getData();
+                                }catch (NullPointerException e) {
+                                    e.printStackTrace();
+                                }
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+
+        HashMap userInfoHashMap = (HashMap) userInfoObject[0];
+        double totalTripScore = (double) userInfoHashMap.get("totalTripScore");
+        return totalTripScore;
+    }
 
 
 }//end class
