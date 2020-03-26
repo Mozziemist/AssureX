@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Debug;
 import android.util.Log;
@@ -14,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -24,6 +26,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import org.w3c.dom.Text;
+
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -31,11 +35,15 @@ import java.util.TimerTask;
 public class Package extends AppCompatActivity {
 
     private final static String TAG = "Package";
-    private ProgressBar bar;
-    int counter = 0;
     FirebaseFirestore db;
     private double totalTripScore;
+    private TextView conditionText;
 
+
+    //for bar
+    private ProgressBar bar;
+    int counter = 0;
+    private Button tripScore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,12 +62,12 @@ public class Package extends AppCompatActivity {
         //end for dark mode
         setContentView(R.layout.activity_package);
 
-        //for database
-        db = FirebaseFirestore.getInstance();
         //totalTripScore = getTotalTripScore();
 
-        //instantiate bar
-        prog();
+        //assign to bar and button
+        bar = (ProgressBar)findViewById(R.id.progressBar);
+        tripScore = findViewById(R.id.tripScore);
+        conditionText = findViewById(R.id.conditionText);
 
 
     }//end onCreate
@@ -126,20 +134,34 @@ public class Package extends AppCompatActivity {
 
     public void prog() {
 
-        bar = (ProgressBar)findViewById(R.id.progressBar);
-
         //test location
         totalTripScore = getTotalTripScore();
+
+        if (totalTripScore<10) {
+            conditionText.setTextColor(Color.parseColor("#FF0000"));
+            conditionText.setText("Bad");
+        }
+        else if (totalTripScore>9 && totalTripScore<25) {
+            conditionText.setTextColor(Color.parseColor("#FFEB3B"));
+            conditionText.setText("Poor");
+        }
+        else if (totalTripScore>24 && totalTripScore<80) {
+            conditionText.setTextColor(Color.parseColor("#23B100"));
+            conditionText.setText("Good");
+        }
+        else {
+            conditionText.setTextColor(Color.parseColor("#23B100"));
+            conditionText.setText("Great");
+        }
 
         final Timer t = new Timer();
         TimerTask tt = new TimerTask() {
             @Override
             public void run() {
-                counter++;
-                bar.setProgress(counter);
-
                 if (counter == totalTripScore)
                     t.cancel();
+                counter++;
+                bar.setProgress(counter);
             }
         };
 
@@ -188,9 +210,29 @@ public class Package extends AppCompatActivity {
                 });
 
         HashMap userInfoHashMap = (HashMap) userInfoObject[0];
-        double totalTripScore = (double) userInfoHashMap.get("totalTripScore");
-        return totalTripScore;
+        try{
+            double totalTripScore = (double) userInfoHashMap.get("totalTripScore");
+            return totalTripScore;
+        }
+        catch(NullPointerException e){
+            double totalTripScore = 0;
+            e.printStackTrace();
+            return totalTripScore;
+        }
     }
 
 
+    public void getTotalTripScore(View view) {
+
+        //for database
+        db = FirebaseFirestore.getInstance();
+
+        //make button invisible
+        tripScore.setVisibility(view.GONE);
+
+        //make bar visible
+        bar.setVisibility(view.VISIBLE);
+
+        prog();
+    }
 }//end class
