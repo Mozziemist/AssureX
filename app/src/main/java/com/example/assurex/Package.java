@@ -129,25 +129,11 @@ public class Package extends AppCompatActivity {
         bar = (ProgressBar)findViewById(R.id.progressBar);
 
         //test location
-        totalTripScore = getTotalTripScore();
-
-        final Timer t = new Timer();
-        TimerTask tt = new TimerTask() {
-            @Override
-            public void run() {
-                counter++;
-                bar.setProgress(counter);
-
-                if (counter == totalTripScore)
-                    t.cancel();
-            }
-        };
-
-        t.schedule(tt,0,100);
-
+        //totalTripScore = getTotalTripScore();
+        progHelper();
     }//and prog
 
-    private double getTotalTripScore() {
+    private void progHelper() {
         FirebaseUser user;
         String uid;
 
@@ -176,6 +162,23 @@ public class Package extends AppCompatActivity {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 try {
                                     userInfoObject[0] = document.getData();
+                                    HashMap userInfoHashMap = (HashMap) userInfoObject[0];
+                                    totalTripScore = (double) userInfoHashMap.get("totalTripScore");
+
+                                    final Timer t = new Timer();
+                                    TimerTask tt = new TimerTask() {
+                                        @Override
+                                        public void run() {
+                                            counter++;
+                                            bar.setProgress(counter);
+
+                                            if (counter == totalTripScore)
+                                                t.cancel();
+                                        }
+                                    };
+
+                                    t.schedule(tt,0,100);
+
                                 }catch (NullPointerException e) {
                                     e.printStackTrace();
                                 }
@@ -187,9 +190,7 @@ public class Package extends AppCompatActivity {
                     }
                 });
 
-        HashMap userInfoHashMap = (HashMap) userInfoObject[0];
-        double totalTripScore = (double) userInfoHashMap.get("totalTripScore");
-        return totalTripScore;
+
     }
 
 
