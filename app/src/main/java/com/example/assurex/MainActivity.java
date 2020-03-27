@@ -79,7 +79,9 @@ public class MainActivity extends AppCompatActivity {
         if(emailPass && passwordPass) {
             fAuth.signInWithEmailAndPassword(name, pass).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    startActivity(new Intent(getApplicationContext(), Speed.class));
+                    Intent signInIntent = new Intent(getApplicationContext(), Speed.class);
+                    signInIntent.putExtra("isRegistering", false);
+                    startActivity(signInIntent);
                     finish();
                 }
                 else {

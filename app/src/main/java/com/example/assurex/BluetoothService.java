@@ -20,6 +20,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
@@ -43,8 +44,16 @@ import com.github.pires.obd.enums.ObdProtocols;
 import com.github.pires.obd.exceptions.NoDataException;
 import com.github.pires.obd.exceptions.UnableToConnectException;
 import com.github.pires.obd.exceptions.UnknownErrorException;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
 
@@ -58,6 +67,11 @@ public class BluetoothService extends Service {
     Set<BluetoothDevice> pairedDevices;
     UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     BluetoothSocket mySocket;
+
+    //db variables
+    FirebaseFirestore db;
+    FirebaseUser user;
+    String uid;
 
 
     @Override
@@ -95,6 +109,61 @@ public class BluetoothService extends Service {
 
 
         return START_STICKY;
+    }
+
+    boolean isDeviceVerified(String deviceAddr)
+    {
+        db  = FirebaseFirestore.getInstance();
+        user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user != null) {
+            // User is signed in
+            //uid = user.getUid();
+            uid = user.getEmail();
+        } else {
+            // No user is signed in
+            uid = "debug_user";
+            Log.d(TAG, "Error. No User appears to be signed in");
+        }
+
+        final Object[] userInfoObject = new Object[1];
+
+        db.collection("users")
+                .document(uid)
+                .collection("userinfo")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                try {
+                                    userInfoObject[0] = document.getData();
+                                }catch (NullPointerException e) {
+                                    e.printStackTrace();
+                                }
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+
+        HashMap userInfoHashMap = (HashMap) userInfoObject[0];
+
+        try {
+            if (deviceAddr.equals(userInfoHashMap.get("device_id")))
+            {
+                return true;
+            }
+            else
+                return false;
+        } catch (Exception e){
+            showToast("You never registered your device!");
+            return true;
+        }
+
     }
 
     class BluetoothThread extends Thread {
@@ -284,20 +353,25 @@ public class BluetoothService extends Service {
         if (pairedDevices.size() > 0) {
             for (BluetoothDevice device : pairedDevices) {
                 if (device.getName().equals("OBDII")) {
-                    myDevice = device;
-                    showToast("Target device found");
+                    //verify it's the user's registered device
+                    if (isDeviceVerified(device.getAddress()))
+                    {
+                        myDevice = device;
+                        showToast("Device Verified");
 
-                    // set the key to obd device to allow connection
-                    try {
-                        mySocket = myDevice.createRfcommSocketToServiceRecord(myUUID);
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                        // set the key to obd device to allow connection
+                        try {
+                            mySocket = myDevice.createRfcommSocketToServiceRecord(myUUID);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        break;
                     }
-                    break;
+
                 }
             }
             if (myDevice == null) {
-                showToast("Target device not found");
+                showToast("You must first pair the device");
                 Intent openBtSettings = new Intent(Settings.ACTION_BLUETOOTH_SETTINGS);
                 openBtSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(openBtSettings);

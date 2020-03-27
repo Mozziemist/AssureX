@@ -97,7 +97,10 @@ public class Register extends AppCompatActivity{
         if(userPass && emailPass && passwordPass && devicePass) {
             fAuth.createUserWithEmailAndPassword(newEmail, newPass).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    startActivity(new Intent(getApplicationContext(), Speed.class));
+                    Intent signInIntent = new Intent(getApplicationContext(), Speed.class);
+                    signInIntent.putExtra("isRegistering", true);
+                    signInIntent.putExtra("device_id", deviceAddress);
+                    startActivity(signInIntent);
                     finish();
                 }
                 else {

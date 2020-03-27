@@ -78,9 +78,11 @@ public class RawDataCollectionService extends Service {
     double tTopDeceleration = 0;
     boolean tripSummaryShouldBeSaved = false;
     double currentTripScore = 100;
-    // todo: totalTripScore and numberOfScores need to at some point be initialized by value in database
+
     double totalTripScore;
     int numberOfScores;
+    boolean isRegistering;
+    String device_id;
 
 
     //for location related calculations
@@ -98,6 +100,7 @@ public class RawDataCollectionService extends Service {
         spdreceiver = new SpeedDataReceiver();
         registerReceiver(receiver, new IntentFilter("CarDataUpdates"));
         registerReceiver(spdreceiver, new IntentFilter("MiscDataFromSpeedjava"));
+
 
         Log.d(TAG, "receiver registered");
 
@@ -131,6 +134,11 @@ public class RawDataCollectionService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
+        isRegistering = intent.getBooleanExtra("isRegistering", false);
+        if (isRegistering)
+        {
+            device_id = intent.getStringExtra("device_id");
+        }
         //db = AppDatabase.getInstance(this);
         db = FirebaseFirestore.getInstance();
         Log.d(TAG, "AppDB instance gotten");
@@ -506,7 +514,7 @@ public class RawDataCollectionService extends Service {
 
             Log.d(TAG, "tripSummaryEntryCreation: Score sent");
         }
-        // todo: Once we have our totalTripScore and numberOfScores initialized by database we can update considering new score
+
         if (userInfoHashMap != null) {
             totalTripScore = (double) userInfoHashMap.get("totalTripScore");
         }else{
@@ -519,6 +527,8 @@ public class RawDataCollectionService extends Service {
         }
 
         totalTripScore = ((totalTripScore * numberOfScores) + currentTripScore) / (numberOfScores + 1);
+        // now updating numberOfScores
+        numberOfScores++;
 
         TripSummary tempTripSummary = new TripSummary(tripId, tsDate, tripNumber, notableTripEvents,
                 engineTroubleCodes,currentTripScore, totalTripScore, tAverageSpeed, tTopSpeed,
@@ -538,6 +548,11 @@ public class RawDataCollectionService extends Service {
         userInfoHashMap.put("totalTripScore", totalTripScore);
         userInfoHashMap.remove("numberOfScores");
         userInfoHashMap.put("numberOfScores", numberOfScores);
+        //saving device_id to db if user is registering
+        if (isRegistering)
+        {
+            userInfoHashMap.put("device_id", device_id);
+        }
 
         db.collection("users")
                 .document(uid)
