@@ -138,8 +138,9 @@ public class RawDataCollectionService extends Service {
         if (isRegistering)
         {
             device_id = intent.getStringExtra("device_id");
+            sendDeviceIDtoFirestore();
         }
-        //db = AppDatabase.getInstance(this);
+
         db = FirebaseFirestore.getInstance();
         Log.d(TAG, "AppDB instance gotten");
 
@@ -500,7 +501,7 @@ public class RawDataCollectionService extends Service {
         // Calculate trip score
         // Default score is 100. Default score minus total events * 1000 and divide by distance of trip in miles
         // todo: add number of speed events for total event count
-        if(isDebugging) {
+        if(!isDebugging) {
             currentTripScore -= ((accelOverNine + decelOverThirteen) * 1000) / ((((float)dist+1) / 5280));
             if (currentTripScore < 0)
             {
@@ -518,7 +519,7 @@ public class RawDataCollectionService extends Service {
         if (userInfoHashMap != null) {
             totalTripScore = (double) userInfoHashMap.get("totalTripScore");
         }else{
-            totalTripScore = 80;
+            totalTripScore = 0;
         }
         if (userInfoHashMap != null) {
             numberOfScores = (int) userInfoHashMap.get("numberOfScores");
@@ -549,10 +550,6 @@ public class RawDataCollectionService extends Service {
         userInfoHashMap.remove("numberOfScores");
         userInfoHashMap.put("numberOfScores", numberOfScores);
         //saving device_id to db if user is registering
-        if (isRegistering)
-        {
-            userInfoHashMap.put("device_id", device_id);
-        }
 
         db.collection("users")
                 .document(uid)
@@ -573,6 +570,41 @@ public class RawDataCollectionService extends Service {
         accelEvent = false;
         secondsSpentOverTenMPH = 0;
         tripSummaryShouldBeSaved = false;
+    }
+
+    public void sendDeviceIDtoFirestore(){
+        final Object[] userInfoObject = new Object[1];
+
+        db.collection("users")
+                .document(uid)
+                .collection("userinfo")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                try {
+                                    userInfoObject[0] = document.getData();
+                                }catch (NullPointerException e) {
+                                    e.printStackTrace();
+                                }
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+
+        HashMap userInfoHashMap = (HashMap) userInfoObject[0];
+
+        userInfoHashMap.put("device_id", device_id);
+
+        db.collection("users")
+                .document(uid)
+                .collection("userinfo")
+                .document("User Info Page").set(userInfoHashMap);
     }
 
     @Override
