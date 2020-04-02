@@ -13,6 +13,8 @@
         android:layout_height="match_parent"
         android:layout_weight="1">
 
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -21,11 +23,142 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center"
+                android:gravity="left"
+                android:paddingTop="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Email:"
+                    android:textAppearance="@style/Widget.AppCompat.Spinner.Underlined"
+                    android:textSize="40dp"
+                    android:gravity="center"
+                    android:textAlignment="center"
+                    android:paddingLeft="10dp"
+                    android:textColor="?attr/editTextColor"
+                    />
+                <TextView
+                    android:paddingTop="15dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="Example@example.com"
+                    android:textSize="25dp"
+                    android:textColor="?attr/colorPrimaryDark"
+                    android:paddingBottom="10dp"
+                    android:id="@+id/email"
+                    />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:layout_gravity="center_horizontal"
-                android:gravity="center_horizontal"
-                android:paddingTop="60dp">
+                android:gravity="center"
+                android:paddingTop="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Company:"
+                    android:textSize="40dp"
+                    android:gravity="center"
+                    android:textAlignment="center"
+                    android:paddingLeft="10dp"
+                    android:textColor="?attr/editTextColor"
+                    />
+                <TextView
+                    android:paddingTop="15dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="Example"
+                    android:textSize="30dp"
+                    android:textColor="?attr/colorPrimaryDark"
+                    android:paddingBottom="10dp"
+                    android:id="@+id/company"
+                    />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_gravity="center"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="Since:"
+                        android:textAppearance="@style/Widget.AppCompat.Spinner.Underlined"
+                        android:textSize="20dp"
+                        android:gravity="center"
+                        android:textAlignment="center"
+                        android:paddingLeft="10dp"
+                        android:textColor="?attr/editTextColor"
+                        />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:text="date"
+                        android:textSize="25dp"
+                        android:textColor="?attr/colorPrimaryDark"
+                        android:id="@+id/startDate"
+                        />
+
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Current Package:"
+                    android:textSize="40dp"
+                    android:gravity="center"
+                    android:textAlignment="center"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="30dp"
+                    android:textColor="?attr/editTextColor"
+                    />
+                <TextView
+                    android:paddingTop="1dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="Standard"
+                    android:textSize="50dp"
+                    android:textColor="?attr/colorPrimaryDark"
+                    />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="$240/m"
+                    android:textSize="18dp"
+                    android:textColor="?attr/editTextColor"
+                    />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center"
+                android:paddingTop="40dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -46,6 +179,7 @@
                     android:textSize="35dp"
                     android:textColor="?attr/editTextColor"
                     android:id="@+id/conditionText"
+                    android:visibility="gone"
                     />
 
             </LinearLayout>
@@ -75,49 +209,11 @@
                 android:background="@drawable/bg_button_white"
                 android:text="What is my Standing?"
                 android:textSize="13dp"
+                android:layout_marginTop="10dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:onClick="getTotalTripScore"
                 android:textColor="?attr/editTextColor"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:layout_gravity="center_horizontal"
-                android:gravity="center"
-                android:paddingTop="70dp"
-                android:layout_marginBottom="30dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="left"
-                    android:text="Current Package:"
-                    android:textSize="30dp"
-                    android:gravity="center"
-                    android:textAlignment="center"
-                    android:textColor="?attr/editTextColor"
-                    />
-                <TextView
-                    android:paddingTop="15dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="Standard"
-                    android:textSize="50dp"
-                    android:textColor="?attr/editTextColor"
-                    />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="$240/m"
-                    android:textSize="18dp"
-                    android:textColor="?attr/editTextColor"
-                    />
-
-            </LinearLayout>
 
 
 

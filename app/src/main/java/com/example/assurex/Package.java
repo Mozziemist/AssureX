@@ -45,6 +45,11 @@ public class Package extends AppCompatActivity {
     int counter = 0;
     private Button tripScore;
 
+    //for user data
+    private TextView email;
+    private TextView startDate;
+    private TextView company;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +73,20 @@ public class Package extends AppCompatActivity {
         bar = (ProgressBar)findViewById(R.id.progressBar);
         tripScore = findViewById(R.id.tripScore);
         conditionText = findViewById(R.id.conditionText);
+
+        //assign data to screen
+        email = findViewById(R.id.email);
+        company = findViewById(R.id.company);
+        startDate = findViewById(R.id.startDate);
+
+        //MARCIAL WORK HERE-------------------------------------
+        //also, if you cuold please look at taking data for the total trip score as well
+        //you can find that on line 196 in getScoreFromFireBase
+        //it is returning 0 right now because of a try catch i put so it doesnt crash
+
+        //email.setText("");
+        //company.setText("");
+        //startDate.setText("");
 
 
     }//end onCreate
@@ -135,9 +154,11 @@ public class Package extends AppCompatActivity {
     public void prog() {
 
         //test location
-        totalTripScore = getTotalTripScore();
+        totalTripScore = getScoreFromFirebase();
 
-        if (totalTripScore<10) {
+        conditionText.setVisibility(View.VISIBLE);
+
+        if (totalTripScore<10 && totalTripScore>-1) {
             conditionText.setTextColor(Color.parseColor("#FF0000"));
             conditionText.setText("Bad");
         }
@@ -149,9 +170,13 @@ public class Package extends AppCompatActivity {
             conditionText.setTextColor(Color.parseColor("#23B100"));
             conditionText.setText("Good");
         }
-        else {
+        else if (totalTripScore>79) {
             conditionText.setTextColor(Color.parseColor("#23B100"));
-            conditionText.setText("Great");
+            conditionText.setText("Good");
+        }
+        else {
+            conditionText.setTextColor(Color.parseColor("#FF0000"));
+            conditionText.setText("Not Available");
         }
 
         final Timer t = new Timer();
@@ -169,7 +194,7 @@ public class Package extends AppCompatActivity {
 
     }//and prog
 
-    private double getTotalTripScore() {
+    private double getScoreFromFirebase() {
         FirebaseUser user;
         String uid;
 
@@ -215,7 +240,7 @@ public class Package extends AppCompatActivity {
             return totalTripScore;
         }
         catch(NullPointerException e){
-            double totalTripScore = 0;
+            double totalTripScore = -1;
             e.printStackTrace();
             return totalTripScore;
         }
