@@ -1,6 +1,8 @@
 package com.example.assurex;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
@@ -9,6 +11,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -28,8 +31,7 @@ public class MainActivity extends AppCompatActivity {
             //settingsBut.setChecked(true);
             //Toast.makeText(this, "Light Mode Picked", Toast.LENGTH_SHORT).show();
             setTheme(R.style.AppTheme);
-        }
-        else if (Speed.getDarkMode() == true) {
+        } else if (Speed.getDarkMode() == true) {
             //settingsBut.setChecked(false);
             //Toast.makeText(this, "Dark Mode Picked", Toast.LENGTH_SHORT).show();
             setTheme(R.style.DarkTheme);
@@ -40,11 +42,63 @@ public class MainActivity extends AppCompatActivity {
         //initialize
         email = findViewById(R.id.userText);
         password = findViewById(R.id.passText);
-        fAuth = FirebaseAuth.getInstance();
 
-        if (fAuth.getCurrentUser() != null) {
-            startActivity(new Intent(getApplicationContext(), Speed.class));
-            finish();
+        //for location permissions
+        boolean permissionAccessCoarseLocationApproved =
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED;
+
+        if (permissionAccessCoarseLocationApproved) {
+            boolean backgroundLocationPermissionApproved =
+                    ActivityCompat.checkSelfPermission(this,
+                            Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED;
+            Toast.makeText(this, "background location was approved?: " + backgroundLocationPermissionApproved, Toast.LENGTH_SHORT).show();
+            if (backgroundLocationPermissionApproved) {
+                // App can access location both in the foreground and in the background.
+                // Start your service that doesn't have a foreground service type
+                // defined.
+                Toast.makeText(this, "can access background location", Toast.LENGTH_SHORT).show();
+                fAuth = FirebaseAuth.getInstance();
+
+                if (fAuth.getCurrentUser() != null) {
+                    Speed.setUsername(fAuth.getCurrentUser().getEmail());
+                    startActivity(new Intent(getApplicationContext(), Speed.class));
+                    finish();
+                }
+            } else {
+                // App can only access location in the foreground. Display a dialog
+                // warning the user that your app must have all-the-time access to
+                // location in order to function properly. Then, request background
+                // location.
+                Toast.makeText(this, "cannot access background location", Toast.LENGTH_SHORT).show();
+                ActivityCompat.requestPermissions(this, new String[]{
+                                Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                        1);
+                fAuth = FirebaseAuth.getInstance();
+
+                if (fAuth.getCurrentUser() != null) {
+                    Speed.setUsername(fAuth.getCurrentUser().getEmail());
+                    startActivity(new Intent(getApplicationContext(), Speed.class));
+                    finish();
+                }
+            }
+        } else {
+            // App doesn't have access to the device's location at all. Make full request
+            // for permission.
+            ActivityCompat.requestPermissions(this, new String[]{
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                    },
+                    2);
+            fAuth = FirebaseAuth.getInstance();
+
+            if (fAuth.getCurrentUser() != null) {
+                Speed.setUsername(fAuth.getCurrentUser().getEmail());
+                startActivity(new Intent(getApplicationContext(), Speed.class));
+                finish();
+            }
         }
     }
 
@@ -53,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
         EventBus.getDefault().unregister(this);
         super.onDestroy();
     }
+
     @Override
     protected void onStop() {
         super.onStop();
