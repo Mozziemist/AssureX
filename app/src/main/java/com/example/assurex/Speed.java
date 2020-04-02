@@ -142,6 +142,8 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         if (getIntent().getBooleanExtra("isRegistering", false))
         {
             rawDataIntent.putExtra("device_id", getIntent().getExtras().getString("device_id"));
+            rawDataIntent.putExtra("new_insur", getIntent().getExtras().getString("new_insur"));
+            rawDataIntent.putExtra("new_user",  getIntent().getExtras().getString("new_user"));
         }
         startService(rawDataIntent);
 

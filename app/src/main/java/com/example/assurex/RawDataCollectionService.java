@@ -82,7 +82,9 @@ public class RawDataCollectionService extends Service {
     double totalTripScore;
     int numberOfScores;
     boolean isRegistering;
-    String device_id;
+    String deviceId;
+    String newInsur;
+    String newUser;
 
 
     //for location related calculations
@@ -134,14 +136,15 @@ public class RawDataCollectionService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
+        db = FirebaseFirestore.getInstance();
         isRegistering = intent.getBooleanExtra("isRegistering", false);
         if (isRegistering)
         {
-            device_id = intent.getStringExtra("device_id");
+            deviceId = intent.getStringExtra("device_id");
+            newInsur = intent.getStringExtra("new_insur");
+            newUser  = intent.getStringExtra("new_user");
             sendDeviceIDtoFirestore();
         }
-
-        db = FirebaseFirestore.getInstance();
         Log.d(TAG, "AppDB instance gotten");
 
         RawDataCollectionThread mRDThread = new RawDataCollectionThread();
@@ -541,6 +544,7 @@ public class RawDataCollectionService extends Service {
                 .collection("tripsummaries")
                 .document(tripId).set(tempTripSummary);
 
+        //this is probably not needed but it will prevent an error if userInfoHashMap is null
         if(userInfoHashMap == null){
             userInfoHashMap = new HashMap();
         }
@@ -573,6 +577,15 @@ public class RawDataCollectionService extends Service {
     }
 
     public void sendDeviceIDtoFirestore(){
+        //NOTE: This is here to do nothing. It literally just establishes a connection to firebase to do nothing.
+        //Why is it here? It solves a bug that required the RD service to be ran twice before getting data from firebase
+        db.collection("test_connect").whereEqualTo("test_connect", "test_connect").get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    }
+                });
+
         final Object[] userInfoObject = new Object[1];
 
         db.collection("users")
@@ -597,14 +610,28 @@ public class RawDataCollectionService extends Service {
                     }
                 });
 
+
         HashMap userInfoHashMap = (HashMap) userInfoObject[0];
 
-        userInfoHashMap.put("device_id", device_id);
+        if(userInfoHashMap == null){
+            userInfoHashMap = new HashMap();
+        }
+
+        userInfoHashMap.put("full_name", newUser);
+        userInfoHashMap.put("device_id", deviceId);
+        userInfoHashMap.put("new_insur", newInsur);
+        userInfoHashMap.put("totalTripScore", 0);
+        userInfoHashMap.put("numberOfScores", 0);
 
         db.collection("users")
                 .document(uid)
                 .collection("userinfo")
                 .document("User Info Page").set(userInfoHashMap);
+
+        isRegistering = false;
+        newUser = "";
+        deviceId = "";
+        newInsur = "";
     }
 
     @Override

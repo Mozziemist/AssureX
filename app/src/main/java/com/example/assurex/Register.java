@@ -100,6 +100,8 @@ public class Register extends AppCompatActivity{
                     Intent signInIntent = new Intent(getApplicationContext(), Speed.class);
                     signInIntent.putExtra("isRegistering", true);
                     signInIntent.putExtra("device_id", deviceAddress);
+                    signInIntent.putExtra("new_user", newUser);
+                    signInIntent.putExtra("new_insur", newInsur);
                     startActivity(signInIntent);
                     finish();
                 }
