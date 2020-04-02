@@ -9,17 +9,9 @@
 
         <menu>
 
-            <item android:id="@+id/profilePic"
-                android:title="Profile Picture"
-                android:icon="@drawable/ic_account_circle" />
-
             <item android:id="@+id/profileUser"
                 android:icon="@drawable/ic_username_icon"
                 android:title="Username" />
-
-            <item android:id="@+id/carModel"
-                android:icon="@drawable/ic_car"
-                android:title="Car Model" />
 
             <item android:id="@+id/home"
                 android:icon="@drawable/ic_home"
