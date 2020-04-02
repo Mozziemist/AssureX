@@ -27,7 +27,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
 
-import com.example.assurex.database.AppDatabase;
 import com.example.assurex.model.TripSummary;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -737,7 +736,6 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(rdreceiver);
-        AppDatabase.destroyInstance();
         mapView.onDestroy();
         if (mapboxMap != null) {
             mapboxMap.removeOnMapClickListener(this);

@@ -16,7 +16,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.assurex.database.AppDatabase;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.greenrobot.eventbus.EventBus;
@@ -78,7 +77,6 @@ public class Register extends AppCompatActivity{
 
     @Override
     protected void onDestroy() {
-        AppDatabase.destroyInstance();
         EventBus.getDefault().unregister(this);
         super.onDestroy();
     }
@@ -99,8 +97,13 @@ public class Register extends AppCompatActivity{
         if(userPass && emailPass && passwordPass && devicePass) {
             fAuth.createUserWithEmailAndPassword(newEmail, newPass).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    startActivity(new Intent(getApplicationContext(), Speed.class));
+                    Intent signInIntent = new Intent(getApplicationContext(), Speed.class);
+                    signInIntent.putExtra("isRegistering", true);
+                    signInIntent.putExtra("device_id", deviceAddress);
+                    signInIntent.putExtra("new_user", newUser);
+                    signInIntent.putExtra("new_insur", newInsur);
                     Speed.setUsername(newEmail);
+                    startActivity(signInIntent);
                     finish();
                 }
                 else {
