@@ -31,6 +31,7 @@ import com.example.assurex.model.TripSummary;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -125,6 +126,8 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     boolean FirebaseTripSummaryQueryIsCompleted = false;
     boolean FirebaseRawDataItemQueryIsCompleted = false;
     FirebaseFirestore db;
+    FirebaseUser user;
+    String uid;
     String dbQueryDate;
     String tEngineTroubleCodes;
     double tTopSpeed = 0;
@@ -168,6 +171,18 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         setContentView(R.layout.activity_info_page);
         //db = AppDatabase.getInstance(this);
         db = FirebaseFirestore.getInstance();
+        user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user != null) {
+            // User is signed in
+            //uid = user.getUid();
+            uid = user.getEmail();
+        } else {
+            // No user is signed in
+            uid = "debug_user";
+            Log.d(TAG, "Error. No User appears to be signed in");
+        }
+
         rdreceiver = new RawDataReceiver();
         registerReceiver(rdreceiver, new IntentFilter("DataCollectedInfo"));
 
@@ -415,7 +430,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         tempTripSummaryList.clear();
 
         db.collection("users")
-                .document("debug_user")
+                .document(uid)
                 .collection("tripsummaries")
                 .whereEqualTo("date", dbQueryDate)
                 .get()
@@ -479,7 +494,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
                     tempRawDataItemList.clear();
 
                     db.collection("users")
-                            .document("debug_user")
+                            .document(uid)
                             .collection("rawdataitems")
                             .document(dbQueryDate)
                             .collection("Trip Number " + mapSelectedTripSummary.get("tripNumber"))
