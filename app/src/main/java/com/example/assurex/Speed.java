@@ -237,7 +237,16 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                 //tripTime.setText(Double.toString(b.getDouble("tripTime", 0)));
                 speed.setText(Integer.toString(spd));
                 acceleration.setText(Integer.toString((int)accel));
-                totalDistance.setText(Integer.toString(dist) + " ft");
+                if (dist >= 5280/2)
+                {
+                    float distf = dist / 5280;
+                    totalDistance.setText(String.format("%.2f", distf) + " mi");
+                }
+                else
+                {
+                    totalDistance.setText(Integer.toString(dist) + " ft");
+                }
+
                 isEngineOn = b.getBoolean("isEngineOn", false);
 
                 if (isEngineOn)
