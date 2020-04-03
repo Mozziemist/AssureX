@@ -5,6 +5,7 @@ package com.example.assurex;
 //for map
 //package com.mapbox.mapboxandroiddemo.examples.location;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +21,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -142,10 +144,13 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
         if (getIntent().getBooleanExtra("isRegistering", false))
         {
             rawDataIntent.putExtra("device_id", getIntent().getExtras().getString("device_id"));
+            rawDataIntent.putExtra("new_insur", getIntent().getExtras().getString("new_insur"));
+            rawDataIntent.putExtra("new_user",  getIntent().getExtras().getString("new_user"));
         }
         startService(rawDataIntent);
 
         warning = false;
+
     }//end oncreate
 
     public void loadSettings() {
@@ -395,10 +400,12 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.profilePic: {
+            /*case R.id.profilePic: {
                 //Toast.makeText(this, "Insert Picture Selector Here", Toast.LENGTH_SHORT).show();
                 break;
             }
+
+             */
             case R.id.profileUser: {
                 //Toast.makeText(this, "profileUser selected", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), Package.class));

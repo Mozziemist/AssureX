@@ -82,7 +82,9 @@ public class RawDataCollectionService extends Service {
     double totalTripScore;
     int numberOfScores;
     boolean isRegistering;
-    String device_id;
+    String deviceId;
+    String newInsur;
+    String newUser;
 
 
     //for location related calculations
@@ -134,13 +136,15 @@ public class RawDataCollectionService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
+        db = FirebaseFirestore.getInstance();
         isRegistering = intent.getBooleanExtra("isRegistering", false);
         if (isRegistering)
         {
-            device_id = intent.getStringExtra("device_id");
+            deviceId = intent.getStringExtra("device_id");
+            newInsur = intent.getStringExtra("new_insur");
+            newUser  = intent.getStringExtra("new_user");
+            sendDeviceIDtoFirestore();
         }
-        //db = AppDatabase.getInstance(this);
-        db = FirebaseFirestore.getInstance();
         Log.d(TAG, "AppDB instance gotten");
 
         RawDataCollectionThread mRDThread = new RawDataCollectionThread();
@@ -500,7 +504,7 @@ public class RawDataCollectionService extends Service {
         // Calculate trip score
         // Default score is 100. Default score minus total events * 1000 and divide by distance of trip in miles
         // todo: add number of speed events for total event count
-        if(isDebugging) {
+        if(!isDebugging) {
             currentTripScore -= ((accelOverNine + decelOverThirteen) * 1000) / ((((float)dist+1) / 5280));
             if (currentTripScore < 0)
             {
@@ -518,7 +522,7 @@ public class RawDataCollectionService extends Service {
         if (userInfoHashMap != null) {
             totalTripScore = (double) userInfoHashMap.get("totalTripScore");
         }else{
-            totalTripScore = 80;
+            totalTripScore = 0;
         }
         if (userInfoHashMap != null) {
             numberOfScores = (int) userInfoHashMap.get("numberOfScores");
@@ -540,6 +544,7 @@ public class RawDataCollectionService extends Service {
                 .collection("tripsummaries")
                 .document(tripId).set(tempTripSummary);
 
+        //this is probably not needed but it will prevent an error if userInfoHashMap is null
         if(userInfoHashMap == null){
             userInfoHashMap = new HashMap();
         }
@@ -549,10 +554,6 @@ public class RawDataCollectionService extends Service {
         userInfoHashMap.remove("numberOfScores");
         userInfoHashMap.put("numberOfScores", numberOfScores);
         //saving device_id to db if user is registering
-        if (isRegistering)
-        {
-            userInfoHashMap.put("device_id", device_id);
-        }
 
         db.collection("users")
                 .document(uid)
@@ -573,6 +574,64 @@ public class RawDataCollectionService extends Service {
         accelEvent = false;
         secondsSpentOverTenMPH = 0;
         tripSummaryShouldBeSaved = false;
+    }
+
+    public void sendDeviceIDtoFirestore(){
+        //NOTE: This is here to do nothing. It literally just establishes a connection to firebase to do nothing.
+        //Why is it here? It solves a bug that required the RD service to be ran twice before getting data from firebase
+        db.collection("test_connect").whereEqualTo("test_connect", "test_connect").get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    }
+                });
+
+        final Object[] userInfoObject = new Object[1];
+
+        db.collection("users")
+                .document(uid)
+                .collection("userinfo")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                try {
+                                    userInfoObject[0] = document.getData();
+                                }catch (NullPointerException e) {
+                                    e.printStackTrace();
+                                }
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+
+
+        HashMap userInfoHashMap = (HashMap) userInfoObject[0];
+
+        if(userInfoHashMap == null){
+            userInfoHashMap = new HashMap();
+        }
+
+        userInfoHashMap.put("full_name", newUser);
+        userInfoHashMap.put("device_id", deviceId);
+        userInfoHashMap.put("new_insur", newInsur);
+        userInfoHashMap.put("totalTripScore", 0);
+        userInfoHashMap.put("numberOfScores", 0);
+
+        db.collection("users")
+                .document(uid)
+                .collection("userinfo")
+                .document("User Info Page").set(userInfoHashMap);
+
+        isRegistering = false;
+        newUser = "";
+        deviceId = "";
+        newInsur = "";
     }
 
     @Override
