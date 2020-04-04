@@ -139,6 +139,7 @@ public class BluetoothService extends Service {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 try {
                                     userInfoObject[0] = document.getData();
+                                    Log.d(TAG, "isDevice: object set");
                                 }catch (NullPointerException e) {
                                     e.printStackTrace();
                                 }
@@ -150,7 +151,13 @@ public class BluetoothService extends Service {
                     }
                 });
 
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         HashMap userInfoHashMap = (HashMap) userInfoObject[0];
+        Log.d(TAG, "isDeviceVerified: hashmap set");
 
         try {
             if (deviceAddr.equals(userInfoHashMap.get("device_id")))
