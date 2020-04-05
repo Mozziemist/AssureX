@@ -79,9 +79,9 @@ public class RawDataCollectionService extends Service {
     double tTopAcceleration = 0;
     double tTopDeceleration = 0;
     boolean tripSummaryShouldBeSaved = false;
-    double currentTripScore = 100;
+    Double currentTripScore = 100.0;
 
-    double totalTripScore;
+    Double totalTripScore;
     int numberOfScores;
     boolean isRegistering;
     String deviceId;
@@ -516,7 +516,7 @@ public class RawDataCollectionService extends Service {
             currentTripScore -= ((accelOverNine + decelOverThirteen + MPHOverTen) * 1000) / ((((float)dist+1) / 5280));
             if (currentTripScore < 0)
             {
-                currentTripScore = 0;
+                currentTripScore = 0.0d;
             }
             Intent sendScoreData = new Intent("ScoreUpdates");
 
@@ -530,7 +530,7 @@ public class RawDataCollectionService extends Service {
         if (userInfoHashMap != null) {
             totalTripScore = (double) userInfoHashMap.get("totalTripScore");
         }else{
-            totalTripScore = 0;
+            totalTripScore = 0.0d;
         }
         if (userInfoHashMap != null) {
             numberOfScores = (int) userInfoHashMap.get("numberOfScores");
@@ -570,7 +570,7 @@ public class RawDataCollectionService extends Service {
         //clear variables that will still contain old info if the service is still running after the end of
         //one trip and before the start of another
         //totalTripScore = 0; not sure if we should actually be setting this to 0 during variable clean up
-        currentTripScore = 100;
+        currentTripScore = 100.0d;
         tTopSpeed = 0;
         tTopAcceleration = 0;
         tTopDeceleration = 0;
@@ -629,7 +629,7 @@ public class RawDataCollectionService extends Service {
         userInfoHashMap.put("full_name", newUser);
         userInfoHashMap.put("device_id", deviceId);
         userInfoHashMap.put("new_insur", newInsur);
-        userInfoHashMap.put("totalTripScore", 0);
+        userInfoHashMap.put("totalTripScore", 100.0d);
         userInfoHashMap.put("numberOfScores", 0);
 
         db.collection("users")
