@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 
@@ -17,9 +18,12 @@ import androidx.core.app.NavUtils;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class Settings extends AppCompatActivity {
 
@@ -51,16 +55,52 @@ public class Settings extends AppCompatActivity {
         settingsPage = findViewById(R.id.settingsPage);
         alwaysOnCheckBox = findViewById(R.id.alwaysOnBut);
 
-        if (getIntent().getBooleanExtra("isAlwaysOnSet", true))
-        {
-            alwaysOnCheckBox.setChecked(true);
-        }
-        else
-            alwaysOnCheckBox.setChecked(false);
-
-        if (Speed.getDarkMode() == false) settingsBut.setChecked(false);
-        if (Speed.getDarkMode() == true) settingsBut.setChecked(true);
+        loadSettings();
     }//end on create
+
+    private void loadSettings() {
+        FileInputStream fis = null;
+
+        try {
+            fis = openFileInput("assurexSettings.txt");
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader br = new BufferedReader(isr);
+            String text;
+
+            while ((text = br.readLine()) != null)
+            {
+                if (text.equals("isScreenAlwaysOn=true"))
+                {
+                    alwaysOnCheckBox.setChecked(true);
+                }
+                else if (text.equals("isScreenAlwaysOn=false"))
+                {
+                    alwaysOnCheckBox.setChecked(false);
+                }
+                else if (text.equals("isDarkmode=true"))
+                {
+                    settingsBut.setChecked(true);
+                }
+                else if (text.equals("isDarkmode=false"))
+                {
+                    settingsBut.setChecked(false);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fis != null)
+            {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
     //for menu
     @Override
@@ -150,6 +190,7 @@ public class Settings extends AppCompatActivity {
 
          */
         FileOutputStream fos = null;
+        Intent intent = new Intent(this, Settings.class);
 
         try {
             fos = openFileOutput("assurexSettings.txt", MODE_PRIVATE);
@@ -161,32 +202,32 @@ public class Settings extends AppCompatActivity {
                     fos.write("isScreenAlwaysOn=true\nisDarkmode=true".getBytes());
                 }
                 else
-                    fos.write("isScreenAlwaysOn=true\nisDarkmode=false".getBytes());
+                {
+                    fos.write("isScreenAlwaysOn=false\nisDarkmode=true".getBytes());
+                }
 
-                settingsBut.setChecked(true);
+
+                //settingsBut.setChecked(true);
                 Speed.setDarkMode(true);
                 setTheme(R.style.DarkTheme);
                 Speed.themeChanged = true;
-                Intent intent = new Intent(this, Settings.class);
-                startActivity(intent);
-                finish();
+
+
             }
             else
             {
                 if (alwaysOnCheckBox.isChecked())
                 {
-                    fos.write("isScreenAlwaysOn=false\nisDarkmode=true".getBytes());
+                    fos.write("isScreenAlwaysOn=true\nisDarkmode=false".getBytes());
                 }
                 else
                     fos.write("isScreenAlwaysOn=false\nisDarkmode=false".getBytes());
 
-                settingsBut.setChecked(false);
+                //settingsBut.setChecked(false);
                 Speed.setDarkMode(false);
                 setTheme(R.style.AppTheme);
                 Speed.themeChanged = true;
-                Intent intent = new Intent(this, Settings.class);
-                startActivity(intent);
-                finish();
+
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -201,6 +242,9 @@ public class Settings extends AppCompatActivity {
                 }
             }
         }
+
+        startActivity(intent);
+        finish();
 
     }
 
