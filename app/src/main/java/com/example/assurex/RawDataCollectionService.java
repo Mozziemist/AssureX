@@ -622,7 +622,7 @@ public class RawDataCollectionService extends Service {
 
 
         try {
-            Thread.sleep(2500);
+            Thread.sleep(250);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
