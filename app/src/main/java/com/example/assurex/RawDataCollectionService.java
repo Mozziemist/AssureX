@@ -46,7 +46,6 @@ import static com.example.assurex.App.RD_CHANNEL_ID;
 
 public class RawDataCollectionService extends Service {
     //this boolean makes it so data collection runs without the car first having moved
-    boolean isDebugging = false;
     private final static String TAG = "RawDataCollectService";
     FirebaseFirestore db;
     FirebaseUser user;
@@ -169,12 +168,12 @@ public class RawDataCollectionService extends Service {
 
             while (!shouldEndService) {
                 //while engine is not on but bluetooth service is running
-                while((!isEngineOn && isServiceRunning(BluetoothService.class)) || !isDebugging){
+                while(!isEngineOn && isServiceRunning(BluetoothService.class)){
                     try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
                 }
                 //while engine is on, bt service is running and the speed is still 0 indicating vehicle
                 //has yet to move
-                while(((isEngineOn && isServiceRunning(BluetoothService.class) && speedLimit <= 0 && rawSpeed == 0)) || !isDebugging){
+                while(isEngineOn && isServiceRunning(BluetoothService.class) && speedLimit <= 0 && rawSpeed == 0){
                     try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
                 }
 
@@ -184,13 +183,12 @@ public class RawDataCollectionService extends Service {
                     myOriginAddress = "Unable to determine origin address";
                 }
 
-                while((isEngineOn &&  isServiceRunning(BluetoothService.class) && rawSpeed == 0) || !isDebugging){
+                while(isEngineOn &&  isServiceRunning(BluetoothService.class) && rawSpeed == 0){
                     try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
                 }
 
                 //now start the collection of data if the bt service is on and the engine is on
-                if((isServiceRunning(BluetoothService.class) && isEngineOn) || isDebugging) {
-
+                if(isServiceRunning(BluetoothService.class) && isEngineOn){
                     //====GET TRIP NUMBER====
                     int tripNumber;
                     Calendar calendar = Calendar.getInstance();
@@ -512,20 +510,15 @@ public class RawDataCollectionService extends Service {
 
         // Calculate trip score
         // Default score is 100. Default score minus total events * 1000 and divide by distance of trip in miles
-        if(!isDebugging) {
-            currentTripScore -= ((accelOverNine + decelOverThirteen + MPHOverTen) * 1000) / ((((float)dist+1) / 5280));
-            if (currentTripScore < 0)
-            {
-                currentTripScore = 0.0d;
-            }
-            Intent sendScoreData = new Intent("ScoreUpdates");
-
-            sendScoreData.putExtra("score", currentTripScore);
-
-            sendBroadcast(sendScoreData);
-
-            Log.d(TAG, "tripSummaryEntryCreation: Score sent");
+        currentTripScore -= ((accelOverNine + decelOverThirteen + MPHOverTen) * 1000) / ((((float)dist+1) / 5280));
+        if (currentTripScore < 0)
+        {
+            currentTripScore = 0.0d;
         }
+        Intent sendScoreData = new Intent("ScoreUpdates");
+        sendScoreData.putExtra("score", currentTripScore);
+        sendBroadcast(sendScoreData);
+        Log.d(TAG, "tripSummaryEntryCreation: Score sent");
 
         if (userInfoHashMap != null) {
             totalTripScore = (double) userInfoHashMap.get("totalTripScore");
