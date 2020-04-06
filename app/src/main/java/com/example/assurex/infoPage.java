@@ -525,20 +525,20 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
                                         routeCoordinates = new ArrayList<>();
                                         for(int i = 0; i < tempRawDataItemArray.length; i++){
                                             HashMap mapTempRawDataItem = (HashMap) tempRawDataItemArray[i];
-                                            routeCoordinates.add(Point.fromLngLat((double) mapTempRawDataItem.get("longitude"),(double) mapTempRawDataItem.get("latitude") ));
+                                            //if neither latitude nor longitude are 0, indicating it contains actual coordinates
+                                            if(( (double)mapTempRawDataItem.get("longitude") != (double) 0) && (double)mapTempRawDataItem.get("latitude") != (double) 0){
+                                                routeCoordinates.add(Point.fromLngLat((double) mapTempRawDataItem.get("longitude"),(double) mapTempRawDataItem.get("latitude") ));
 
-
-                                            if (isFirstLocation == true) {
-                                                firstLocationArray[0] = (double)mapTempRawDataItem.get("longitude");
-                                                firstLocationArray[1] = (double) mapTempRawDataItem.get("latitude");
-                                                locationOne = new LatLng((double)mapTempRawDataItem.get("longitude"), (double) mapTempRawDataItem.get("latitude"));
-                                                isFirstLocation = false;
-                                            }//find where camera should look
-                                            if (i==tempRawDataItemArray.length-1) {
-                                                locationTwo = new LatLng((double)mapTempRawDataItem.get("longitude"), (double) mapTempRawDataItem.get("latitude"));
-                                            }//find where camera should look
-
-
+                                                if (isFirstLocation == true) {
+                                                    firstLocationArray[0] = (double)mapTempRawDataItem.get("longitude");
+                                                    firstLocationArray[1] = (double) mapTempRawDataItem.get("latitude");
+                                                    locationOne = new LatLng((double)mapTempRawDataItem.get("longitude"), (double) mapTempRawDataItem.get("latitude"));
+                                                    isFirstLocation = false;
+                                                }//find where camera should look
+                                                if (i==tempRawDataItemArray.length-1) {
+                                                    locationTwo = new LatLng((double)mapTempRawDataItem.get("longitude"), (double) mapTempRawDataItem.get("latitude"));
+                                                }//find where camera should look
+                                            }
                                         }
                                     }
 
@@ -790,45 +790,52 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         mapView = findViewById(R.id.mapView);
 
         //mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(@NonNull final MapboxMap mapboxMap) {
 
-                mapboxMap.setStyle(Style.OUTDOORS, new Style.OnStyleLoaded() {
+        //if the route coordinates array isn't a null pointer
+        if (routeCoordinates != null) {
+            //if the route coordinates array isn't empty
+            if (!routeCoordinates.isEmpty()) {
+                mapView.getMapAsync(new OnMapReadyCallback() {
                     @Override
-                    public void onStyleLoaded(@NonNull Style style) {
+                    public void onMapReady(@NonNull final MapboxMap mapboxMap) {
 
-                        // Create the LineString from the list of coordinates and then make a GeoJSON
-                        // FeatureCollection so we can add the line to our map as a layer.
-                        style.addSource(new GeoJsonSource("line-source",
-                                FeatureCollection.fromFeatures(new Feature[] {Feature.fromGeometry(
-                                        LineString.fromLngLats(routeCoordinates)
-                                )})));
+                        mapboxMap.setStyle(Style.OUTDOORS, new Style.OnStyleLoaded() {
+                            @Override
+                            public void onStyleLoaded(@NonNull Style style) {
 
-                        // The layer properties for our line. This is where we make the line dotted, set the
-                        // color, etc.
-                        style.addLayer(new LineLayer("linelayer", "line-source").withProperties(
-                                PropertyFactory.lineDasharray(new Float[] {0.01f, 2f}),
-                                PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
-                                PropertyFactory.lineJoin(Property.LINE_JOIN_ROUND),
-                                PropertyFactory.lineWidth(5f),
-                                PropertyFactory.lineColor(Color.parseColor("#e55e5e"))
-                        ));
+                                // Create the LineString from the list of coordinates and then make a GeoJSON
+                                // FeatureCollection so we can add the line to our map as a layer.
+                                style.addSource(new GeoJsonSource("line-source",
+                                        FeatureCollection.fromFeatures(new Feature[] {Feature.fromGeometry(
+                                                LineString.fromLngLats(routeCoordinates)
+                                        )})));
 
-                        CameraPosition position = new CameraPosition.Builder()
-                                .target(new LatLng(firstLocationArray[0], firstLocationArray[1])) // Sets the new camera position
-                                .zoom(14) // Sets the zoom
-                                .bearing(0) // Rotate the camera/
-                                .tilt(30) // Set the camera tilt
-                                .build(); // Creates a CameraPosition from the builder
+                                // The layer properties for our line. This is where we make the line dotted, set the
+                                // color, etc.
+                                style.addLayer(new LineLayer("linelayer", "line-source").withProperties(
+                                        PropertyFactory.lineDasharray(new Float[] {0.01f, 2f}),
+                                        PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
+                                        PropertyFactory.lineJoin(Property.LINE_JOIN_ROUND),
+                                        PropertyFactory.lineWidth(5f),
+                                        PropertyFactory.lineColor(Color.parseColor("#e55e5e"))
+                                ));
 
-                        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 7000);
+                                CameraPosition position = new CameraPosition.Builder()
+                                        .target(new LatLng(firstLocationArray[0], firstLocationArray[1])) // Sets the new camera position
+                                        .zoom(14) // Sets the zoom
+                                        .bearing(0) // Rotate the camera/
+                                        .tilt(30) // Set the camera tilt
+                                        .build(); // Creates a CameraPosition from the builder
 
+                                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 7000);
+
+                            }
+
+                        });
                     }
-
                 });
             }
-        });
+        }
 
         //mapboxMap.setCameraPosition(firstLocationArray[0], firstLocationArray[1]);
         /*
