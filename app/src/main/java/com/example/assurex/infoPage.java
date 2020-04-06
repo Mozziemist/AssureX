@@ -515,6 +515,12 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
                                         Log.d(TAG, "Error getting documents: ", task.getException());
                                     }
 
+                                    try {
+                                        Thread.sleep(2500);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+
                                     if(tempRawDataItemList != null){
                                         if(!tempRawDataItemList.isEmpty()){
                                             tempRawDataItemArray = tempRawDataItemList.toArray();

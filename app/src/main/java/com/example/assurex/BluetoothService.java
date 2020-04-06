@@ -113,6 +113,13 @@ public class BluetoothService extends Service {
 
     boolean isDeviceVerified(String deviceAddr)
     {
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         db  = FirebaseFirestore.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -152,7 +159,7 @@ public class BluetoothService extends Service {
                 });
 
         try {
-            Thread.sleep(5000);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -222,7 +222,7 @@ public class RawDataCollectionService extends Service {
                             }
                         });
                     //sleep 1 second to hopefully prevent race conditions
-                    try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
+                    try { Thread.sleep(2500); } catch (InterruptedException e) { e.printStackTrace(); }
                     //===END OF CONTACTING FIREBASE===
 
                     Object[] tempTripSummaryArray = tempTripSummaryList.toArray();
@@ -504,6 +504,13 @@ public class RawDataCollectionService extends Service {
                     }
                 });
 
+
+        try {
+            Thread.sleep(2500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         HashMap userInfoHashMap = (HashMap) userInfoObject[0];
 
 
@@ -519,6 +526,7 @@ public class RawDataCollectionService extends Service {
         sendScoreData.putExtra("score", currentTripScore);
         sendBroadcast(sendScoreData);
         Log.d(TAG, "tripSummaryEntryCreation: Score sent");
+
 
         if (userInfoHashMap != null) {
             totalTripScore = (double) userInfoHashMap.get("totalTripScore");
@@ -612,6 +620,12 @@ public class RawDataCollectionService extends Service {
                     }
                 });
 
+
+        try {
+            Thread.sleep(250);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         HashMap userInfoHashMap = (HashMap) userInfoObject[0];
 

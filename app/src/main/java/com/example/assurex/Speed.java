@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -257,7 +258,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                 if (isEngineOn)
                 {
                     lastScore.setVisibility(View.INVISIBLE);
-                    lastScore.setText("Trip Score: ");
+                    lastScore.setText("Score: ");
                 }
 
                 Log.d(TAG, "onReceive: text has been set");
@@ -342,7 +343,7 @@ public class Speed extends AppCompatActivity implements OnMapReadyCallback, Perm
                 }
 
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(4000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
