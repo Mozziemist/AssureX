@@ -149,6 +149,11 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
     private static LatLng locationOne = new LatLng();
     private static LatLng locationTwo = new LatLng();
 
+    //route camera centering
+    private double routeCenterLat = 0.0d;
+    private double routeCenterLng = 0.0d;
+    private int myCount = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -228,6 +233,8 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         locText = findViewById(R.id.locText);
 
 
+
+
         //calender
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat mdformat = new SimpleDateFormat("MM - dd - yyyy ");
@@ -260,7 +267,7 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
         Toast.makeText(this, "Called getMapAsync", Toast.LENGTH_SHORT).show();
 
         //update at start
-        updateData();
+        //updateData();
 
     }//end onCreate
 
@@ -535,15 +542,21 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
                                             if(( (double)mapTempRawDataItem.get("longitude") != (double) 0) && (double)mapTempRawDataItem.get("latitude") != (double) 0){
                                                 routeCoordinates.add(Point.fromLngLat((double) mapTempRawDataItem.get("longitude"),(double) mapTempRawDataItem.get("latitude") ));
 
+                                                routeCenterLat += (double) mapTempRawDataItem.get("latitude");
+                                                routeCenterLng += (double) mapTempRawDataItem.get("longitude");
+                                                myCount++;
+
                                                 if (isFirstLocation == true) {
-                                                    firstLocationArray[0] = (double)mapTempRawDataItem.get("longitude");
-                                                    firstLocationArray[1] = (double) mapTempRawDataItem.get("latitude");
-                                                    locationOne = new LatLng((double)mapTempRawDataItem.get("longitude"), (double) mapTempRawDataItem.get("latitude"));
+                                                    firstLocationArray[0] = (double)mapTempRawDataItem.get("latitude");
+                                                    firstLocationArray[1] = (double) mapTempRawDataItem.get("longitude");
+                                                    locationOne = new LatLng((double)mapTempRawDataItem.get("latitude"), (double) mapTempRawDataItem.get("longitude"));
                                                     isFirstLocation = false;
                                                 }//find where camera should look
                                                 if (i==tempRawDataItemArray.length-1) {
-                                                    locationTwo = new LatLng((double)mapTempRawDataItem.get("longitude"), (double) mapTempRawDataItem.get("latitude"));
+                                                    locationTwo = new LatLng((double)mapTempRawDataItem.get("latitude"), (double) mapTempRawDataItem.get("longitude"));
                                                 }//find where camera should look
+
+
                                             }
                                         }
                                     }
@@ -826,11 +839,15 @@ public class infoPage extends AppCompatActivity implements AdapterView.OnItemSel
                                         PropertyFactory.lineColor(Color.parseColor("#e55e5e"))
                                 ));
 
+                                firstLocationArray[0] = routeCenterLat / myCount;
+                                firstLocationArray[1] = routeCenterLng / myCount;
+                                Log.d(TAG, "onStyleLoaded: Lat: " + (routeCenterLat/myCount) + " lng: " + (routeCenterLng/myCount));
+                                Log.d(TAG, "onStyleLoaded: Default: lat: " + firstLocationArray[0] + " lng: " + firstLocationArray[1]);
                                 CameraPosition position = new CameraPosition.Builder()
                                         .target(new LatLng(firstLocationArray[0], firstLocationArray[1])) // Sets the new camera position
-                                        .zoom(14) // Sets the zoom
+                                        .zoom(13) // Sets the zoom
                                         .bearing(0) // Rotate the camera/
-                                        .tilt(30) // Set the camera tilt
+                                        .tilt(0) // Set the camera tilt
                                         .build(); // Creates a CameraPosition from the builder
 
                                 mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 7000);

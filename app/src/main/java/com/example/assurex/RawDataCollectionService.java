@@ -81,7 +81,7 @@ public class RawDataCollectionService extends Service {
     Double currentTripScore = 100.0;
 
     Double totalTripScore;
-    int numberOfScores;
+    long numberOfScores;
     boolean isRegistering;
     String deviceId;
     String newInsur;
@@ -534,9 +534,9 @@ public class RawDataCollectionService extends Service {
             totalTripScore = 0.0d;
         }
         if (userInfoHashMap != null) {
-            numberOfScores = (int) userInfoHashMap.get("numberOfScores");
+            numberOfScores = (long) userInfoHashMap.get("numberOfScores");
         }else{
-            numberOfScores = 0;
+            numberOfScores = 0L;
         }
 
         totalTripScore = ((totalTripScore * numberOfScores) + currentTripScore) / (numberOfScores + 1);
@@ -637,7 +637,7 @@ public class RawDataCollectionService extends Service {
         userInfoHashMap.put("device_id", deviceId);
         userInfoHashMap.put("new_insur", newInsur);
         userInfoHashMap.put("totalTripScore", 100.0d);
-        userInfoHashMap.put("numberOfScores", 0);
+        userInfoHashMap.put("numberOfScores", 0L);
 
         db.collection("users")
                 .document(uid)
